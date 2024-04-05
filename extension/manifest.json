@@ -8,7 +8,7 @@
     "default_locale": "en",
     "browser_action": {
         "default_icon": "images/logo.png",
-        "default_popup": "popup.html",
+        "default_popup": "http://localhost:8001/index.html",
         "default_title": "Nine Chronicles Wallet"
     },
     "commands": {

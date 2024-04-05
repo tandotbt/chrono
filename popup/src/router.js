@@ -1,17 +1,15 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-import Index from '@/views/Index'
-import Initiate from "@/views/Initiate";
-import InitiateMnemonic from "@/views/InitiateMnemonic";
-import Login from "@/views/Login";
-import ForgotPassword from "@/views/ForgotPassword";
-import Send from "@/views/Send";
-import BridgeWNCG from "@/views/BridgeWNCG";
-import Bridge from "@/views/Bridge";
+import { createRouter, createMemoryHistory } from 'vue-router'
+import Index from '@/views/Index.vue'
+import Initiate from "@/views/Initiate.vue";
+import InitiateMnemonic from "@/views/InitiateMnemonic.vue";
+import Login from "@/views/Login.vue";
+import ForgotPassword from "@/views/ForgotPassword.vue";
+import Send from "@/views/Send.vue";
+import BridgeWNCG from "@/views/BridgeWNCG.vue";
+import Bridge from "@/views/Bridge.vue";
 
-Vue.use(Router)
-let router = new Router({
-    base: process.env.BASE_URL,
+let router = createRouter({
+    history: createMemoryHistory(),
     routes: [
         {
             path: '/',
@@ -29,7 +27,7 @@ let router = new Router({
             component: Initiate
         },
         {
-            path: '/initiate-mnemonic',
+            path: '/initiate-mnemonic/:passphrase',
             name: 'initiateMnemonic',
             component: InitiateMnemonic
         },
@@ -57,4 +55,4 @@ let router = new Router({
     ]
 })
 
-export default router
+export default router;

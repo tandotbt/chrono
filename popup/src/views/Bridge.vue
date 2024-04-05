@@ -37,7 +37,9 @@
 
 <script>
 
-import SignedInHeader from "@/components/SignedInHeader";
+import SignedInHeader from "@/components/SignedInHeader.vue";
+import t from "@/utils/i18n"
+
 export default {
     name: 'Bridge',
     components: {
@@ -52,6 +54,7 @@ export default {
     async created() {
     },
     methods: {
+      t,
     }
 }
 </script>

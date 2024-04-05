@@ -17,9 +17,9 @@
 </template>
 
 <script>
-import InitiateHeader from "@/components/InitiateHeader";
+import InitiateHeader from "@/components/InitiateHeader.vue";
+import t from "@/utils/i18n";
 
-const ethers = require("ethers")
 
 export default {
     name: 'ForgotPassword',
@@ -37,6 +37,7 @@ export default {
     mounted() {
     },
     methods: {
+      t,
     }
 }
 </script>

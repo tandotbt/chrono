@@ -8,8 +8,8 @@ class Storage {
         return this.canCall.indexOf(method) >= 0
     }
 
-    rawSet(name, value) {
-        chrome.storage.local.set({[name]: value})
+    async rawSet(name, value) {
+        await chrome.storage.local.set({[name]: value})
     }
     rawGet(name) {
         return new Promise(resolve => {
@@ -27,14 +27,14 @@ class Storage {
     By separating the logic, signing tasks through wallet are executed only
     in the background context, and only the results are returned.
     */
-    secureSet(name, value) {
-        let _value = aes256.encrypt(JSON.stringify({v:value, secure: true}), this.passphrase)
-        this.rawSet(name,  _value)
+    async secureSet(name, value) {
+        let _value = await aes256.encrypt(JSON.stringify({v:value, secure: true}), this.passphrase)
+        await this.rawSet(name,  _value)
     }
     async secureGet(name) {
         let _value = await this.rawGet(name)
         if (_value) {
-            let v = JSON.parse(aes256.decrypt(_value, this.passphrase))
+            let v = JSON.parse(await aes256.decrypt(_value, this.passphrase))
             if (!v.secure) {
                 throw 'SecureGet has accessed to not secured data'
             }
@@ -43,14 +43,14 @@ class Storage {
 
         return null
     }
-    set(name, value) {
-        let _value = aes256.encrypt(JSON.stringify({v:value}), this.passphrase)
-        this.rawSet(name,  _value)
+    async set(name, value) {
+        let _value = await aes256.encrypt(JSON.stringify({v:value}), this.passphrase)
+        await this.rawSet(name,  _value)
     }
     async get(name) {
         let _value = await this.rawGet(name)
         if (_value) {
-            let v = JSON.parse(aes256.decrypt(_value, this.passphrase))
+            let v = JSON.parse(await aes256.decrypt(_value, this.passphrase))
             if (v.secure) {
                 throw 'Can not access secure data'
             }
@@ -65,8 +65,8 @@ class Storage {
     async has(name) {
         return (await this.rawGet(name)) !== null
     }
-    clearAll() {
-        chrome.storage.local.clear()
+    async clearAll() {
+        await chrome.storage.local.clear()
     }
 }
 export default Storage

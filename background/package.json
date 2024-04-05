@@ -2,27 +2,25 @@
   "name": "background",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "serve": "vue-cli-service serve --mode localhost --port 8002",
-    "build": "vue-cli-service build --mode production",
-    "lint": "vue-cli-service lint",
+    "serve": "vite preview --port 8002",
+    "build": "vite build --base /background --outDir ../build/background",
+    "lint": "eslint --ext .js --fix src",
     "test": "jest --coverage --detectOpenHandles"
   },
   "dependencies": {
+    "@planetarium/account": "3.9.2",
+    "@planetarium/bencodex": "0.2.2",
+    "@planetarium/tx": "3.9.2",
     "axios": "^0.24.0",
     "bencodex": "^0.1.1",
     "core-js": "^3.6.5",
     "ethers": "^5.5.1",
     "keccak256": "^1.0.3",
-    "web3": "^1.6.0",
-    "@planetarium/account": "3.9.2",
-    "@planetarium/bencodex": "0.2.2",
-    "@planetarium/tx": "3.9.2"
+    "web3": "^1.6.0"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "~5.0.8",
-    "@vue/cli-plugin-eslint": "~5.0.8",
-    "@vue/cli-service": "~5.0.8",
     "@vue/test-utils": "^1.3.0",
     "axios-mock-adapter": "^1.20.0",
     "babel-core": "^7.0.0-bridge.0",
@@ -34,8 +32,8 @@
     "jest": "^27.4.5",
     "jest-serializer-vue": "^2.0.2",
     "node-polyfill-webpack-plugin": "^2.0.1",
-    "vue-jest": "^3.0.7",
-    "vue-template-compiler": "^2.6.11"
+    "vite": "^5.2.8",
+    "vue-jest": "^3.0.7"
   },
   "eslintConfig": {
     "root": true,

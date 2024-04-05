@@ -78,10 +78,11 @@
 </template>
 
 <script>
-import SignedInHeader from "@/components/SignedInHeader";
-import AccountManager from "@/components/AccountManager";
+import SignedInHeader from "@/components/SignedInHeader.vue";
+import AccountManager from "@/components/AccountManager.vue";
 import {mapGetters} from "vuex";
-import CopyBtn from "@/components/buttons/CopyBtn";
+import t from "@/utils/i18n"
+import CopyBtn from "@/components/buttons/CopyBtn.vue";
 
 export default {
     name: 'Index',
@@ -111,6 +112,7 @@ export default {
         }, 1000)
     },
     methods: {
+      t,
     }
 }
 </script>

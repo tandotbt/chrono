@@ -1,22 +1,23 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from '@/App.vue'
-import Vuetify from 'vuetify'
+import {createVuetify} from 'vuetify'
+import * as components from 'vuetify/components'
+import * as directives from 'vuetify/directives'
 import 'vuetify/dist/vuetify.min.css'
 import _ from 'underscore'
 import axios from 'axios'
 import moment from 'moment'
 import router from '@/router'
 import store from '@/store'
-import mixin from '@/mixin'
+import { Buffer } from "buffer";
+
 import '@mdi/font/css/materialdesignicons.css'
-Vue.config.productionTip = false
 window._ = _
 window.axios = axios
 window.moment = moment
 window.Event = Event
-Vue.config.productionTip = false
-Vue.use(Vuetify)
-Vue.prototype.moment = moment
+window.Buffer = Buffer;
+// Vue.prototype.moment = moment
 moment.locale('en-gb', {
   relativeTime: {
     future: 'in %s',
@@ -37,63 +38,80 @@ moment.locale('en-gb', {
 });
 moment.locale('en-gb')
 
-Vue.prototype.rules = require('./utils/rules')
-Vue.mixin(mixin)
-new Vue({
-  router,
-  store,
-  render: h => h(App),
-  vuetify: new Vuetify({
-    theme: {
-      options: {
-        customProperties: true,
-        variations: true
-      },
-      themes: {
-        light: {
-          error: {
-              base: '#ff7f3c'
-          },
-          bg: {
-            base: '#191919',
-            lighten1: '#2e2e2e'
-          },
-          inputbg: {
-            base: '#1d1e1f'
-          },
-          text: {
-            base: '#6e6e73',
-            lighten1: '#9999a0',
-            lighten2: '#b7b7bb',
-          },
-          primary: {
-            base: '#2A8BA9'
-          },
-          point: {
-            base: '#f6a14c',
-          },
-          pointred: {
-            base: '#ff4142',
-            lighten1: '#ff3a40'
-          },
-          pointblue: {
-            base: '#3E2A8C',
-            darken1: '#2c1e65',
-            darken2: '#1b123f',
-          },
-          pointyellow: {
-            base: '#f0b90b',
-            lighten1: '#eec23f',
-          },
-          pointlink: {
-            base: '#1d9bf0',
-            lighten1: '#8ed1ff'
-          }
+// Vue.prototype.rules = require('./utils/rules')
+// Vue.mixin(mixin)
+
+const vuetify = createVuetify({
+  theme: {
+    options: {
+      customProperties: true,
+      variations: true
+    },
+    themes: {
+      light: {
+        dark: true,
+        colors: {
+          "bg": "#191919",
+          "bg-lighten1": "#2e2e2e",
+          "error": '#ff7f3c',
+          "inputbg": '#1d1e1f',
+          "text": "#6e6e73",
+          "text-lighten1": '#9999a0',
+          "text-lighten2": '#b7b7bb',
+          'primary': '#2A8BA9',
+          'point': '#f6a14c',
+          'pointred': '#ff4142', 
+          'piontred-lighten1': '#ff3a40',
+          'pointblue': '#3E2A8C',
+          'pointblue-darken1': '#2c1e65',
+          'pointblue-darken2': '#1b123f',
+          'pointyellow': '#f0b90b',
+          'pointyellow-lighten1': '#eec23f',
+          'pointlink': '#1d9bf0',
+          'pointlink-lighten1': '#8ed1ff',
+        },
+        inputbg: {
+          base: '#1d1e1f'
+        },
+        text: {
+          base: '#6e6e73',
+          lighten1: '#9999a0',
+          lighten2: '#b7b7bb',
+        },
+        primary: {
+          base: '#2A8BA9'
+        },
+        point: {
+          base: '#f6a14c',
+        },
+        pointred: {
+          base: '#ff4142',
+          lighten1: '#ff3a40'
+        },
+        pointblue: {
+          base: '#3E2A8C',
+          darken1: '#2c1e65',
+          darken2: '#1b123f',
+        },
+        pointyellow: {
+          base: '#f0b90b',
+          lighten1: '#eec23f',
+        },
+        pointlink: {
+          base: '#1d9bf0',
+          lighten1: '#8ed1ff'
         }
       }
-    },
-    icons: {
-      iconfont: 'mdi',
     }
-  }),
-}).$mount('#app')
+  },
+  icons: {
+    iconfont: 'mdi',
+  },
+  components,
+  directives,
+});
+createApp(App)
+  .use(router)
+  .use(store)
+  .use(vuetify)
+  .mount('#app');

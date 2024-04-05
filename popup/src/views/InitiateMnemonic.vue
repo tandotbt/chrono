@@ -66,10 +66,11 @@
 </template>
 
 <script>
-import InitiateHeader from "@/components/InitiateHeader";
+import InitiateHeader from "@/components/InitiateHeader.vue";
 import _ from "underscore"
+import t from "@/utils/i18n";
+import { ethers } from "ethers";
 
-const ethers = require("ethers")
 
 export default {
     name: 'InitiateMnemonic',
@@ -96,6 +97,7 @@ export default {
         await this.initiate()
     },
     methods: {
+        t,
         async initiate() {
             if (this.$route.query && this.$route.query.mode == 'recover') {
                 this.tab = 1

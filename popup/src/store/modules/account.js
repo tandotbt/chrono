@@ -7,7 +7,6 @@ import {
 import utils from "@/utils/utils"
 import bg from "@/api/background"
 
-const ethers = require("ethers")
 export default {
     namespaced: true,
     state() {

@@ -110,13 +110,14 @@
 </template>
 
 <script>
-import SignedInHeader from "@/components/SignedInHeader";
-import AccountManager from "@/components/AccountManager";
+import SignedInHeader from "@/components/SignedInHeader.vue";
+import AccountManager from "@/components/AccountManager.vue";
 import {mapGetters} from "vuex";
-import AccountSelector from "@/components/buttons/AccountSelector";
+import AccountSelector from "@/components/buttons/AccountSelector.vue";
 import rule from "@/utils/rules"
-import CopyBtn from "@/components/buttons/CopyBtn";
+import CopyBtn from "@/components/buttons/CopyBtn.vue";
 import bg from "@/api/background"
+import t from "@/utils/i18n";
 
 export default {
     name: 'BridgeWNCG',
@@ -159,6 +160,7 @@ export default {
         this.$store.dispatch('Account/refreshBalance')
     },
     methods: {
+        t,
         async confirmSend() {
             if (this.$refs['sendForm'].validate()) {
                 this.nonce = await bg.wallet.nextNonce()

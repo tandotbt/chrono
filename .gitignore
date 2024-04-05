@@ -1,6 +1,6 @@
 .DS_Store
 background/node_modules
-/dist
+popup/dist
 
 build
 build.zip

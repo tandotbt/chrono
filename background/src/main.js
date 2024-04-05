@@ -1,6 +1,9 @@
 import Graphql from "@/api/graphql"
 import Storage from "@/storage/storage"
 import Wallet from "@/wallet/wallet"
+import { Buffer } from "buffer";
+
+window.Buffer = Buffer;
 
 ;(function() {
     const graphql = new Graphql()

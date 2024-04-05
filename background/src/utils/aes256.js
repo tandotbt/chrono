@@ -1,33 +1,33 @@
-const crypto = require('crypto')
+// const crypto = require('crypto')
 import keccak256 from "keccak256"
 const IV_LENGTH = 16
 export default {
-    encrypt: (text, passphrase) => {
-        const iv = crypto.randomBytes(IV_LENGTH)
-        const cipher = crypto.createCipheriv(
-            'aes-256-cbc',
-            Buffer.from(keccak256(passphrase)),
+    encrypt: async (text, passphrase) => {
+        const key = await window.crypto.subtle.importKey("raw", Buffer.from(keccak256(passphrase)), {name: 'AES-CBC'}, true, ['encrypt', 'decrypt']);
+        const iv = window.crypto.getRandomValues(new Uint8Array(IV_LENGTH));
+        const encrypted = await window.crypto.subtle.encrypt({
+            name: 'AES-CBC',
             iv,
-        )
-        const encrypted = cipher.update(text)
+            length: 256,
+        }, key, Buffer.from(text));
 
         return (
-            iv.toString('hex') +
+            Buffer.from(iv).toString('hex') +
             ':' +
-            Buffer.concat([encrypted, cipher.final()]).toString('hex')
+            Buffer.from(encrypted).toString('hex')
         )
     },
-    decrypt: (text, passphrase) => {
+    decrypt: async (text, passphrase) => {
         const textParts = text.split(':')
         const iv = Buffer.from(textParts.shift(), 'hex')
         const encryptedText = Buffer.from(textParts.join(':'), 'hex')
-        const decipher = crypto.createDecipheriv(
-            'aes-256-cbc',
-            Buffer.from(keccak256(passphrase)),
+        const key = await window.crypto.subtle.importKey("raw", Buffer.from(keccak256(passphrase)), {name: 'AES-CBC'}, true, ['encrypt', 'decrypt']);
+        const decrypted = await window.crypto.subtle.decrypt({
+            name: 'AES-CBC',
             iv,
-        )
-        const decrypted = decipher.update(encryptedText)
+            length: 256,
+        }, key, encryptedText);
 
-        return Buffer.concat([decrypted, decipher.final()]).toString()
+        return Buffer.from(decrypted).toString()
     }
 }

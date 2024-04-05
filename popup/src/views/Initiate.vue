@@ -54,9 +54,7 @@ import rules from "@/utils/rules"
 import t from "@/utils/i18n"
 import keccak256 from "keccak256"
 import _ from "underscore"
-import InitiateHeader from "@/components/InitiateHeader";
-
-const ethers = require("ethers")
+import InitiateHeader from "@/components/InitiateHeader.vue";
 
 export default {
     name: 'Initiate',
@@ -97,13 +95,17 @@ export default {
       $input && $input.focus()
     },
     methods: {
+        t,
         async initiate() {
-            if (this.$refs['form'].validate() && this.isValidPassword) {
+            if ((await this.$refs['form'].validate()).valid && this.isValidPassword) {
                 let passphrase = keccak256(this.pass1).toString('hex')
                 this.$router.replace({
-                    name: 'initiateMnemonic',
-                    query: this.$route.query,
-                    params: {passphrase}}).catch(() => {})
+                  name: 'initiateMnemonic',
+                  params: {
+                    passphrase: passphrase,
+                    "toto": 1,
+                  }
+                }).catch(() => {});
             }
         }
     }

@@ -28,11 +28,10 @@ https://9cscan-tx0x.gitbook.io/chrono-wallet-nine-chronicles/
 ```
 git clone https://github.com/tx0x/chrono
 cd chrono
-npm install
 cd background
-npm install
+pnpm install
 cd ../popup
-npm install
+pnpm install
 ```
 
 ### 2. Run 
@@ -52,12 +51,12 @@ grunt background
 
 ```
 cd background
-npm t
+pnpm t
 
 or
 
 cd popup
-npm t
+pnpm t
 ```
 
 ## License

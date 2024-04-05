@@ -73,7 +73,7 @@
             <div class="text-left pa-3 mb-4 mt-4" style="background-color: #444;border-radius:8px;">
               <span v-if="pkview.hide">********************************************************************************</span>
               <span v-else>{{pkview.pk}}</span>
-              <v-btn small icon small @click="pkview.hide = !pkview.hide"><v-icon small color="grey">{{pkview.hide ? 'mdi-eye-off-outline':'mdi-eye'}}</v-icon></v-btn>
+              <v-btn small icon @click="pkview.hide = !pkview.hide"><v-icon small color="grey">{{pkview.hide ? 'mdi-eye-off-outline':'mdi-eye'}}</v-icon></v-btn>
             </div>
             <copy-btn :text="pkview.pk" color="pointyellow" text-color="white" :rounded="false">
               {{ t('copyPk') }}
@@ -92,12 +92,12 @@
 <script>
 
 import {mapGetters} from "vuex";
-import AccountSelector from "@/components/buttons/AccountSelector";
-import CopyBtn from "@/components/buttons/CopyBtn";
+import AccountSelector from "@/components/buttons/AccountSelector.vue";
+import CopyBtn from "@/components/buttons/CopyBtn.vue";
 
 import rule from "@/utils/rules"
 import keccak256 from "keccak256";
-const ethers = require('ethers')
+import t from "@/utils/i18n"
 export default {
     name: 'AccountManager',
     components: {
@@ -142,6 +142,7 @@ export default {
     mounted() {
     },
     methods: {
+        t,
         openDialog(type) {
             if (type === 'AddNewAccount') {
                 this.edit.title = 'Add New'

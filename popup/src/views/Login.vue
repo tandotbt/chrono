@@ -37,9 +37,9 @@
 
 <script>
 import keccak256 from "keccak256"
-import InitiateHeader from "@/components/InitiateHeader";
+import InitiateHeader from "@/components/InitiateHeader.vue";
+import t from "@/utils/i18n";
 
-const ethers = require("ethers")
 
 export default {
     name: 'Login',
@@ -80,7 +80,8 @@ export default {
             } catch(e) {
                 this.loginError = 'invalid password'
             }
-        }
+        },
+        t,
     }
 }
 </script>
