@@ -119,6 +119,7 @@ import CopyBtn from "@/components/buttons/CopyBtn.vue";
 import bg from "@/api/background"
 import _ from "underscore"
 import t from "@/utils/i18n";
+import utils from "@/utils/utils";
 
 export default {
     name: 'Send',
@@ -159,6 +160,7 @@ export default {
     },
     methods: {
         t,
+        shortAddress: utils.shortAddress,
         async confirmSend() {
             if (this.$refs['sendForm'].validate()) {
                 this.nonce = await bg.wallet.nextNonce(this.account.address)

@@ -82,6 +82,7 @@ import SignedInHeader from "@/components/SignedInHeader.vue";
 import AccountManager from "@/components/AccountManager.vue";
 import {mapGetters} from "vuex";
 import t from "@/utils/i18n"
+import utils from "@/utils/utils";
 import CopyBtn from "@/components/buttons/CopyBtn.vue";
 
 export default {
@@ -113,6 +114,7 @@ export default {
     },
     methods: {
       t,
+      shortAddress: utils.shortAddress,
     }
 }
 </script>

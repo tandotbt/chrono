@@ -28,6 +28,8 @@
 </template>
 
 <script>
+import utils from "@/utils/utils";
+
 export default {
     name: 'AccountSelector',
     props: {
@@ -71,7 +73,8 @@ export default {
         },
         editAccount(account) {
             this.$emit('edit', account)
-        }
+        },
+        shortAddress: utils.shortAddress,
     }
 }
 </script>

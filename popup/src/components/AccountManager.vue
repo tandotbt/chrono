@@ -98,6 +98,8 @@ import CopyBtn from "@/components/buttons/CopyBtn.vue";
 import rule from "@/utils/rules"
 import keccak256 from "keccak256";
 import t from "@/utils/i18n"
+import utils from "@/utils/utils";
+
 export default {
     name: 'AccountManager',
     components: {
@@ -143,6 +145,7 @@ export default {
     },
     methods: {
         t,
+        shortAddress: utils.shortAddress,
         openDialog(type) {
             if (type === 'AddNewAccount') {
                 this.edit.title = 'Add New'
