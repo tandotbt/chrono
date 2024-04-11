@@ -2,8 +2,11 @@ import Graphql from "@/api/graphql";
 import Storage from "@/storage/storage";
 import { ENCRYPTED_WALLET, TXS } from "@/constants/constants";
 import { RawPrivateKey } from "@planetarium/account";
-import { BencodexDictionary, decode, encode } from "@planetarium/bencodex";
+import { BencodexDictionary, decode, encode, isDictionary } from "@planetarium/bencodex";
 import * as ethers from "ethers";
+import { Address } from "@planetarium/account";
+import Decimal from "decimal.js";
+import { encodeSignedTx, encodeUnsignedTx, signTx } from "@planetarium/tx";
 
 export default class Wallet {
   constructor(passphrase) {
@@ -17,6 +20,8 @@ export default class Wallet {
       "bridgeWNCG",
       "nextNonce",
       "getPrivateKey",
+      "sign",
+      "signTx",
     ];
   }
   canCallExternal(method) {
@@ -151,6 +156,66 @@ export default class Wallet {
 
     await this.addPendingTxs(result);
     return result;
+  }
+
+  async sign(signer, actionHex) {
+    const action = decode(Buffer.from(actionHex, "hex"));
+    if (!isDictionary(action)) {
+      throw new Error("Invalid action. action must be BencodexDictionary.");
+    }
+
+    const wallet = await this.loadWallet(signer, this.passphrase);
+    const account = RawPrivateKey.fromHex(wallet.privateKey.slice(2));
+    const sender = Address.fromHex(wallet.address);
+    const genesisHash = Buffer.from(
+      "4582250d0da33b06779a8475d283d5dd210c683b9b999d74d03fac4f58fa6bce",  // Switchable by network.
+      "hex"
+    );
+
+    const actionTypeId = action.get("type_id");
+    const gasLimit = typeof actionTypeId === "string" && actionTypeId.startsWith("transfer_asset") ? BigInt(4) : BigInt(1);
+
+    const unsignedTx = {
+      signer: sender.toBytes(),
+      actions: [action],
+      updatedAddresses: new Set([]),
+      nonce: BigInt(await this.nextNonce(sender.toString())),
+      genesisHash,
+      publicKey: (await account.getPublicKey()).toBytes("uncompressed"),
+      timestamp: new Date(),
+      maxGasPrice: {
+        currency: {
+          ticker: "Mead",
+          decimalPlaces: 18,
+          minters: null,
+          totalSupplyTrackable: false,
+          maximumSupply: null,
+        },
+        rawValue: BigInt(Decimal.pow(10, 18).toString())
+      },
+      gasLimit,
+    };
+
+    const signedTx = await this._signTx(signer, unsignedTx);
+    return Buffer.from(encode(encodeSignedTx(signedTx))).toString("hex");
+  }
+
+  async signTx(signer, encodedUnsignedTxHex) {
+    const unsignedTx = decode(Buffer.from(encodedUnsignedTxHex, "hex"));
+
+    if (!isDictionary(unsignedTx)) {
+      throw new Error("Invalid unsigned tx");
+    }
+
+    const signedTx = await this._signTx(signer, unsignedTx);
+    return Buffer.from(encode(encodeSignedTx(signedTx))).toString("hex");
+  }
+
+  async _signTx(signer, unsignedTx) {
+    const wallet = await this.loadWallet(signer, this.passphrase);
+    const account = RawPrivateKey.fromHex(wallet.privateKey.slice(2));
+
+    return await signTx(unsignedTx, account);
   }
 
   async addPendingTxs(tx) {
