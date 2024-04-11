@@ -43,10 +43,7 @@ export default class Wallet {
     return pendingNonce;
   }
   async createSequentialWallet(primaryAddress, index) {
-    let primaryEncryptedWalletJson = await this.storage.secureGet(
-      ENCRYPTED_WALLET + primaryAddress.toLowerCase()
-    );
-    let wallet = await this.decryptWallet(primaryEncryptedWalletJson);
+    let wallet = await this.loadWallet(primaryAddress, this.passphrase);
 
     let mnemonic = wallet._mnemonic().phrase;
 
@@ -66,6 +63,12 @@ export default class Wallet {
 
     return { address, encryptedWallet };
   }
+  async loadWallet(address, passphrase) {
+    let encryptedWallet = await this.storage.secureGet(
+      ENCRYPTED_WALLET + address.toLowerCase()
+    );
+    return this.decryptWallet(encryptedWallet, passphrase);
+  }
   async _transferNCG(sender, receiver, amount, nonce, memo) {
     if (!(await this.isValidNonce(nonce))) {
       throw "Invalid Nonce";
@@ -74,7 +77,7 @@ export default class Wallet {
     const senderEncryptedWallet = await this.storage.secureGet(
       ENCRYPTED_WALLET + sender.toLowerCase()
     );
-    const wallet = this.decryptWallet(senderEncryptedWallet);
+    const wallet = await this.loadWallet(sender, this.passphrase);
     const utxBytes = Buffer.from(await this.api.unsignedTx(
       wallet.publicKey.slice(2),
       await this.api.getTransferAsset(
@@ -160,10 +163,7 @@ export default class Wallet {
   }
 
   async getPrivateKey(address, passphrase) {
-    let encryptedWallet = await this.storage.secureGet(
-      ENCRYPTED_WALLET + address.toLowerCase()
-    );
-    let wallet = await this.decryptWallet(encryptedWallet, passphrase);
+    let wallet = await this.loadWallet(address, passphrase);
     return wallet.privateKey;
   }
 }
