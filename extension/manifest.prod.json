@@ -24,5 +24,13 @@
     "content_security_policy": "script-src 'self'; object-src 'self'",
     "permissions": [
         "storage"
-    ]
+    ],
+    "content_scripts": [{
+        "matches": ["file://*/*", "http://*/*", "https://*/*"],
+        "js": [
+          "content-scripts/injectsdk.js"
+        ],
+        "run_at": "document_start",
+        "all_frames": true
+    }]
 }

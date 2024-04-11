@@ -26,5 +26,13 @@
         "storage",
         "http://localhost:8001/*",
         "http://localhost:8002/*"
-    ]
+    ],
+    "content_scripts": [{
+        "matches": ["file://*/*", "http://*/*", "https://*/*"],
+        "js": [
+          "content-scripts/injectsdk.js"
+        ],
+        "run_at": "document_start",
+        "all_frames": true
+    }]
 }
