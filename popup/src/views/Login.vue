@@ -30,7 +30,7 @@
             tabindex="3"
         >{{ t('unlock') }}</v-btn>
       </div>
-      <v-btn text small color="#777" class="mt-1" @click="$router.replace({name:'forgotPassword'})">{{t('forgotPassword')}}</v-btn>
+      <v-btn text size="small" color="#777" class="mt-1" @click="$router.replace({name:'forgotPassword'})">{{t('forgotPassword')}}</v-btn>
     </div>
   </div>
 </template>
