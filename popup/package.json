@@ -26,6 +26,7 @@
     "vuex": "^4.1.0"
   },
   "devDependencies": {
+    "@types/chrome": "^0.0.266",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vue/cli-plugin-babel": "~4.5.19",
     "@vue/cli-plugin-eslint": "~4.5.19",
@@ -40,6 +41,7 @@
     "node-sass": "^6.0.1",
     "sass": "^1.74.1",
     "sass-loader": "^10.5.2",
+    "typescript": "^5.4.5",
     "vite": "^5.2.8",
     "vue-template-compiler": "^2.7.16"
   },
