@@ -201,14 +201,26 @@ export default class Wallet {
   }
 
   async signTx(signer, encodedUnsignedTxHex) {
-    const unsignedTx = decode(Buffer.from(encodedUnsignedTxHex, "hex"));
+    const encodedUnsignedTxBytes = Buffer.from(encodedUnsignedTxHex, "hex");
+    const encodedUnsignedTx = decode(encodedUnsignedTxBytes);
 
-    if (!isDictionary(unsignedTx)) {
+    if (!isDictionary(encodedUnsignedTx)) {
       throw new Error("Invalid unsigned tx");
     }
 
-    const signedTx = await this._signTx(signer, unsignedTx);
-    return Buffer.from(encode(encodeSignedTx(signedTx))).toString("hex");
+    const wallet = await this.loadWallet(signer, this.passphrase);
+    const account = RawPrivateKey.fromHex(wallet.privateKey);
+    const signature = await account.sign(encodedUnsignedTxBytes);
+
+    const SIGNATURE_KEY = new Uint8Array([83]);
+    const encodedSignedTx = new BencodexDictionary(
+      [
+        ...encodedUnsignedTx,
+        [SIGNATURE_KEY, signature.toBytes()],
+      ]
+    );
+
+    return Buffer.from(encode(encodedSignedTx)).toString("hex");
   }
 
   async _signTx(signer, unsignedTx) {
