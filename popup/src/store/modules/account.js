@@ -16,7 +16,9 @@ export default {
             accountTxs: [],
 
             balance: 0,
-            balanceLoading: false
+            balanceLoading: false,
+
+            approvalRequests: [],
         }
     },
     getters: {
@@ -24,7 +26,8 @@ export default {
         account: state => state.account,
         accountTxs: state => state.accountTxs,
         balance: state => state.balance,
-        balanceLoading: state => state.balanceLoading
+        balanceLoading: state => state.balanceLoading,
+        approvalRequests: state => state.approvalRequests,
     },
     mutations: {
         setAccounts(state, accounts) {
@@ -58,7 +61,10 @@ export default {
         },
         setBalanceLoading(state, loading) {
             state.balanceLoading = loading
-        }
+        },
+        setApprovalRequests(state, approvalRequests) {
+            state.approvalRequests = approvalRequests
+        },
     },
     actions: {
         async assertSignedIn({state, commit, dispatch}) {
@@ -231,6 +237,15 @@ export default {
                 await bg.storage.set(storageKey, txs)
                 dispatch('loadTxs')
             }
+        },
+        async loadApprovalRequests({state, commit}) {
+            let approvalRequests = await bg.wallet.getApprovalRequests();
+            if (!approvalRequests) {
+                approvalRequests = []
+            }
+
+            console.log("loadApprovalRequests", approvalRequests);
+            commit('setApprovalRequests', approvalRequests)
         }
     }
 }

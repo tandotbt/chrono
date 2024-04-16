@@ -19,6 +19,7 @@
     "decimal.js": "^10.4.3",
     "ethers": "^5.5.1",
     "keccak256": "^1.0.3",
+    "nanoid": "^5.0.7",
     "web3": "^1.6.0"
   },
   "devDependencies": {

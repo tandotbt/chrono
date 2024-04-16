@@ -7,6 +7,13 @@ import * as ethers from "ethers";
 import { Address } from "@planetarium/account";
 import Decimal from "decimal.js";
 import { encodeSignedTx, encodeUnsignedTx, signTx } from "@planetarium/tx";
+import { APPROVAL_REQUESTS } from "../constants/constants";
+import { nanoid } from "nanoid";
+
+/**
+ * @type {Map<number,object>}
+ */
+const pendingApprovals = new Map();
 
 export default class Wallet {
   constructor(passphrase) {
@@ -22,6 +29,9 @@ export default class Wallet {
       "getPrivateKey",
       "sign",
       "signTx",
+      "getApprovalRequests",
+      "approveRequest",
+      "rejectRequest",
     ];
   }
   canCallExternal(method) {
@@ -196,8 +206,11 @@ export default class Wallet {
       gasLimit,
     };
 
-    const signedTx = await this._signTx(signer, unsignedTx);
-    return Buffer.from(encode(encodeSignedTx(signedTx))).toString("hex");
+    return this._requestApprove(signer, "sign", convertBencodexToJSONableType(action))
+      .then(async () => {
+        const signedTx = await this._signTx(signer, unsignedTx);
+        return Buffer.from(encode(encodeSignedTx(signedTx))).toString("hex");
+      });
   }
 
   async signTx(signer, encodedUnsignedTxHex) {
@@ -243,4 +256,122 @@ export default class Wallet {
     let wallet = await this.loadWallet(address, passphrase);
     return wallet.privateKey;
   }
+
+  async _requestApprove(signer, title, content) {
+    const requestId = nanoid();
+    await this.addRequest({
+      id: requestId,
+      signer,
+      title,
+      content,
+    });
+
+    await this._showPopup();
+
+    return new Promise((resolve, reject) => {
+      pendingApprovals.set(requestId, { resolve, reject });
+    })
+  }
+
+  async _showPopup() {
+    await chrome.windows.create({ url: "popup/index.html", type: "popup", focused: true, width: 360, height: 600 });
+  }
+
+  async hasApprovalRequest() {
+    const requests = await this.getApprovalRequests();
+    return requests.length > 0;
+  }
+
+  async addRequest(request) {
+    const requests = await this.getApprovalRequests();
+    if (requests.find(({ id }) => id === request.id)) {
+      throw new Error("Duplicated request.");
+    }
+
+    await this.setApprovalRequests([...requests, request]);
+  }
+
+  /**
+   * 
+   * @param {number} requestId 
+   */
+  async approveRequest(requestId) {
+    const requests = await this.getApprovalRequests();
+    await this.setApprovalRequests(requests.filter(({ id }) => id !== requestId));
+
+    const handlers = pendingApprovals.get(requestId);
+    console.log(requestId, pendingApprovals);
+    if (handlers !== null) {
+      handlers.resolve();
+    }
+  }
+
+  /**
+   * 
+   * @param {number} requestId 
+   */
+  async rejectRequest(requestId) {
+    const requests = await this.getApprovalRequests();
+    await this.setApprovalRequests(requests.filter(({ id }) => id !== requestId));
+
+    const handlers = pendingApprovals.get(requestId);
+    console.log(requestId, pendingApprovals);
+    if (handlers !== null) {
+      handlers.reject();
+    }
+  }
+
+  /**
+   * @returns {Promise<Array>}
+   */
+  async getApprovalRequests() {
+    const requests = JSON.parse(await this.storage.get(APPROVAL_REQUESTS));
+    if (requests === null) {
+      return [];
+    }
+
+    return requests;
+  }
+
+  /**
+   * 
+   * @param {Array<object>} requests 
+   */
+  async setApprovalRequests(requests) {
+    console.log("setApprovalRequests", requests);
+    await this.storage.set(APPROVAL_REQUESTS, JSON.stringify(requests));
+  }
+}
+
+function convertBencodexToJSONableType(v) {
+  if (v instanceof Array) {
+    return v.map(convertBencodexToJSONableType);
+  }
+
+  if (isDictionary(v)) {
+    const res = {};
+    for (const [key, value] of v.entries()) {
+      res[convertBencodexToJSONableType(key)] = convertBencodexToJSONableType(value);
+    }
+
+    return res;
+  }
+
+  if (v instanceof Uint8Array) {
+    // if (v.every(x => x >= 97 && x <= 122 || x >= 65 && x <= 90)) {
+    //   return "\\xFEFF" + Buffer.from(v).toString("utf-8");
+    // }
+
+    return "0x" + Buffer.from(v).toString("hex");
+  }
+
+  if (typeof v === "string") {
+    return "\uFEFF" + v;
+  }
+
+  if (typeof v === "bigint") {
+    return v.toString();
+  }
+
+  return v;
 }

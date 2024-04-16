@@ -29,11 +29,33 @@ window.chronoWallet = {
         return new Promise((resolve, reject) => {
             const currentMessageId = messageId++;
             eventHandlers[currentMessageId] = { resolve, reject };
-            window.postMessage({ type: 'FROM_PAGE', signer, action, messageId: currentMessageId, }, '*');
+            window.postMessage({ type: 'FROM_PAGE', method: 'sign', signer, action, messageId: currentMessageId, }, '*');
         });
     }
 };
 `;
+
+const port = chrome.runtime.connect({
+    name: "content-script"
+});
+
+port.onMessage.addListener((res, _) => {
+    const messageId = res.messageId;
+
+    if (res && typeof res === 'object' && res.hasOwnProperty('error')) {
+        window.postMessage({
+            type: "FROM_CHRONO",
+            messageId: messageId,
+            error: res.error,
+        });
+    } else {
+        window.postMessage({
+            type: "FROM_CHRONO",
+            messageId: messageId,
+            result: res,
+        });
+    }
+})
 
 window.addEventListener('message', async function(event) {
     if (event.source != window)
@@ -43,29 +65,18 @@ window.addEventListener('message', async function(event) {
         return;
     }
 
-    const target = event.source.origin;
     const messageId = event.data.messageId;
+    const method = event.data.method;
 
     try {
-        chrome.runtime.sendMessage({
-            action: 'wallet',
-            method: 'sign',
-            params: [event.data.signer, event.data.action]
-        }, res => {
-            if (res && typeof res === 'object' && res.hasOwnProperty('error')) {
-                window.postMessage({
-                    type: "FROM_CHRONO",
-                    messageId: messageId,
-                    error: res.error,
-                }, target);
-            } else {
-                window.postMessage({
-                    type: "FROM_CHRONO",
-                    messageId: messageId,
-                    result: res,
-                }, target);
-            }
-        });
+        if (method === "sign") {
+            port.postMessage({
+                action: 'wallet',
+                method: 'sign',
+                params: [event.data.signer, event.data.action],
+                messageId,
+            });
+        }
     } catch(e) {
         console.error(e);
         window.postMessage({
