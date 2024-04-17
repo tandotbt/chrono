@@ -1,6 +1,6 @@
 import Graphql from "@/api/graphql";
 import Storage from "@/storage/storage";
-import { ENCRYPTED_WALLET, TXS } from "@/constants/constants";
+import { ENCRYPTED_WALLET, TXS, ACCOUNTS } from "@/constants/constants";
 import { RawPrivateKey } from "@planetarium/account";
 import { BencodexDictionary, decode, encode, isDictionary } from "@planetarium/bencodex";
 import * as ethers from "ethers";
@@ -32,6 +32,7 @@ export default class Wallet {
       "getApprovalRequests",
       "approveRequest",
       "rejectRequest",
+      "listAccounts",
     ];
   }
   canCallExternal(method) {
@@ -331,6 +332,12 @@ export default class Wallet {
     }
 
     return requests;
+  }
+
+  async listAccounts() {
+    const accounts = await this.storage.get(ACCOUNTS);
+    console.log(accounts);
+    return accounts;
   }
 
   /**

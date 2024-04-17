@@ -98,8 +98,9 @@ window.Buffer = Buffer;
                 if (wallet[req.method] && wallet.canCallExternal(req.method)) {
                     wallet[req.method].call(wallet, ...req.params)
                         .then(x => {
+                            console.log(x)
                             port.postMessage({
-                                ...x,
+                                result: x,
                                 messageId: req.messageId,
                             })
                         })
