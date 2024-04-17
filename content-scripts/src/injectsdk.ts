@@ -38,6 +38,13 @@ window.chronoWallet = {
             eventHandlers[currentMessageId] = { resolve, reject };
             window.postMessage({ type: 'FROM_PAGE', method: 'listAccounts', messageId: currentMessageId, }, '*');
         });
+    },
+    getPublicKey(address) {
+        return new Promise((resolve, reject) => {
+            const currentMessageId = messageId++;
+            eventHandlers[currentMessageId] = { resolve, reject };
+            window.postMessage({ type: 'FROM_PAGE', method: 'getPublicKey', address, messageId: currentMessageId, }, '*');
+        });
     }
 };
 `;
@@ -88,6 +95,13 @@ window.addEventListener('message', async function(event) {
                 action: 'wallet',
                 method: 'listAccounts',
                 params: [],
+                messageId,
+            });
+        } else if (method === "getPublicKey") {
+            port.postMessage({
+                action: 'wallet',
+                method: 'getPublicKey',
+                params: [event.data.address],
                 messageId,
             });
         }

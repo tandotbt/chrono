@@ -33,6 +33,7 @@ export default class Wallet {
       "approveRequest",
       "rejectRequest",
       "listAccounts",
+      "getPublicKey",
     ];
   }
   canCallExternal(method) {
@@ -338,6 +339,11 @@ export default class Wallet {
     const accounts = await this.storage.get(ACCOUNTS);
     console.log(accounts);
     return accounts;
+  }
+
+  async getPublicKey(address) {
+    const wallet = await this.loadWallet(address, this.passphrase);
+    return wallet.publicKey;
   }
 
   /**
