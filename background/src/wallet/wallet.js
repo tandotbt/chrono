@@ -9,6 +9,7 @@ import Decimal from "decimal.js";
 import { encodeSignedTx, encodeUnsignedTx, signTx } from "@planetarium/tx";
 import { APPROVAL_REQUESTS } from "../constants/constants";
 import { nanoid } from "nanoid";
+import { resolvePassphrase } from "@/utils/lazy"
 
 /**
  * @type {Map<number,object>}
@@ -16,6 +17,10 @@ import { nanoid } from "nanoid";
 const pendingApprovals = new Map();
 
 export default class Wallet {
+  /**
+   * 
+   * @param {string | () => string} passphrase 
+   */
   constructor(passphrase) {
     this.api = new Graphql();
     this.storage = new Storage(passphrase);
@@ -47,7 +52,7 @@ export default class Wallet {
   decryptWallet(encryptedWalletJson, passphrase) {
     return ethers.Wallet.fromEncryptedJsonSync(
       encryptedWalletJson,
-      passphrase || this.passphrase
+      passphrase || resolvePassphrase(this.passphrase)
     );
   }
   async isValidNonce(nonce) {
@@ -60,7 +65,7 @@ export default class Wallet {
     return pendingNonce;
   }
   async createSequentialWallet(primaryAddress, index) {
-    let wallet = await this.loadWallet(primaryAddress, this.passphrase);
+    let wallet = await this.loadWallet(primaryAddress, resolvePassphrase(this.passphrase));
 
     let mnemonic = wallet._mnemonic().phrase;
 
@@ -68,14 +73,14 @@ export default class Wallet {
       mnemonic,
       "m/44'/60'/0'/0/" + index
     );
-    let encryptedWallet = await newWallet.encrypt(this.passphrase);
+    let encryptedWallet = await newWallet.encrypt(resolvePassphrase(this.passphrase));
     let address = newWallet.address;
 
     return { address, encryptedWallet };
   }
   async createPrivateKeyWallet(privateKey) {
     let wallet = new ethers.Wallet(privateKey);
-    let encryptedWallet = await wallet.encrypt(this.passphrase);
+    let encryptedWallet = await wallet.encrypt(resolvePassphrase(this.passphrase));
     let address = wallet.address;
 
     return { address, encryptedWallet };
@@ -94,7 +99,7 @@ export default class Wallet {
     const senderEncryptedWallet = await this.storage.secureGet(
       ENCRYPTED_WALLET + sender.toLowerCase()
     );
-    const wallet = await this.loadWallet(sender, this.passphrase);
+    const wallet = await this.loadWallet(sender, resolvePassphrase(this.passphrase));
     const utxBytes = Buffer.from(await this.api.unsignedTx(
       wallet.publicKey.slice(2),
       await this.api.getTransferAsset(
@@ -176,40 +181,40 @@ export default class Wallet {
       throw new Error("Invalid action. action must be BencodexDictionary.");
     }
 
-    const wallet = await this.loadWallet(signer, this.passphrase);
-    const account = RawPrivateKey.fromHex(wallet.privateKey.slice(2));
-    const sender = Address.fromHex(wallet.address);
-    const genesisHash = Buffer.from(
-      "4582250d0da33b06779a8475d283d5dd210c683b9b999d74d03fac4f58fa6bce",  // Switchable by network.
-      "hex"
-    );
-
-    const actionTypeId = action.get("type_id");
-    const gasLimit = typeof actionTypeId === "string" && actionTypeId.startsWith("transfer_asset") ? BigInt(4) : BigInt(1);
-
-    const unsignedTx = {
-      signer: sender.toBytes(),
-      actions: [action],
-      updatedAddresses: new Set([]),
-      nonce: BigInt(await this.nextNonce(sender.toString())),
-      genesisHash,
-      publicKey: (await account.getPublicKey()).toBytes("uncompressed"),
-      timestamp: new Date(),
-      maxGasPrice: {
-        currency: {
-          ticker: "Mead",
-          decimalPlaces: 18,
-          minters: null,
-          totalSupplyTrackable: false,
-          maximumSupply: null,
-        },
-        rawValue: BigInt(Decimal.pow(10, 18).toString())
-      },
-      gasLimit,
-    };
-
     return this._requestApprove(signer, "sign", convertBencodexToJSONableType(action))
       .then(async () => {
+        const wallet = await this.loadWallet(signer, resolvePassphrase(this.passphrase));
+        const account = RawPrivateKey.fromHex(wallet.privateKey.slice(2));
+        const sender = Address.fromHex(wallet.address);
+        const genesisHash = Buffer.from(
+          "4582250d0da33b06779a8475d283d5dd210c683b9b999d74d03fac4f58fa6bce",  // Switchable by network.
+          "hex"
+        );
+
+        const actionTypeId = action.get("type_id");
+        const gasLimit = typeof actionTypeId === "string" && actionTypeId.startsWith("transfer_asset") ? BigInt(4) : BigInt(1);
+
+        const unsignedTx = {
+          signer: sender.toBytes(),
+          actions: [action],
+          updatedAddresses: new Set([]),
+          nonce: BigInt(await this.nextNonce(sender.toString())),
+          genesisHash,
+          publicKey: (await account.getPublicKey()).toBytes("uncompressed"),
+          timestamp: new Date(),
+          maxGasPrice: {
+            currency: {
+              ticker: "Mead",
+              decimalPlaces: 18,
+              minters: null,
+              totalSupplyTrackable: false,
+              maximumSupply: null,
+            },
+            rawValue: BigInt(Decimal.pow(10, 18).toString())
+          },
+          gasLimit,
+        };
+
         const signedTx = await this._signTx(signer, unsignedTx);
         return Buffer.from(encode(encodeSignedTx(signedTx))).toString("hex");
       });
@@ -223,7 +228,7 @@ export default class Wallet {
       throw new Error("Invalid unsigned tx");
     }
 
-    const wallet = await this.loadWallet(signer, this.passphrase);
+    const wallet = await this.loadWallet(signer, resolvePassphrase(this.passphrase));
     const account = RawPrivateKey.fromHex(wallet.privateKey);
     const signature = await account.sign(encodedUnsignedTxBytes);
 
@@ -239,7 +244,7 @@ export default class Wallet {
   }
 
   async _signTx(signer, unsignedTx) {
-    const wallet = await this.loadWallet(signer, this.passphrase);
+    const wallet = await this.loadWallet(signer, resolvePassphrase(this.passphrase));
     const account = RawPrivateKey.fromHex(wallet.privateKey.slice(2));
 
     return await signTx(unsignedTx, account);
@@ -327,7 +332,7 @@ export default class Wallet {
    * @returns {Promise<Array>}
    */
   async getApprovalRequests() {
-    const requests = JSON.parse(await this.storage.get(APPROVAL_REQUESTS));
+    const requests = JSON.parse(await this.storage.rawGet(APPROVAL_REQUESTS));
     if (requests === null) {
       return [];
     }
@@ -342,7 +347,7 @@ export default class Wallet {
   }
 
   async getPublicKey(address) {
-    const wallet = await this.loadWallet(address, this.passphrase);
+    const wallet = await this.loadWallet(address, resolvePassphrase(this.passphrase));
     return wallet.publicKey;
   }
 
@@ -352,7 +357,7 @@ export default class Wallet {
    */
   async setApprovalRequests(requests) {
     console.log("setApprovalRequests", requests);
-    await this.storage.set(APPROVAL_REQUESTS, JSON.stringify(requests));
+    await this.storage.rawSet(APPROVAL_REQUESTS, JSON.stringify(requests));
   }
 }
 

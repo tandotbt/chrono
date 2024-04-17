@@ -94,7 +94,7 @@ window.Buffer = Buffer;
         port.onMessage.addListener(function(req) {
             console.log(port.name, req);
             if (req.action == 'wallet') {
-                const wallet = new Wallet(passphrase)
+                const wallet = new Wallet(() => passphrase)
                 if (wallet[req.method] && wallet.canCallExternal(req.method)) {
                     wallet[req.method].call(wallet, ...req.params)
                         .then(x => {
@@ -117,5 +117,4 @@ window.Buffer = Buffer;
             }
         });
     });
-
 })()

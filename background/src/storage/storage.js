@@ -1,5 +1,11 @@
 import aes256 from "@/utils/aes256"
+import { resolvePassphrase } from "@/utils/lazy"
+
 class Storage {
+    /**
+     * 
+     * @param {string | () => string} passphrase 
+     */
     constructor(passphrase) {
         this.passphrase = passphrase
         this.canCall = ['set', 'get', 'remove', 'has', 'secureSet', 'clearAll']
@@ -28,13 +34,13 @@ class Storage {
     in the background context, and only the results are returned.
     */
     async secureSet(name, value) {
-        let _value = await aes256.encrypt(JSON.stringify({v:value, secure: true}), this.passphrase)
+        let _value = await aes256.encrypt(JSON.stringify({v:value, secure: true}), resolvePassphrase(this.passphrase))
         await this.rawSet(name,  _value)
     }
     async secureGet(name) {
         let _value = await this.rawGet(name)
         if (_value) {
-            let v = JSON.parse(await aes256.decrypt(_value, this.passphrase))
+            let v = JSON.parse(await aes256.decrypt(_value, resolvePassphrase(this.passphrase)))
             if (!v.secure) {
                 throw 'SecureGet has accessed to not secured data'
             }
@@ -44,13 +50,13 @@ class Storage {
         return null
     }
     async set(name, value) {
-        let _value = await aes256.encrypt(JSON.stringify({v:value}), this.passphrase)
+        let _value = await aes256.encrypt(JSON.stringify({v:value}), resolvePassphrase(this.passphrase))
         await this.rawSet(name,  _value)
     }
     async get(name) {
         let _value = await this.rawGet(name)
         if (_value) {
-            let v = JSON.parse(await aes256.decrypt(_value, this.passphrase))
+            let v = JSON.parse(await aes256.decrypt(_value, resolvePassphrase(this.passphrase)))
             if (v.secure) {
                 throw 'Can not access secure data'
             }
