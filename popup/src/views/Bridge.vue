@@ -3,13 +3,13 @@
     <div>
       <signed-in-header></signed-in-header>
       <div class="text-left px-2 d-flex justify-space-between align-center" style="background-color: #2a2a2a">
-        <v-btn icon dark large @click="$router.replace({'name':'index'})"><v-icon color="grey">mdi-arrow-left</v-icon></v-btn>
+        <v-btn icon dark size="large" @click="$router.replace({'name':'index'})"><v-icon color="grey">mdi-arrow-left</v-icon></v-btn>
         <strong style="font-weight:600">BRIDGE</strong>
-        <v-btn icon dark large disabled></v-btn>
+        <v-btn icon dark size="large" disabled></v-btn>
       </div>
       <div class="pa-4 mt-2">
         <v-card dark outlined color="#333">
-          <v-card-title>NCG <v-icon small class="mx-2">mdi-arrow-right</v-icon> WNCG(ERC-20)</v-card-title>
+          <v-card-title>NCG <v-icon size="small" class="mx-2">mdi-arrow-right</v-icon> WNCG(ERC-20)</v-card-title>
           <v-card-text>
             <ul class="text-left">
               <li>{{t('bridgeWNCGDesc1')}}</li>

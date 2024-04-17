@@ -1,0 +1,22 @@
+overwrite: true
+schema: ./schema.graphql
+documents: ./api.graphql
+generates:
+  src/generated/graphql.tsx:
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-resolvers
+      - typescript-react-apollo
+    config:
+      reactApolloVersion: 3
+      withComponent: false
+      withHOC: false
+      scalars:
+        Long: number
+        TxId: string
+  src/generated/graphql-request.ts:
+    plugins:
+    - typescript
+    - typescript-operations
+    - typescript-graphql-request

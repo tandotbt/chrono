@@ -73,7 +73,10 @@ window.Buffer = Buffer;
                     if (wallet[req.method] && wallet.canCallExternal(req.method)) {
                         wallet[req.method].call(wallet, ...req.params)
                             .then(sendResponse)
-                            .catch(e => sendResponse({error: e}))
+                            .catch(e => {
+                                console.error(e);
+                                sendResponse({error: e})
+                            })
                     } else {
                         sendResponse({error: 'Unknown Method'})
                     }
@@ -84,5 +87,34 @@ window.Buffer = Buffer;
         }
 
         return true
-    })
+    });
+
+    chrome.runtime.onConnect.addListener(function(port) {
+        console.assert(port.name === "content-script");
+        port.onMessage.addListener(function(req) {
+            console.log(port.name, req);
+            if (req.action == 'wallet') {
+                const wallet = new Wallet(() => passphrase)
+                if (wallet[req.method] && wallet.canCallExternal(req.method)) {
+                    wallet[req.method].call(wallet, ...req.params)
+                        .then(x => {
+                            console.log(x)
+                            port.postMessage({
+                                result: x,
+                                messageId: req.messageId,
+                            })
+                        })
+                        .catch(e => {
+                            console.error(e);
+                            port.postMessage({
+                                error: `${req.method} is rejected`,
+                                messageId: req.messageId
+                            })
+                        })
+                } else {
+                    port.postMessage({error: 'Unknown Method'})
+                }
+            }
+        });
+    });
 })()

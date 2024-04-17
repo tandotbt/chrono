@@ -1,0 +1,16 @@
+{
+    "name": "content-scripts",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "license": "GPL-3.0-only",
+    "scripts": {
+        "build": "tsc --outDir ../build/content-scripts"
+    },
+    "devDependencies": {
+        "@planetarium/bencodex": "^0.2.2",
+        "@planetarium/tx": "^4.3.0",
+        "@types/chrome": "^0.0.266",
+        "typescript": "^5.4.5"
+    }
+}

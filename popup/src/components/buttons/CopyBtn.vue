@@ -1,9 +1,9 @@
 <template>
   <span>
-    <v-btn :color="color" :icon="icon" :text="textMode" :style="'color:'+textColor" @click="copyText" :depressed="depressed" :class="contentClass" :small="small" :x-small="xSmall" :large="large" :rounded="rounded">
-      <v-tooltip top v-model="copied" transition="slide-y-transition" content-class="copy-tooltip" nudge-left="-13" nudge-top="10">
-        <template v-slot:activator="{ on, attrs }"><span v-on="on"></span></template>
-        <span><v-icon color="white" small class="mr-1">mdi-check</v-icon><strong>Copied</strong></span>
+    <v-btn :color="color" :icon="icon" :text="textMode" :style="'color:'+textColor" @click="copyText" variant="flat" :class="contentClass" :size="legacySize || size" :rounded="rounded">
+      <v-tooltip top v-model="copied" transition="slide-y-transition" content-class="copy-tooltip" location="top" nudge-left="-13" nudge-top="10">
+        <template v-slot:activator="{ props }"><span v-bind="props"></span></template>
+        <span><v-icon color="white" size="small" class="mr-1">mdi-check</v-icon><strong>Copied</strong></span>
       </v-tooltip>
       <slot></slot></v-btn>
   </span>
@@ -28,6 +28,10 @@ export default {
         textColor: {
             type: String,
             default: '#C4C4C4'
+        },
+        size: {
+            type: String,
+            default: null,
         },
         depressed: {
             type: Boolean,
@@ -66,6 +70,21 @@ export default {
         }
     },
     computed: {
+        legacySize() {
+            if (this.$props.xSmall) {
+                return "x-small";
+            }
+
+            if (this.$props.small) {
+                return "small";
+            }
+
+            if (this.$props.large) {
+                return "large";
+            }
+
+            return null;
+        }
     },
     async created() {
     },

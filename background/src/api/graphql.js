@@ -205,15 +205,17 @@ export default class Graphql {
         data: {
           variables: { address },
           query: `
-                      query getActivationStatus($address: Address!) {
-                          activationStatus {
-                            addressActivated(address: $address)
+                      query getPledge($address: Address!) {
+                          stateQuery {
+                            pledge(agentAddress: $address) {
+                              approved
+                            }
                           }
                         }
                     `,
         },
       });
-      return data["data"]["activationStatus"]["addressActivated"];
+      return data["data"]["stateQuery"]["pledge"]["approved"];
     });
   }
 

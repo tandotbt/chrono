@@ -1,0 +1,19 @@
+{
+  "name": "docs",
+  "version": "0.1.0",
+  "private": true,
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docs:dev": "vitepress dev",
+    "docs:build": "vitepress build",
+    "docs:preview": "vitepress preview"
+  },
+  "keywords": [],
+  "author": "Planetarium",
+  "license": "GPL-3.0-only",
+  "devDependencies": {
+    "vitepress": "^1.1.0"
+  }
+}

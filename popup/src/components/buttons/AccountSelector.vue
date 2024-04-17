@@ -1,9 +1,10 @@
 <template>
-  <v-menu offset-y>
-    <template v-slot:activator="{on,attrs}">
-      <v-btn class="menu-down-btn" text :color="color" rounded v-bind="attrs" v-on="on">
+  <v-menu>
+    <template v-slot:activator="{props}">
+      <v-btn class="menu-down-btn" variant="text" :color="color" rounded v-bind="props">
         {{ currentSelectedText }}
-        <v-icon color="white" small>mdi-menu-down</v-icon></v-btn>
+        <v-icon color="white" small>mdi-menu-down</v-icon>
+      </v-btn>
     </template>
 
     <v-list class="menu-down-list">
@@ -15,19 +16,23 @@
           </div>
           <div class="text-right">
             <span class="mr-1 hex text-left">{{shortAddress(account.address)}}</span>
-            <v-btn icon dark x-small class="ml-1" @click.prevent.stop="editAccount(account)" v-if="!onlySelect"><v-icon x-small color="grey">mdi-pencil-outline</v-icon></v-btn>
+            <v-btn icon dark size="x-small" class="ml-1" @click.prevent.stop="editAccount(account)" v-if="!onlySelect"><v-icon size="x-small" color="grey">mdi-pencil-outline</v-icon></v-btn>
           </div>
         </v-list-item-title>
       </v-list-item>
-      <v-list-item style="border-top: 1px solid #444;" class="mt-4 pt-2 d-flex" v-if="!onlySelect">
-        <v-btn small text color="point" class="flex-fill" @click="addNewAddress">Add New</v-btn>
-        <v-btn small text color="point" class="flex-fill" @click="importAddress">Import</v-btn>
+      <v-list-item dark style="border-top: 1px solid #444;" class="mt-4 pt-2" v-if="!onlySelect">
+        <div class="w-100 d-flex flex-wrap">
+          <v-btn size="small" text color="point" class="flex-fill" @click="addNewAddress">Add New</v-btn>
+          <v-btn size="small" text color="point" class="flex-fill" @click="importAddress">Import</v-btn>
+        </div>
       </v-list-item>
     </v-list>
   </v-menu>
 </template>
 
 <script>
+import utils from "@/utils/utils";
+
 export default {
     name: 'AccountSelector',
     props: {
@@ -46,7 +51,7 @@ export default {
     computed: {
         currentSelectedText() {
             if (this.account) {
-                let found = this.accounts.find(i => this.equalsHex(i.address, this.account.address))
+                let found = this.accounts.find(i => utils.equalsHex(i.address, this.account.address))
                 if (found) {
                     return found.name
                 }
@@ -55,11 +60,12 @@ export default {
         }
     },
     async created() {
-
+      console.log("AccountSelector created", this.$props.accounts);
     },
     methods: {
         select(account) {
-            if (!this.equalsHex(this.account && this.account.address, account.address)) {
+          console.log("set account");
+            if (!utils.equalsHex(this.account && this.account.address, account.address)) {
                 this.$store.dispatch('Account/selectAccount', account.address)
             }
         },
@@ -71,14 +77,15 @@ export default {
         },
         editAccount(account) {
             this.$emit('edit', account)
-        }
+        },
+        shortAddress: utils.shortAddress,
     }
 }
 </script>
 
 <style lang="scss">
 .menu-down-list.v-list {
-  background-color: var(--v-bg-lighten1) !important;
+  background-color: "#2e2e2e" !important;
   .v-list-item {
     min-height: 36px;
     &:hover {

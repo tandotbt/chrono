@@ -6,7 +6,7 @@
       </h1>
 
       <div>
-        <v-btn icon dark x-small @click="logout"><v-icon small color="grey">mdi-lock</v-icon></v-btn>
+        <v-btn icon dark size="x-small" @click="logout"><v-icon size="small" color="grey">mdi-lock</v-icon></v-btn>
       </div>
     </div>
   </div>

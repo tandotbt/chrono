@@ -30,12 +30,13 @@
             tabindex="3"
         >{{ t('unlock') }}</v-btn>
       </div>
-      <v-btn text small color="#777" class="mt-1" @click="$router.replace({name:'forgotPassword'})">{{t('forgotPassword')}}</v-btn>
+      <v-btn text size="small" color="#777" class="mt-1" @click="$router.replace({name:'forgotPassword'})">{{t('forgotPassword')}}</v-btn>
     </div>
   </div>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import keccak256 from "keccak256"
 import InitiateHeader from "@/components/InitiateHeader.vue";
 import t from "@/utils/i18n";
@@ -54,6 +55,7 @@ export default {
         }
     },
     computed: {
+      ...mapGetters("Account", ["approvalRequests"]),
     },
     async created() {
     },
@@ -70,7 +72,13 @@ export default {
                     if (await this.$store.dispatch('Account/isValidPassphrase', passphrase)) {
                         await this.$store.dispatch('Account/setPassphrase', passphrase)
                         await this.$store.dispatch('Account/loadAccounts')
-                        this.$router.replace({name: 'index'}).catch(() => {})
+                        await this.$store.dispatch('Account/loadApprovalRequests')
+                        console.log("this.approvalRequests.length", this.approvalRequests.length);
+                        if (this.approvalRequests.length > 0) {
+                          this.$router.replace({name: "confirmation"}).catch(() => {})
+                        } else {
+                          this.$router.replace({name: 'index'}).catch(() => {})
+                        }
                     } else {
                         throw Error
                     }

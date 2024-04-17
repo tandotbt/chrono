@@ -97,6 +97,15 @@ export default {
         },
         getPrivateKey: async (address, passphrase) => {
             return await callWallet('getPrivateKey', [address, passphrase])
+        },
+        getApprovalRequests: async () => {
+            return callWallet('getApprovalRequests')
+        },
+        approveRequest: (requestId) => {
+            return callWallet("approveRequest", [requestId]);
+        },
+        rejectRequest: (requestId) => {
+            return callWallet("rejectRequest", [requestId]);
         }
     },
 }

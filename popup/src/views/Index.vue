@@ -6,7 +6,7 @@
     <div class="pt-12 mt-2 px-8">
       <div><img src="@/assets/ncg_grey.png" width="64"/></div>
       <div v-if="account && account.activated != true">
-        <v-chip small label color="#555" class="mt-2" text-color="white">Inactive Account</v-chip>
+        <v-chip size="small" label style="#555" class="mt-2" text-color="white">Inactive Account</v-chip>
       </div>
       <div class="mt-2">
         <v-progress-circular indeterminate color="#555" width="3" size="30" v-if="balanceLoading"></v-progress-circular>
@@ -15,15 +15,16 @@
         </div>
       </div>
       <div class="mt-4">
-        <v-btn dark large color="secondary" class="mx-1 action-btn" :disabled="balanceLoading" @click="$router.replace({name: 'bridge'})">
+        <v-btn dark size="large" color="#666666" class="mx-1 action-btn" :disabled="balanceLoading" @click="$router.replace({name: 'bridge'})">
           <div>
             {{t('bridge')}}
             <div style="font-size: 10px;color:#888;letter-spacing: 0px">WNCG</div>
           </div>
         </v-btn>
         <v-btn dark large
-               color="pointyellow"
+               color="#F0B90B"
                class="mx-1 action-btn point-btn"
+               style="color: #fff"
                @click="$router.replace({name:'send'})"
                :disabled="balanceLoading">{{t('transfer')}}</v-btn>
       </div>
@@ -51,18 +52,18 @@
               </span>
             </div>
             <div style="margin-right: -16px;" class="d-flex align-center">
-              <v-btn text small color="grey" :href="'https://9cscan.com/tx/' + tx.id" target="_blank">9cscan<v-icon color="grey" x-small class="ml-1" style="margin-top:3px">mdi-open-in-new</v-icon></v-btn>
+              <v-btn text size="small" color="grey" :href="'https://9cscan.com/tx/' + tx.id" target="_blank">9cscan<v-icon color="grey" size="x-small" class="ml-1" style="margin-top:3px">mdi-open-in-new</v-icon></v-btn>
             </div>
           </div>
           <div class="text-left d-flex align-center mt-1 mb-2" v-if="tx.type=='transfer_asset5'">
-            <v-chip label x-small class="tx-sender">
+            <v-chip label size="x-small" class="tx-sender">
               {{ shortAddress(tx.data.sender) }}
-              <copy-btn :text="tx.data.sender" icon x-small style="margin-right:-8px;"><v-icon x-small color="#999">mdi-content-copy</v-icon></copy-btn>
+              <copy-btn :text="tx.data.sender" icon size="x-small" style="margin-right:-8px;"><v-icon size="x-small" color="#999">mdi-content-copy</v-icon></copy-btn>
             </v-chip>
-            <v-icon x-small color="grey" class="mx-1">mdi-arrow-right</v-icon>
-            <v-chip label x-small class="tx-receiver">
+            <v-icon size="x-small" color="grey" class="mx-1">mdi-arrow-right</v-icon>
+            <v-chip label size="x-small" class="tx-receiver">
               {{ shortAddress(tx.data.receiver) }}
-              <copy-btn :text="tx.data.receiver" icon x-small style="margin-right:-8px;"><v-icon x-small color="#999">mdi-content-copy</v-icon></copy-btn>
+              <copy-btn :text="tx.data.receiver" icon size="x-small" style="margin-right:-8px;"><v-icon size="x-small" color="#999">mdi-content-copy</v-icon></copy-btn>
             </v-chip>
           </div>
           <div class="text-left">
@@ -82,6 +83,7 @@ import SignedInHeader from "@/components/SignedInHeader.vue";
 import AccountManager from "@/components/AccountManager.vue";
 import {mapGetters} from "vuex";
 import t from "@/utils/i18n"
+import utils from "@/utils/utils";
 import CopyBtn from "@/components/buttons/CopyBtn.vue";
 
 export default {
@@ -113,6 +115,7 @@ export default {
     },
     methods: {
       t,
+      shortAddress: utils.shortAddress,
     }
 }
 </script>

@@ -1,0 +1,22 @@
+query GetAvatarsWithTip($agentAddress: Address!) {
+    nodeStatus {
+        tip {
+            index
+        }
+    }
+    stateQuery {
+        agent(address: $agentAddress) {
+            avatarStates {
+                dailyRewardReceivedIndex
+                address
+                name
+                index
+                actionPoint
+            }
+        }
+    }
+}
+
+mutation StageTransaction($tx: String!) {
+    stageTransaction(payload: $tx)
+}

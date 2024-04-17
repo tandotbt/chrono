@@ -3,6 +3,7 @@ import App from '@/App.vue'
 import {createVuetify} from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
+import { aliases, mdi } from 'vuetify/iconsets/mdi'
 import 'vuetify/dist/vuetify.min.css'
 import _ from 'underscore'
 import axios from 'axios'
@@ -42,6 +43,13 @@ moment.locale('en-gb')
 // Vue.mixin(mixin)
 
 const vuetify = createVuetify({
+  icons: {
+    defaultSet: 'mdi',
+    aliases,
+    sets: {
+      mdi,
+    },
+  },
   theme: {
     options: {
       customProperties: true,

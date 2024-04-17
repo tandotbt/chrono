@@ -3,9 +3,9 @@
     <div>
       <signed-in-header></signed-in-header>
       <div class="text-left px-2 d-flex justify-space-between align-center" style="background-color: #2a2a2a">
-        <v-btn icon dark large @click="$router.replace({'name':'index'})"><v-icon color="grey">mdi-arrow-left</v-icon></v-btn>
+        <v-btn icon dark size="large" @click="$router.replace({'name':'index'})"><v-icon color="grey">mdi-arrow-left</v-icon></v-btn>
         <strong style="font-weight:600">NCG {{t('transfer')}}</strong>
-        <v-btn icon dark large disabled></v-btn>
+        <v-btn icon dark size="large" disabled></v-btn>
       </div>
 
       <div class="mt-10">
@@ -68,23 +68,23 @@
         <v-card-text class="mt-4">
           <v-row>
             <v-col class="text-left py-1">
-              <v-chip small color="#444" label>{{t('sender')}} : {{account.name}}</v-chip>
+              <v-chip size="small" color="#444" label>{{t('sender')}} : {{account.name}}</v-chip>
               <div class="hex pl-2 mt-1">
-                {{account.address}} <copy-btn style="margin-left:-8px;" :text="account.address" icon x-small><v-icon x-small color="grey">mdi-content-copy</v-icon></copy-btn>
+                {{account.address}} <copy-btn style="margin-left:-8px;" :text="account.address" icon x-small><v-icon size="x-small" color="grey">mdi-content-copy</v-icon></copy-btn>
               </div>
             </v-col>
           </v-row>
           <v-row>
             <v-col class="text-left py-1">
-              <v-chip small color="#444" label>{{t('receiver')}}</v-chip>
+              <v-chip size="small" color="#444" label>{{t('receiver')}}</v-chip>
               <div class="hex pl-2 mt-1">
-                {{receiver}} <copy-btn style="margin-left:-8px;" :text="receiver" icon x-small><v-icon x-small color="grey">mdi-content-copy</v-icon></copy-btn>
+                {{receiver}} <copy-btn style="margin-left:-8px;" :text="receiver" icon x-small><v-icon size="x-small" color="grey">mdi-content-copy</v-icon></copy-btn>
               </div>
             </v-col>
           </v-row>
           <v-row>
             <v-col class="text-left py-1">
-              <v-chip small color="#444" label>{{t('amount')}}</v-chip>
+              <v-chip size="small" color="#444" label>{{t('amount')}}</v-chip>
               <div class="hex pl-2 mt-1">
                 {{amount}} NCG
               </div>
@@ -92,7 +92,7 @@
           </v-row>
           <v-row>
             <v-col class="text-left py-1">
-              <v-chip small color="#444" label>{{t('feeEstimated')}}</v-chip>
+              <v-chip size="small" color="#444" label>{{t('feeEstimated')}}</v-chip>
               <div class="hex pl-2 mt-1">
                 0 NCG
               </div>
@@ -119,6 +119,7 @@ import CopyBtn from "@/components/buttons/CopyBtn.vue";
 import bg from "@/api/background"
 import _ from "underscore"
 import t from "@/utils/i18n";
+import utils from "@/utils/utils";
 
 export default {
     name: 'Send',
@@ -159,6 +160,7 @@ export default {
     },
     methods: {
         t,
+        shortAddress: utils.shortAddress,
         async confirmSend() {
             if (this.$refs['sendForm'].validate()) {
                 this.nonce = await bg.wallet.nextNonce(this.account.address)

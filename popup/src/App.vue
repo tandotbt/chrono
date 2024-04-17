@@ -7,6 +7,7 @@
 <script>
 import bg from "@/api/background"
 import {ENCRYPTED_WALLET, PRIMARY_ADDRESS, PASSPHRASE, ACCOUNTS} from "@/constants/constants"
+import {mapGetters} from "vuex";
 export default {
     name: 'App',
     components: {
@@ -15,6 +16,9 @@ export default {
         return {
         }
     },
+    computed: {
+      ...mapGetters("Account", ["approvalRequests"]),
+    },
     async created() {
         let hasWallet = await bg.hasWallet()
         if (hasWallet) {
@@ -22,8 +26,13 @@ export default {
             let signedIn = await bg.isSignedIn()
             if (signedIn) {
                 await this.$store.dispatch('Account/loadAccounts')
+                await this.$store.dispatch('Account/loadApprovalRequests')
                 this.init()
-                this.$router.replace({name: 'index'}).catch(() => {})
+                if (this.approvalRequests.length > 0) {
+                  this.$router.replace({name: "confirmation"}).catch(() => {})
+                } else {
+                  this.$router.replace({name: 'index'}).catch(() => {})
+                }
             } else {
                 this.$router.replace({name: 'login'}).catch(() => {})
             }
