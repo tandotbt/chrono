@@ -1,9 +1,8 @@
 {
     "compilerOptions": {
-        "module": "NodeNext",
+        "module": "None",
         "target": "ESNext",
         "types": ["chrome"],
-        "lib": ["ESNext", "DOM"],
-        "moduleResolution": "NodeNext"
+        "lib": ["ESNext", "DOM"]
     }
 }
