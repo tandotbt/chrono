@@ -1,0 +1,6 @@
+packages:
+  - 'content-scripts'
+  - 'background'
+  - 'popup'
+  - 'docs'
+  - 'examples/**'
