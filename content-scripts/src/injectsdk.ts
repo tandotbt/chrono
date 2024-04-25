@@ -42,6 +42,13 @@ window.addEventListener('message', async function(event) {
                 params: [event.data.signer, event.data.action],
                 messageId,
             });
+        } else if (method === "signTx") {
+            port.postMessage({
+                action: 'wallet',
+                method: 'signTx',
+                params: [event.data.signer, event.data.utx],
+                messageId,
+            });
         } else if (method === "listAccounts") {
             port.postMessage({
                 action: 'wallet',

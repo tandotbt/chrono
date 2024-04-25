@@ -223,6 +223,9 @@ importers:
       '@planetarium/bencodex':
         specifier: ^0.2.2
         version: 0.2.2
+      '@planetarium/tx':
+        specifier: ^4.4.1
+        version: 4.4.1(@planetarium/account@3.9.2)
       buffer:
         specifier: ^6.0.3
         version: 6.0.3

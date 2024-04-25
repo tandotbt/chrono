@@ -2,6 +2,7 @@ import { Address, PublicKey } from "@planetarium/account";
 import { Value, encode } from "@planetarium/bencodex";
 import { WindowMessageHandler } from "./handler";
 import { Buffer } from "buffer";
+import { encodeUnsignedTx, type UnsignedTx } from "@planetarium/tx";
 
 export class ChronoWallet {
     constructor(private readonly handler: WindowMessageHandler) {}
@@ -11,6 +12,15 @@ export class ChronoWallet {
             this.handler.addEventListener(
                 { resolve: (value: string) => resolve(Buffer.from(value, "hex")), reject },
                 { method: 'sign', signer: signer.toString(), action: Buffer.from(encode(action)).toString("hex") }
+            );
+        });
+    }
+
+    signTx(signer: Address, unsignedTx: UnsignedTx): Promise<Buffer> {
+        return new Promise((resolve, reject) => {
+            this.handler.addEventListener(
+                { resolve: (value: string) => resolve(Buffer.from(value, "hex")), reject },
+                { method: 'signTx', signer: signer.toString(), utx: Buffer.from(encode(encodeUnsignedTx(unsignedTx))).toString("hex") }
             );
         });
     }
