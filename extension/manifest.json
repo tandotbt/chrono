@@ -27,6 +27,9 @@
         "http://localhost:8001/*",
         "http://localhost:8002/*"
     ],
+    "web_accessible_resources": [
+        "content-scripts/global.js"
+    ],
     "content_scripts": [{
         "matches": ["file://*/*", "http://*/*", "https://*/*"],
         "js": [
