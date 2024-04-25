@@ -1,5 +1,9 @@
 {
+    "include": [
+        "src/injectsdk.ts"
+    ],
     "compilerOptions": {
+        "outDir": "../build/content-scripts",
         "module": "None",
         "target": "ESNext",
         "types": ["chrome"],

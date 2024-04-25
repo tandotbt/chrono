@@ -5,12 +5,18 @@
     "type": "module",
     "license": "GPL-3.0-only",
     "scripts": {
-        "build": "tsc --outDir ../build/content-scripts"
+        "build": "tsc && rollup --config"
+    },
+    "dependencies": {
+        "@planetarium/chrono-sdk": "workspace:^"
     },
     "devDependencies": {
         "@planetarium/bencodex": "^0.2.2",
         "@planetarium/tx": "^4.3.0",
+        "@rollup/plugin-commonjs": "^25.0.7",
+        "@rollup/plugin-node-resolve": "^15.2.3",
         "@types/chrome": "^0.0.266",
+        "rollup": "^4.16.4",
         "typescript": "^5.4.5"
     }
 }

@@ -1,0 +1,27 @@
+{
+  "name": "@planetarium/chrono-sdk",
+  "version": "0.1.0",
+  "description": "",
+  "type": "module",
+  "module": "dist/index.js",
+  "exports": {
+    ".": {
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "Planetarium",
+  "license": "GPL-3.0-only",
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@planetarium/account": "3.9.2",
+    "@planetarium/bencodex": "^0.2.2",
+    "buffer": "^6.0.3"
+  }
+}

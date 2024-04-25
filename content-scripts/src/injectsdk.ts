@@ -1,53 +1,5 @@
 const scriptElement = document.createElement("script");
-scriptElement.textContent = `
-const eventHandlers = {};
-let messageId = 1;
-window.addEventListener('message', function(event) {
-    if (event.source != window)
-        return;
-
-    if (!event.data.type || event.data.type !== 'FROM_CHRONO') {
-        return;
-    }
-
-    if (!event.data.messageId || !eventHandlers[event.data.messageId]) {
-        return;
-    }
-
-    const { resolve, reject } = eventHandlers[event.data.messageId];
-    if (event.data.error) {
-        reject(event.data.error);
-    } else {
-        resolve(event.data.result);
-    }
-
-    delete eventHandlers[event.data.messageId];
-});
-
-window.chronoWallet = {
-    sign(signer, action) {
-        return new Promise((resolve, reject) => {
-            const currentMessageId = messageId++;
-            eventHandlers[currentMessageId] = { resolve, reject };
-            window.postMessage({ type: 'FROM_PAGE', method: 'sign', signer, action, messageId: currentMessageId, }, '*');
-        });
-    },
-    listAccounts() {
-        return new Promise((resolve, reject) => {
-            const currentMessageId = messageId++;
-            eventHandlers[currentMessageId] = { resolve, reject };
-            window.postMessage({ type: 'FROM_PAGE', method: 'listAccounts', messageId: currentMessageId, }, '*');
-        });
-    },
-    getPublicKey(address) {
-        return new Promise((resolve, reject) => {
-            const currentMessageId = messageId++;
-            eventHandlers[currentMessageId] = { resolve, reject };
-            window.postMessage({ type: 'FROM_PAGE', method: 'getPublicKey', address, messageId: currentMessageId, }, '*');
-        });
-    }
-};
-`;
+scriptElement.src = chrome.runtime.getURL("global.js");
 
 const port = chrome.runtime.connect({
     name: "content-script"
