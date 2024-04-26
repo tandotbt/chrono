@@ -15,7 +15,7 @@ Chrono Wallet communicates with browser extensions through a global variable cal
 ```typescript
 function listAccounts(): Promise<{
     activated: boolean;
-    address: string;
+    address: Address;
 }[]>;
 ```
 
@@ -30,8 +30,10 @@ It returns an array of objects. Each object has `activated` and `address` proper
 ### Examples
 
 ```typescript
+import { Address } from "@planetarium/account";
+
 const accounts = await window.chronoWallet.listAccounts();
-const addresses = accounts.map(x => x.address);
+const addresses: Address[] = accounts.map(x => x.address);
 ```
 
 ## `getPublicKey`
@@ -39,7 +41,7 @@ const addresses = accounts.map(x => x.address);
 ### Signature
 
 ```typescript
-function getPublicKey(address: string): Promise<string>;
+function getPublicKey(address: string): Promise<PublicKey>;
 ```
 
 ### Parameters
@@ -55,7 +57,7 @@ It returns a hexadecimal string, public key.
 ```typescript
 import { PublicKey } from "@planetarium/account";
 
-const publicKey = PublicKey.fromHex(await window.chronoWallet.getPublicKey("0x2cBaDf26574756119cF705289C33710F27443767"), "uncompressed");
+const publicKey: PublicKey = await window.chronoWallet.getPublicKey("0x2cBaDf26574756119cF705289C33710F27443767");
 ```
 
 ## `sign`
@@ -65,7 +67,7 @@ Sign a new transaction with an action. If you want to configure properties like 
 ### Signature
 
 ```typescript
-function sign(signer: string, action: string): Promise<string>;
+function sign(signer: Address, action: Value): Promise<Buffer>;
 ```
 
 ### Parameters
@@ -80,19 +82,19 @@ It returns a hexadecimal string, encoded signed transaction.
 ### Examples
 
 ```typescript
+import { Address } from "@planetarium/account";
 import { encode, BencodexDictionary } from "@planetarium/bencodex";
 import { Buffer } from "buffer";
 
-const signer = "0x2cBaDf26574756119cF705289C33710F27443767";
+const signer = Address.fromHex("0x2cBaDf26574756119cF705289C33710F27443767");
 const action = new BencodexDictionary([
     ["type_id", "daily_reward7"],
     ["values", new BencodexDictionary([
         ["a", Buffer.from("DE3873DB166647Cc3538ef64EAA8A0cCFD51B9fE", "hex")]
     ])]
 ]);
-const actionHex = Buffer.from(encode(action)).toString(hex);
 
-const signedTxHex = await window.chronoWallet.sign(signer, actionHex);
+const signedTxBytes = await window.chronoWallet.sign(signer, action);
 ```
 
 ## `signTx`
@@ -100,7 +102,7 @@ const signedTxHex = await window.chronoWallet.sign(signer, actionHex);
 ### Signature
 
 ```typescript
-function signTx(signer: string, unsignedTx: string): Promise<string>;
+function signTx(signer: Address, unsignedTx: UnsignedTx): Promise<Buffer>;
 ```
 
 ### Parameters
@@ -122,14 +124,13 @@ import { Buffer } from "buffer";
 import { Decimal } from "decimal.js";
 
 const signer = Address.fromHex("0x2cBaDf26574756119cF705289C33710F27443767");
-const publicKey = PublicKey.fromHex(await window.chronoWallet.getPublicKey(signer.toString()), "uncompressed");
+const publicKey = await window.chronoWallet.getPublicKey(signer);
 const action = new BencodexDictionary([
     ["type_id", "daily_reward7"],
     ["values", new BencodexDictionary([
         ["a", Buffer.from("DE3873DB166647Cc3538ef64EAA8A0cCFD51B9fE", "hex")]
     ])]
 ]);
-const actionHex = Buffer.from(encode(action)).toString(hex);
 
 const unsignedTx = {
     signer: signer.toBytes(),
@@ -137,7 +138,7 @@ const unsignedTx = {
     updatedAddresses: new Set([]),
     nonce: 1n,
     genesisHash,
-    publicKey: (await account.getPublicKey()).toBytes("uncompressed"),
+    publicKey: publicKey.toBytes("uncompressed"),
     timestamp: new Date(),
     maxGasPrice: {
         currency: {
@@ -152,7 +153,5 @@ const unsignedTx = {
     gasLimit,
 };
 
-const unsignedTxHex = Buffer.from(encode(encodeUnsignedTx(unsignedTx))).toString("hex");
-
-const signedTxHex = await window.chronoWallet.sign(signer.toString(), unsignedTxHex);
+const signedTxBytes = await window.chronoWallet.sign(signer, unsignedTx);
 ```

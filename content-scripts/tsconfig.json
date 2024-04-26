@@ -1,9 +1,12 @@
 {
+    "include": [
+        "src/injectsdk.ts"
+    ],
     "compilerOptions": {
-        "module": "NodeNext",
+        "outDir": "../build/content-scripts",
+        "module": "None",
         "target": "ESNext",
         "types": ["chrome"],
-        "lib": ["ESNext", "DOM"],
-        "moduleResolution": "NodeNext"
+        "lib": ["ESNext", "DOM"]
     }
 }
