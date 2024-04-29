@@ -13,7 +13,7 @@ export class WindowMessageHandler {
         this.eventHandlers = new Map();
         this.window = window;
 
-        window.addEventListener('message', this.handler);
+        window.addEventListener('message', this.handler.bind(this));
     }
 
     addEventListener(handlers: Handlers, message: {
