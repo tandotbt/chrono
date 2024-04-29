@@ -1,5 +1,5 @@
 const scriptElement = document.createElement("script");
-scriptElement.src = chrome.runtime.getURL("global.js");
+scriptElement.src = chrome.runtime.getURL("content-scripts/global.js");
 
 const port = chrome.runtime.connect({
     name: "content-script"
