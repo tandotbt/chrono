@@ -4,6 +4,9 @@ This is a crypto wallet service of chrome extension for Nine Chronicles blockcha
 Chrono Document
 https://9cscan-tx0x.gitbook.io/chrono-wallet-nine-chronicles/
 
+Chrono SDK Document
+https://chrono-docs.pages.dev/
+
 ## Project Structure
 
 - /background
@@ -26,19 +29,15 @@ https://9cscan-tx0x.gitbook.io/chrono-wallet-nine-chronicles/
 ### 1. Pull this project to local
 
 ```
-git clone https://github.com/tx0x/chrono
+git clone https://github.com/planetarium/chrono
 cd chrono
-cd background
-pnpm install
-cd ../popup
 pnpm install
 ```
 
-### 2. Run 
+### 2. Build
 
 ```
-grunt popup
-grunt background
+pnpm -r build
 ```
 
 ### 3. Import chrome extension for development
@@ -46,18 +45,6 @@ grunt background
 - open `chrome://extensions` on chrome
 - Load the unzipped extension.
 - select ~/chrono/extension
-
-### 4. test
-
-```
-cd background
-pnpm t
-
-or
-
-cd popup
-pnpm t
-```
 
 ## License
 
