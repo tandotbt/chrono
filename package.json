@@ -4,6 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "pnpm run build:common && pnpm run build:copy-manifest",
+    "build-prod": "pnpm run build:common && pnpm run build:copy-manifest:prod",
+    "build:common": "pnpm -r build && cp -r extension/_locales extension/images build",
+    "build:copy-manifest": "cp extension/manifest.json build",
+    "build:copy-manifest:prod": "cp extension/manifest.prod.json build/manifest.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

@@ -36,7 +36,7 @@ pnpm install
 ### 2. Build
 
 ```
-pnpm -r build
+pnpm build
 ```
 
 ### 3. Import chrome extension for development
