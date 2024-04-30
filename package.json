@@ -12,5 +12,10 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "GPL-3.0-only"
+  "license": "GPL-3.0-only",
+  "pnpm": {
+    "patchedDependencies": {
+      "@planetarium/account@3.9.2": "patches/@planetarium__account@3.9.2.patch"
+    }
+  }
 }

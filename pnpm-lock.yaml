@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@planetarium/account@3.9.2':
+    hash: wmvd4wbknfx4fgggbrvwh2cm5m
+    path: patches/@planetarium__account@3.9.2.patch
+
 importers:
 
   .: {}
@@ -12,13 +17,13 @@ importers:
     dependencies:
       '@planetarium/account':
         specifier: 3.9.2
-        version: 3.9.2
+        version: 3.9.2(patch_hash=wmvd4wbknfx4fgggbrvwh2cm5m)
       '@planetarium/bencodex':
         specifier: 0.2.2
         version: 0.2.2
       '@planetarium/tx':
         specifier: 3.9.2
-        version: 3.9.2(@planetarium/account@3.9.2)
+        version: 3.9.2(@planetarium/account@3.9.2(patch_hash=wmvd4wbknfx4fgggbrvwh2cm5m))
       axios:
         specifier: ^0.24.0
         version: 0.24.0
@@ -104,7 +109,7 @@ importers:
         version: 0.2.2
       '@planetarium/tx':
         specifier: ^4.3.0
-        version: 4.4.1(@planetarium/account@3.9.2)
+        version: 4.4.1(@planetarium/account@3.9.2(patch_hash=wmvd4wbknfx4fgggbrvwh2cm5m))
       '@rollup/plugin-commonjs':
         specifier: ^25.0.7
         version: 25.0.7(rollup@4.16.4)
@@ -132,6 +137,9 @@ importers:
       '@apollo/client':
         specifier: ^3.9.11
         version: 3.9.11(@types/react@18.2.79)(graphql-ws@5.16.0(graphql@16.8.1))(graphql@16.8.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+      '@planetarium/account':
+        specifier: 3.9.2
+        version: 3.9.2(patch_hash=wmvd4wbknfx4fgggbrvwh2cm5m)
       '@planetarium/bencodex':
         specifier: ^0.2.2
         version: 0.2.2
@@ -222,13 +230,13 @@ importers:
     dependencies:
       '@planetarium/account':
         specifier: 3.9.2
-        version: 3.9.2
+        version: 3.9.2(patch_hash=wmvd4wbknfx4fgggbrvwh2cm5m)
       '@planetarium/bencodex':
         specifier: ^0.2.2
         version: 0.2.2
       '@planetarium/tx':
         specifier: ^4.4.1
-        version: 4.4.1(@planetarium/account@3.9.2)
+        version: 4.4.1(@planetarium/account@3.9.2(patch_hash=wmvd4wbknfx4fgggbrvwh2cm5m))
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
@@ -11598,21 +11606,21 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@planetarium/account@3.9.2':
+  '@planetarium/account@3.9.2(patch_hash=wmvd4wbknfx4fgggbrvwh2cm5m)':
     dependencies:
       '@noble/hashes': 1.4.0
       '@noble/secp256k1': 1.7.1
 
   '@planetarium/bencodex@0.2.2': {}
 
-  '@planetarium/tx@3.9.2(@planetarium/account@3.9.2)':
+  '@planetarium/tx@3.9.2(@planetarium/account@3.9.2(patch_hash=wmvd4wbknfx4fgggbrvwh2cm5m))':
     dependencies:
-      '@planetarium/account': 3.9.2
+      '@planetarium/account': 3.9.2(patch_hash=wmvd4wbknfx4fgggbrvwh2cm5m)
       '@planetarium/bencodex': 0.2.2
 
-  '@planetarium/tx@4.4.1(@planetarium/account@3.9.2)':
+  '@planetarium/tx@4.4.1(@planetarium/account@3.9.2(patch_hash=wmvd4wbknfx4fgggbrvwh2cm5m))':
     dependencies:
-      '@planetarium/account': 3.9.2
+      '@planetarium/account': 3.9.2(patch_hash=wmvd4wbknfx4fgggbrvwh2cm5m)
       '@planetarium/bencodex': 0.2.2
 
   '@repeaterjs/repeater@3.0.5': {}
