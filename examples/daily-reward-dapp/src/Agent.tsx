@@ -1,15 +1,17 @@
 import { Buffer } from "buffer";
-import { BencodexDictionary, encode } from "@planetarium/bencodex";
+import { BencodexDictionary } from "@planetarium/bencodex";
 import { useMemo, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import {
 	useGetAvatarsWithTipQuery,
 	useStageTransactionMutation,
 } from "./generated/graphql";
+import { getChronoSdk } from "@planetarium/chrono-sdk";
+import { Address } from "@planetarium/account";
 
 interface RefillButtonProps {
-	signer: string;
-	avatarAddress: string;
+	signer: Address;
+	avatarAddress: Address;
 }
 
 function uuidv4ToBuffer(uuid: string): Buffer {
@@ -31,7 +33,7 @@ function uuidv4ToBuffer(uuid: string): Buffer {
 	return buffer;
 }
 
-function createDailyRewardAction(avatarAddress: string): BencodexDictionary {
+function createDailyRewardAction(avatarAddress: Address): BencodexDictionary {
 	const id = uuidv4();
 	return new BencodexDictionary([
 		["type_id", "daily_reward7"],
@@ -39,7 +41,7 @@ function createDailyRewardAction(avatarAddress: string): BencodexDictionary {
 			"values",
 			new BencodexDictionary([
 				["id", uuidv4ToBuffer(id)],
-				["a", Buffer.from(avatarAddress.replace("0x", ""), "hex")],
+				["a", avatarAddress.toBytes()],
 			]),
 		],
 	]);
@@ -50,21 +52,25 @@ type RefillProgress = "None" | "Signing" | "Staging" | "Done";
 function RefillButton({ signer, avatarAddress }: RefillButtonProps) {
 	const [progress, setProgress] = useState<RefillProgress>("None");
 	const [stage] = useStageTransactionMutation();
-	const actionHex = useMemo(() => {
-		const action = createDailyRewardAction(avatarAddress);
-		return Buffer.from(encode(action)).toString("hex");
+	const action = useMemo(() => {
+		return createDailyRewardAction(avatarAddress);
 	}, [avatarAddress]);
 
 	const onClick = () => {
 		setProgress("Signing");
-		window.chronoWallet
-			.sign(signer, actionHex)
+		const chronoWallet = getChronoSdk();
+		if (chronoWallet === undefined) {
+			return;
+		}
+
+		chronoWallet
+			.sign(signer, action)
 			.then((tx) => {
 				console.log(tx);
 				setProgress("Staging");
 				return stage({
 					variables: {
-						tx,
+						tx: tx.toString("hex"),
 					},
 				}).then(({ data, errors }) => {
 					setProgress("Done");
@@ -100,13 +106,13 @@ function RefillButton({ signer, avatarAddress }: RefillButtonProps) {
 }
 
 interface AgentProps {
-	agentAddress: string;
+	agentAddress: Address;
 }
 
 function Agent({ agentAddress }: AgentProps) {
 	const { data, loading, error } = useGetAvatarsWithTipQuery({
 		variables: {
-			agentAddress,
+			agentAddress: agentAddress.toString(),
 		},
 		pollInterval: 500,
 	});
@@ -130,7 +136,7 @@ function Agent({ agentAddress }: AgentProps) {
 	if (data.stateQuery.agent === null || data.stateQuery.agent === undefined) {
 		return (
 			<p className="mt-8 text-white">
-				There is no such agent. (address: {agentAddress})
+				There is no such agent. (address: {agentAddress.toString()})
 			</p>
 		);
 	}
@@ -155,7 +161,7 @@ function Agent({ agentAddress }: AgentProps) {
 						{tipIndex - avatar.dailyRewardReceivedIndex > 2550 ? (
 							<RefillButton
 								signer={agentAddress}
-								avatarAddress={avatar.address}
+								avatarAddress={Address.fromHex(avatar.address)}
 							/>
 						) : (
 							<></>

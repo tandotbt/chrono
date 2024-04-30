@@ -1,0 +1,42 @@
+diff --git a/dist/index.cjs b/dist/index.cjs
+index a0070d52224dcd965d008c99bca0702aa66270f7..adb0cb57ca0c79bdcad4099912d5651840385e70 100644
+--- a/dist/index.cjs
++++ b/dist/index.cjs
+@@ -50,6 +50,9 @@ var __privateMethod = (obj, member, method) => {
+   return method;
+ };
+ 
++// Manually inserted by moreal
++var Buffer = require("buffer").Buffer;
++
+ // src/index.ts
+ var src_exports = {};
+ __export(src_exports, {
+diff --git a/dist/index.js b/dist/index.js
+index c9f65fb9735280bf102e5ab82e3c48f41f0884d9..548e6a126f911d8bb4da50edee754fb2e7d8108b 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -30,6 +30,9 @@ var __privateMethod = (obj, member, method) => {
+   return method;
+ };
+ 
++// Manually inserted by moreal
++import { Buffer } from "buffer";
++
+ // src/Account.ts
+ function isAccount(account) {
+   return typeof account === "object" && account != null && "getAddress" in account && account.getAddress instanceof Function && "getPublicKey" in account && account.getPublicKey instanceof Function && "sign" in account && account.sign instanceof Function;
+diff --git a/package.json b/package.json
+index f1c758abbe915fbd8af81fd412d0b71e73e60be5..c099ed19093f814a7a8cdcde4b543f9205446678 100644
+--- a/package.json
++++ b/package.json
+@@ -46,7 +46,8 @@
+   },
+   "dependencies": {
+     "@noble/hashes": "^1.2.0",
+-    "@noble/secp256k1": "^1.7.1"
++    "@noble/secp256k1": "^1.7.1",
++    "buffer": "^6.0.3"
+   },
+   "version": "3.9.2"
+ }

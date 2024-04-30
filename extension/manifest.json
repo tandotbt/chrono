@@ -3,19 +3,19 @@
     "name": "__MSG_appName__",
     "short_name": "__MSG_appName__",
     "description": "__MSG_appDescription__",
-    "homepage_url": "https://9cscan.com",
+    "homepage_url": "https://github.com/planetarium/chrono",
     "version": "1.0.4",
     "default_locale": "en",
     "browser_action": {
         "default_icon": "images/logo.png",
-        "default_popup": "http://localhost:8001/index.html",
+        "default_popup": "popup/index.html",
         "default_title": "Nine Chronicles Wallet"
     },
     "commands": {
     },
     "background": {
         "persistent": true,
-        "page": "background.html"
+        "page": "background/index.html"
     },
     "icons": {
         "1024": "images/logo.png"
