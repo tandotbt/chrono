@@ -143,6 +143,9 @@ importers:
       '@planetarium/bencodex':
         specifier: ^0.2.2
         version: 0.2.2
+      '@planetarium/chrono-sdk':
+        specifier: workspace:^
+        version: link:../../packages/chrono-sdk
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
