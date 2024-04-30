@@ -1,9 +1,6 @@
 # The Wallet for Nine Chronicles
 This is a crypto wallet service of chrome extension for Nine Chronicles blockchain.
 
-Chrono Document
-https://9cscan-tx0x.gitbook.io/chrono-wallet-nine-chronicles/
-
 Chrono SDK Document
 https://chrono-docs.pages.dev/
 
@@ -15,6 +12,8 @@ https://chrono-docs.pages.dev/
   - Implement popup UI for chrome extension. It is responsible for receiving user actions and communicating with the background context.
 - /extension
   - This is where you handle the manifest settings and final build of your chrome extension.
+- /examples
+  - 
 
 ## Test coverage
 - background
