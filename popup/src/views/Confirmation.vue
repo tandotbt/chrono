@@ -3,9 +3,9 @@
     <div class="pt-12 mt-2 px-8">
       <p>1 / {{ approvalRequests.length }}</p>
       <p class="header text-start">Signer</p>
-      <p class="content text-start">{{ approvalRequests[0].signer }}</p>
+      <p class="content text-start">{{ approvalRequests[0].data.signer }}</p>
       <p class="header text-start">Action</p>
-      <pre class="content text-start">{{ JSON.stringify(approvalRequests[0].content, null, 2) }}</pre>
+      <pre class="content text-start">{{ JSON.stringify(approvalRequests[0].data.content, null, 2) }}</pre>
       <div class="d-flex">
         <button
           class="flex-fill border border-primary border-2 rounded-pill m-2 p-4"

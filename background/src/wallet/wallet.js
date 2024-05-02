@@ -181,7 +181,10 @@ export default class Wallet {
       throw new Error("Invalid action. action must be BencodexDictionary.");
     }
 
-    return this._requestApprove(signer, "sign", convertBencodexToJSONableType(action))
+    return this._requestApprove("sign", {
+      signer,
+      content: convertBencodexToJSONableType(action),
+    })
       .then(async () => {
         const wallet = await this.loadWallet(signer, resolvePassphrase(this.passphrase));
         const account = RawPrivateKey.fromHex(wallet.privateKey.slice(2));
@@ -264,13 +267,12 @@ export default class Wallet {
     return wallet.privateKey;
   }
 
-  async _requestApprove(signer, title, content) {
+  async _requestApprove(category, data) {
     const requestId = nanoid();
     await this.addRequest({
       id: requestId,
-      signer,
-      title,
-      content,
+      category,
+      data,
     });
 
     await this._showPopup();
