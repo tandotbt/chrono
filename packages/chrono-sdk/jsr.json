@@ -1,0 +1,14 @@
+{
+  "$schema": "https://jsr.io/schema/config-file.v1.json",
+  "name": "@planetarium/chrono-sdk",
+  "version": "0.1.0",
+  "exports": "./src/index.ts",
+  "publish": {
+    "include": [
+      "LICENSE",
+      "src/**/*.ts",
+      "README.md",
+      "jsr.json"
+    ]
+  }
+}

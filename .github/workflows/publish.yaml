@@ -1,0 +1,12 @@
+name: publish
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  jsr:
+    uses: planetarium/.github/.github/workflows/publish_jsr.yml@481883a91b93418200c106202255a2f8bb621bc5
+    with:
+      working_directory: "packages/chrono-sdk"
