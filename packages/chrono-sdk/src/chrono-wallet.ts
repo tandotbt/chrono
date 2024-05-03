@@ -7,6 +7,24 @@ import { encodeUnsignedTx, type UnsignedTx } from "@planetarium/tx";
 export class ChronoWallet {
     constructor(private readonly handler: WindowMessageHandler) {}
 
+    connect(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            this.handler.addEventListener(
+                { resolve: () => resolve(), reject },
+                { method: 'connect', }
+            );
+        });
+    }
+
+    isConnected(): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            this.handler.addEventListener(
+                { resolve: (value: boolean) => resolve(value), reject },
+                { method: 'isConnected', }
+            );
+        });
+    }
+
     sign(signer: Address, action: Value): Promise<Buffer> {
         return new Promise((resolve, reject) => {
             this.handler.addEventListener(

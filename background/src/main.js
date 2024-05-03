@@ -94,26 +94,32 @@ window.Buffer = Buffer;
         port.onMessage.addListener(function(req) {
             console.log(port.name, req);
             if (req.action == 'wallet') {
-                const wallet = new Wallet(() => passphrase)
-                if (wallet[req.method] && wallet.canCallExternal(req.method)) {
-                    wallet[req.method].call(wallet, ...req.params)
-                        .then(x => {
-                            console.log(x)
-                            port.postMessage({
-                                result: x,
-                                messageId: req.messageId,
+                const wallet = new Wallet(() => passphrase, req.origin);
+                wallet.isConnected().then((connected) => {
+                    if (!connected && req.method !== "connect" && req.method !== "isConnected") {
+                        port.postMessage({error: `${req.origin} is not connected. Call 'window.chronoWallet.connect' first.`, messageId: req.messageId});
+                    }
+
+                    if (wallet[req.method] && wallet.canCallExternal(req.method)) {
+                        wallet[req.method].call(wallet, ...req.params)
+                            .then(x => {
+                                console.log(x)
+                                port.postMessage({
+                                    result: x,
+                                    messageId: req.messageId,
+                                })
                             })
-                        })
-                        .catch(e => {
-                            console.error(e);
-                            port.postMessage({
-                                error: `${req.method} is rejected`,
-                                messageId: req.messageId
+                            .catch(e => {
+                                console.error(e);
+                                port.postMessage({
+                                    error: `${req.method} is rejected`,
+                                    messageId: req.messageId
+                                })
                             })
-                        })
-                } else {
-                    port.postMessage({error: 'Unknown Method'})
-                }
+                    } else {
+                        port.postMessage({error: 'Unknown Method', messageId: req.messageId})
+                    }
+                })
             }
         });
     });

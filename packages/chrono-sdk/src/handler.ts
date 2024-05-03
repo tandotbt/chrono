@@ -18,7 +18,7 @@ export class WindowMessageHandler {
 
     addEventListener(handlers: Handlers, message: {
         method: string,
-        [key: string]: string,
+        [key: string]: string | string[],
     }) {
         const currentMessageId = this.messageId++;
         this.eventHandlers.set(currentMessageId, handlers);
