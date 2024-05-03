@@ -15,7 +15,7 @@
   "license": "GPL-3.0-only",
   "pnpm": {
     "patchedDependencies": {
-      "@planetarium/account@3.9.2": "patches/@planetarium__account@3.9.2.patch"
+      "@planetarium/account@4.4.2": "patches/@planetarium__account@4.4.2.patch"
     }
   }
 }

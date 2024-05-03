@@ -5,9 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 patchedDependencies:
-  '@planetarium/account@3.9.2':
-    hash: wmvd4wbknfx4fgggbrvwh2cm5m
-    path: patches/@planetarium__account@3.9.2.patch
+  '@planetarium/account@4.4.2':
+    hash: jb6dglqvmbazko2rjmsq6cngsy
+    path: patches/@planetarium__account@4.4.2.patch
 
 importers:
 
@@ -16,14 +16,14 @@ importers:
   background:
     dependencies:
       '@planetarium/account':
-        specifier: 3.9.2
-        version: 3.9.2(patch_hash=wmvd4wbknfx4fgggbrvwh2cm5m)
+        specifier: ^4.4.2
+        version: 4.4.2(patch_hash=jb6dglqvmbazko2rjmsq6cngsy)
       '@planetarium/bencodex':
         specifier: 0.2.2
         version: 0.2.2
       '@planetarium/tx':
-        specifier: 3.9.2
-        version: 3.9.2(@planetarium/account@3.9.2(patch_hash=wmvd4wbknfx4fgggbrvwh2cm5m))
+        specifier: ^4.4.2
+        version: 4.4.2(@planetarium/account@4.4.2(patch_hash=jb6dglqvmbazko2rjmsq6cngsy))
       axios:
         specifier: ^0.24.0
         version: 0.24.0
@@ -108,8 +108,8 @@ importers:
         specifier: ^0.2.2
         version: 0.2.2
       '@planetarium/tx':
-        specifier: ^4.3.0
-        version: 4.4.1(@planetarium/account@3.9.2(patch_hash=wmvd4wbknfx4fgggbrvwh2cm5m))
+        specifier: ^4.4.2
+        version: 4.4.2(@planetarium/account@4.4.2(patch_hash=jb6dglqvmbazko2rjmsq6cngsy))
       '@rollup/plugin-commonjs':
         specifier: ^25.0.7
         version: 25.0.7(rollup@4.16.4)
@@ -138,8 +138,8 @@ importers:
         specifier: ^3.9.11
         version: 3.9.11(@types/react@18.2.79)(graphql-ws@5.16.0(graphql@16.8.1))(graphql@16.8.1)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@planetarium/account':
-        specifier: 3.9.2
-        version: 3.9.2(patch_hash=wmvd4wbknfx4fgggbrvwh2cm5m)
+        specifier: ^4.4.2
+        version: 4.4.2(patch_hash=jb6dglqvmbazko2rjmsq6cngsy)
       '@planetarium/bencodex':
         specifier: ^0.2.2
         version: 0.2.2
@@ -232,14 +232,14 @@ importers:
   packages/chrono-sdk:
     dependencies:
       '@planetarium/account':
-        specifier: 3.9.2
-        version: 3.9.2(patch_hash=wmvd4wbknfx4fgggbrvwh2cm5m)
+        specifier: ^4.4.2
+        version: 4.4.2(patch_hash=jb6dglqvmbazko2rjmsq6cngsy)
       '@planetarium/bencodex':
         specifier: ^0.2.2
         version: 0.2.2
       '@planetarium/tx':
-        specifier: ^4.4.1
-        version: 4.4.1(@planetarium/account@3.9.2(patch_hash=wmvd4wbknfx4fgggbrvwh2cm5m))
+        specifier: ^4.4.2
+        version: 4.4.2(@planetarium/account@4.4.2(patch_hash=jb6dglqvmbazko2rjmsq6cngsy))
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
@@ -1897,23 +1897,17 @@ packages:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
 
-  '@planetarium/account@3.9.2':
-    resolution: {integrity: sha512-8aFMerFQMNGK0hXmu0tzlPErWczIkkizsNi3+Ay6vWgIw9lAJYJiUzsJlFk3vgKrGrjkn9s/zgIlQVAucNGwNw==}
+  '@planetarium/account@4.4.2':
+    resolution: {integrity: sha512-ToX+y9DYYrvAbatyV6L0iKsXusqOOrq4d8wJlnT/oKvxyilJCe6D8wZSn4YFpZI+B76CYYlDgGLBxEchb6yO8g==}
 
   '@planetarium/bencodex@0.2.2':
     resolution: {integrity: sha512-hXYmV0gzEUxbhpVDiMIe/b0XAUoXBIl8Fo84Fx8nE0U39sU5q7tCFTkceock8TYs5rS4ix793033b7QYAPVoLA==}
 
-  '@planetarium/tx@3.9.2':
-    resolution: {integrity: sha512-4icCMJQG4L0NXlZuIlBZJC+f8cOGGYbX2sEV2KPHU9sUbznJ5wIubRy39PqZKJ7oq87lIpodb/7sgzHHgs3e3g==}
+  '@planetarium/tx@4.4.2':
+    resolution: {integrity: sha512-EOdJuCwP9TWcQScLeJ7NacHigaVddKntH8YXQ6rYkO00+AbVy8tVRUEFayIwaazlqYRBIOO8j0xxVvbzgzNhxw==}
     engines: {node: '>=19.0.0'}
     peerDependencies:
-      '@planetarium/account': ^3.9.2
-
-  '@planetarium/tx@4.4.1':
-    resolution: {integrity: sha512-SZayh/xU57DxbaYKdpBrevwV43RPumhDtcvr9jV6LZMk00msCyo8d2PUPxA2YkwekMJnj9gWsTyd8n/JR29fug==}
-    engines: {node: '>=19.0.0'}
-    peerDependencies:
-      '@planetarium/account': ^4.4.1
+      '@planetarium/account': ^4.4.2
 
   '@repeaterjs/repeater@3.0.5':
     resolution: {integrity: sha512-l3YHBLAol6d/IKnB9LhpD0cEZWAoe3eFKUyTYWmFmCO2Q/WOckxLQAUyMZWwZV2M/m3+4vgRoaolFqaII82/TA==}
@@ -11609,21 +11603,16 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@planetarium/account@3.9.2(patch_hash=wmvd4wbknfx4fgggbrvwh2cm5m)':
+  '@planetarium/account@4.4.2(patch_hash=jb6dglqvmbazko2rjmsq6cngsy)':
     dependencies:
       '@noble/hashes': 1.4.0
       '@noble/secp256k1': 1.7.1
 
   '@planetarium/bencodex@0.2.2': {}
 
-  '@planetarium/tx@3.9.2(@planetarium/account@3.9.2(patch_hash=wmvd4wbknfx4fgggbrvwh2cm5m))':
+  '@planetarium/tx@4.4.2(@planetarium/account@4.4.2(patch_hash=jb6dglqvmbazko2rjmsq6cngsy))':
     dependencies:
-      '@planetarium/account': 3.9.2(patch_hash=wmvd4wbknfx4fgggbrvwh2cm5m)
-      '@planetarium/bencodex': 0.2.2
-
-  '@planetarium/tx@4.4.1(@planetarium/account@3.9.2(patch_hash=wmvd4wbknfx4fgggbrvwh2cm5m))':
-    dependencies:
-      '@planetarium/account': 3.9.2(patch_hash=wmvd4wbknfx4fgggbrvwh2cm5m)
+      '@planetarium/account': 4.4.2(patch_hash=jb6dglqvmbazko2rjmsq6cngsy)
       '@planetarium/bencodex': 0.2.2
 
   '@repeaterjs/repeater@3.0.5': {}
