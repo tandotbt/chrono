@@ -8,6 +8,50 @@ This page describes the specifications and issues of the Chrono Wallet API.
 
 Chrono Wallet communicates with browser extensions through a global variable called `window.chronoWallet` to provide an interface to do things like signing. This is similar to how MetaMask provides a JSON-RPC API through `window.ethereum`.
 
+## `connect`
+
+### Signature
+
+```typescript
+function connect(): Promise<void>;
+```
+
+### Parameters
+
+There is no parameter.
+
+### Returns
+
+It doesn't return.
+
+### Examples
+
+```typescript
+await window.chronoWallet.connect();
+```
+
+## `isConnected`
+
+### Signature
+
+```typescript
+function isConnected(): Promise<boolean>;
+```
+
+### Parameters
+
+There is no parameter.
+
+### Returns
+
+It returns whether it is connected or not.
+
+### Examples
+
+```typescript
+const isConnected = await window.chronoWallet.isConnected();
+```
+
 ## `listAccounts`
 
 ### Signature

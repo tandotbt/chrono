@@ -31,6 +31,8 @@ window.addEventListener('message', async function(event) {
         return;
     }
 
+    const origin = event.origin;
+
     const messageId = event.data.messageId;
     const method = event.data.method;
 
@@ -41,6 +43,7 @@ window.addEventListener('message', async function(event) {
                 method: 'sign',
                 params: [event.data.signer, event.data.action],
                 messageId,
+                origin,
             });
         } else if (method === "signTx") {
             port.postMessage({
@@ -55,6 +58,7 @@ window.addEventListener('message', async function(event) {
                 method: 'listAccounts',
                 params: [],
                 messageId,
+                origin,
             });
         } else if (method === "getPublicKey") {
             port.postMessage({
@@ -62,6 +66,23 @@ window.addEventListener('message', async function(event) {
                 method: 'getPublicKey',
                 params: [event.data.address],
                 messageId,
+                origin,
+            });
+        } else if (method === "connect") {
+            port.postMessage({
+                action: 'wallet',
+                method: 'connect',
+                params: [event.data.permissions],
+                messageId,
+                origin,
+            });
+        } else if (method === "isConnected") {
+            port.postMessage({
+                action: 'wallet',
+                method: 'isConnected',
+                params: [event.data.permissions],
+                messageId,
+                origin,
             });
         }
     } catch(e) {

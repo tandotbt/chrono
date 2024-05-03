@@ -7,7 +7,7 @@ import * as ethers from "ethers";
 import { Address } from "@planetarium/account";
 import Decimal from "decimal.js";
 import { encodeSignedTx, encodeUnsignedTx, signTx } from "@planetarium/tx";
-import { APPROVAL_REQUESTS } from "../constants/constants";
+import { APPROVAL_REQUESTS, CONNECTED_SITES } from "../constants/constants";
 import { nanoid } from "nanoid";
 import { resolvePassphrase } from "@/utils/lazy"
 
@@ -20,11 +20,13 @@ export default class Wallet {
   /**
    * 
    * @param {string | () => string} passphrase 
+   * @param {string | undefined} origin
    */
-  constructor(passphrase) {
+  constructor(passphrase, origin) {
     this.api = new Graphql();
     this.storage = new Storage(passphrase);
     this.passphrase = passphrase;
+    this.origin = origin;
     this.canCall = [
       "createSequentialWallet",
       "createPrivateKeyWallet",
@@ -39,6 +41,8 @@ export default class Wallet {
       "rejectRequest",
       "listAccounts",
       "getPublicKey",
+      "connect",
+      "isConnected",
     ];
   }
   canCallExternal(method) {
@@ -267,6 +271,28 @@ export default class Wallet {
     return wallet.privateKey;
   }
 
+  async connect() {
+    return this._requestApprove("connect", { origin: this.origin, }).then(async (metadata) => {
+      const connectedSites = await this._getConnectedSites();
+      connectedSites[this.origin] = metadata;
+      await this._setConnectedSites(connectedSites);
+    });
+  }
+
+  async isConnected() {
+    const connectedSites = await this._getConnectedSites();
+    return connectedSites.hasOwnProperty(this.origin);
+  }
+
+  async _getConnectedSites() {
+    return (await this.storage.get(CONNECTED_SITES)) || {};
+  }
+
+  async _setConnectedSites(sites) {
+    console.log("sites", sites)
+    await this.storage.set(CONNECTED_SITES, sites);
+  }
+
   async _requestApprove(category, data) {
     const requestId = nanoid();
     await this.addRequest({
@@ -304,14 +330,14 @@ export default class Wallet {
    * 
    * @param {number} requestId 
    */
-  async approveRequest(requestId) {
+  async approveRequest(requestId, metadata) {
     const requests = await this.getApprovalRequests();
     await this.setApprovalRequests(requests.filter(({ id }) => id !== requestId));
 
     const handlers = pendingApprovals.get(requestId);
     console.log(requestId, pendingApprovals);
     if (handlers !== null) {
-      handlers.resolve();
+      handlers.resolve(metadata);
     }
   }
 
@@ -344,6 +370,12 @@ export default class Wallet {
 
   async listAccounts() {
     const accounts = await this.storage.get(ACCOUNTS);
+    if (this.origin) {
+      const connectedSites = await this._getConnectedSites();
+      const connectedAddresses = connectedSites[this.origin];
+      return accounts.filter(x => connectedAddresses.findIndex(addr => addr === x.address) !== -1);
+    }
+
     console.log(accounts);
     return accounts;
   }

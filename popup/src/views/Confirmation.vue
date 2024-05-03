@@ -2,21 +2,50 @@
   <div class="wrap pa-0">
     <div class="pt-12 mt-2 px-8">
       <p>1 / {{ approvalRequests.length }}</p>
-      <p class="header text-start">Signer</p>
-      <p class="content text-start">{{ approvalRequests[0].data.signer }}</p>
-      <p class="header text-start">Action</p>
-      <pre class="content text-start">{{ JSON.stringify(approvalRequests[0].data.content, null, 2) }}</pre>
-      <div class="d-flex">
-        <button
-          class="flex-fill border border-primary border-2 rounded-pill m-2 p-4"
-          @click="approveRequest(approvalRequests[0].id)">
-          Approve
-        </button>
-        <button
-          class="flex-fill border border-danger border-2 rounded-pill m-2 p-4"
-          @click="rejectRequest(approvalRequests[0].id)">
-          Reject
-        </button>
+      <p class="header text-start">Category</p>
+      <p class="content text-start">{{ approvalRequests[0].category }}</p>
+      <div v-if:="approvalRequests[0].category == 'sign'">
+        <p class="header text-start">Signer</p>
+        <p class="content text-start">{{ approvalRequests[0].data.signer }}</p>
+        <p class="header text-start">Action</p>
+        <pre class="content text-start">{{ JSON.stringify(approvalRequests[0].data.content, null, 2) }}</pre>
+        <div class="d-flex">
+          <button
+            class="flex-fill border border-primary border-2 rounded-pill m-2 p-4"
+            @click="approveRequest(approvalRequests[0].id)">
+            Approve
+          </button>
+          <button
+            class="flex-fill border border-danger border-2 rounded-pill m-2 p-4"
+            @click="rejectRequest(approvalRequests[0].id)">
+            Reject
+          </button>
+        </div>
+      </div>
+      <div v-if:="approvalRequests[0].category == 'connect'">
+        <p class="header text-start">Origin</p>
+        <p class="content text-start">{{ approvalRequests[0].data.origin }}</p>
+        <p class="header text-start">Select Accounts to connect</p>
+        <pre class="content text-start">{{ JSON.stringify(approvalRequests[0].data.content, null, 2) }}</pre>
+        <template v-for:="{ name, address } in accounts">
+          <div class="account-card">
+            <input type="checkbox" :name="address" :value="address" :id="address" v-model="selectedAddresses"/>
+            <label :for="address">{{ name }} : {{ shortAddress(address) }}</label>
+          </div>
+        </template>
+
+        <div class="d-flex">
+          <button
+            class="flex-fill border border-primary border-2 rounded-pill m-2 p-4"
+            @click="approveRequest(approvalRequests[0].id, selectedAddresses)">
+            Approve
+          </button>
+          <button
+            class="flex-fill border border-danger border-2 rounded-pill m-2 p-4"
+            @click="rejectRequest(approvalRequests[0].id)">
+            Reject
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -32,17 +61,20 @@ export default {
     name: 'Confirmation',
     components: {},
     computed: {
-      ...mapGetters('Account', ['approvalRequests'])
+      ...mapGetters('Account', ['approvalRequests', 'accounts'])
     },
     data() {
       return {
-          refreshTimer: 0
+          refreshTimer: 0,
+          selectedAddresses: []
       }
     },
     beforeDestroy() {
       clearInterval(this.refreshTimer)
     },
     async created() {
+        await this.$store.dispatch('Account/loadApprovalRequests')
+        await this.$store.dispatch('Account/loadAccounts')
         this.refreshTimer = setInterval(() => {
             this.$store.dispatch('Account/loadApprovalRequests')
         }, 1000)
@@ -56,7 +88,7 @@ export default {
       t,
       shortAddress: utils.shortAddress,
       async approveRequest(requestId) {
-        await bg.wallet.approveRequest(requestId);
+        await bg.wallet.approveRequest(requestId, this.selectedAddresses);
         await this.$store.dispatch('Account/loadApprovalRequests')
       },
       async rejectRequest(requestId) {
@@ -85,6 +117,12 @@ export default {
   width: 100px;
 }
 
+.account-card {
+  display: flex;
+  column-gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+}
 
 .tx-card {
   .status {

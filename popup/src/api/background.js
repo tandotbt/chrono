@@ -101,8 +101,8 @@ export default {
         getApprovalRequests: async () => {
             return callWallet('getApprovalRequests')
         },
-        approveRequest: (requestId) => {
-            return callWallet("approveRequest", [requestId]);
+        approveRequest: (requestId, ...params) => {
+            return callWallet("approveRequest", [requestId, ...params]);
         },
         rejectRequest: (requestId) => {
             return callWallet("rejectRequest", [requestId]);
