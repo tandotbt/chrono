@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.9.11",
-    "@planetarium/account": "3.9.2",
+    "@planetarium/account": "^4.4.2",
     "@planetarium/bencodex": "^0.2.2",
     "@planetarium/chrono-sdk": "workspace:^",
     "buffer": "^6.0.3",

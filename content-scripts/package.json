@@ -12,7 +12,7 @@
     },
     "devDependencies": {
         "@planetarium/bencodex": "^0.2.2",
-        "@planetarium/tx": "^4.3.0",
+        "@planetarium/tx": "^4.4.2",
         "@rollup/plugin-commonjs": "^25.0.7",
         "@rollup/plugin-node-resolve": "^15.2.3",
         "@types/chrome": "^0.0.266",
