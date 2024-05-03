@@ -31,7 +31,12 @@
         <template v-slot:text>
           <div class="mt-4">
             <v-text-field maxlength="16" outlined :rules="requiredRule" dense label="Account Name" v-model="imports.accountName" style="margin-bottom:-10px;"></v-text-field>
-            <v-textarea color="pointyellow" :rules="requiredRule" :error-messages="imports.error" class="point-input" filled dense rows="4" label="Private Key" v-model="imports.privateKey"></v-textarea>
+            <v-select label="Account Type" v-model="imports.importType" :items="['raw', 'json']"></v-select>
+
+            <v-file-input v-if="imports.importType == 'json'" label="Private Key File" v-model="imports.jsonFile" />
+            <v-text-field type="password" v-if="imports.importType == 'json'" color="pointyellow" :rules="requiredRule" :error-messages="imports.error" class="point-input" filled dense rows="4" label="Passphrase" v-model="imports.jsonPassphrase" />
+
+            <v-textarea v-if="imports.importType == 'raw'" color="pointyellow" :rules="requiredRule" :error-messages="imports.error" class="point-input" filled dense rows="4" label="Private Key" v-model="imports.privateKey"></v-textarea>
           </div>
         </template>
         <v-card-actions class="justify-space-between">
@@ -101,6 +106,7 @@ import rule from "@/utils/rules"
 import keccak256 from "keccak256";
 import t from "@/utils/i18n"
 import utils from "@/utils/utils";
+import { Wallet } from "ethers";
 
 export default {
     name: 'AccountManager',
@@ -122,7 +128,10 @@ export default {
                 dialog: false,
                 accountName: '',
                 privateKey: '',
-                error: null
+                error: null,
+                importType: 'raw',
+                jsonFile: null,
+                jsonPassphrase: '',
             },
             detail: {
                 dialog: false
@@ -158,6 +167,9 @@ export default {
             } else if (type === 'ImportAccount') {
                 this.imports.accountName = 'Account ' + (this.accounts.length + 1)
                 this.imports.privateKey = ''
+                this.imports.importType = 'raw';
+                this.imports.jsonFile = null;
+                this.imports.jsonPassphrase = '';
                 this.imports.dialog = true
             }
         },
@@ -198,15 +210,37 @@ export default {
          * Import Section
          */
         async importAccount() {
-            let accountName = this.imports.accountName.trim()
-            let pk = this.imports.privateKey.trim()
-            if (!accountName || !pk) return
+            const accountName = this.imports.accountName.trim()
+            const type = this.imports.importType;
 
             this.imports.error = null
             this.imports.loading = true
 
+            let payload;
+            if (type === "raw") {
+              const pk = this.imports.privateKey.trim()
+              if (!accountName || !pk) return
+
+              payload = {accountName, privateKey: pk};
+            } else if (type === "json") {
+              const jsonFile = this.imports.jsonFile;
+              const jsonPassphrase = this.imports.jsonPassphrase;
+              const jsonFiletring = await new Promise((resolve, reject) => {
+                const fileReader = new FileReader();
+                fileReader.onload = e => resolve(e.target.result);
+                fileReader.readAsText(jsonFile);
+              });
+
+              const decrypted = Wallet.fromEncryptedJsonSync(jsonFiletring, jsonPassphrase);
+              payload = {accountName, privateKey: decrypted.privateKey};
+            } else {
+              this.imports.error = "Invalid Private Key Type."
+              this.imports.loading = false;
+              return;
+            }
+
             try {
-                await this.$store.dispatch('Account/importAccount', {accountName, privateKey: pk})
+                await this.$store.dispatch('Account/importAccount', payload)
                 this.imports.dialog = false
             } catch(e) {
                 this.imports.error = 'Invalid Private Key'
