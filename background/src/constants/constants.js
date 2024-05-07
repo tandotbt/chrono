@@ -6,3 +6,5 @@ export const TXS = 'txs'
 export const PASSPHRASE = 'pp'
 export const APPROVAL_REQUESTS = 'approval_requests';
 export const CONNECTED_SITES = 'connected_sites';
+export const NETWORKS = 'n';
+export const CURRENT_NETWORK = 'cn';

@@ -7,6 +7,30 @@ import { encodeUnsignedTx, type UnsignedTx } from "@planetarium/tx";
 export class ChronoWallet {
     constructor(private readonly handler: WindowMessageHandler) {}
 
+    getCurrentNetwork(): Promise<{
+        id: string,
+        name: string,
+        genesisHash: string,
+        gqlEndpoint: string,
+        isMainnet: boolean,
+    }> {
+        return new Promise((resolve, reject) => {
+            this.handler.addEventListener(
+                { resolve: (v) => resolve(v), reject },
+                { method: 'getCurrentNetwork', }
+            );
+        });
+    }
+
+    switchNetwork(networkId: string): Promise<void> {
+        return new Promise((resolve, reject) => {
+            this.handler.addEventListener(
+                { resolve: () => resolve(), reject },
+                { method: 'switchNetwork', networkId, }
+            );
+        });
+    }
+
     connect(): Promise<void> {
         return new Promise((resolve, reject) => {
             this.handler.addEventListener(
@@ -45,17 +69,14 @@ export class ChronoWallet {
 
     listAccounts(): Promise<{
         address: Address,
-        activated: boolean,
     }[]> {
         return new Promise((resolve, reject) => {
             this.handler.addEventListener(
                 {
                     resolve: (value: {
-                        activated: boolean,
                         address: string,
                     }[]) => resolve(value.map(x => {
                         return {
-                            activated: x.activated,
                             address: Address.fromHex(x.address)
                         };
                     })),

@@ -32,6 +32,7 @@
     "@vue/cli-plugin-babel": "~4.5.19",
     "@vue/cli-plugin-eslint": "~4.5.19",
     "@vue/test-utils": "^2.4.5",
+    "@vue/tsconfig": "^0.5.1",
     "babel-core": "7.0.0-bridge.0",
     "babel-jest": "^27.5.1",
     "babel-plugin-transform-remove-console": "^6.9.4",
@@ -44,7 +45,8 @@
     "sass-loader": "^10.5.2",
     "typescript": "^5.4.5",
     "vite": "^5.2.8",
-    "vue-template-compiler": "^2.7.16"
+    "vue-template-compiler": "^2.7.16",
+    "vue-tsc": "^2.0.16"
   },
   "eslintConfig": {
     "root": true,

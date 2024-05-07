@@ -7,7 +7,7 @@ import * as ethers from "ethers";
 import { Address } from "@planetarium/account";
 import Decimal from "decimal.js";
 import { encodeSignedTx, encodeUnsignedTx, signTx } from "@planetarium/tx";
-import { APPROVAL_REQUESTS, CONNECTED_SITES } from "../constants/constants";
+import { APPROVAL_REQUESTS, CONNECTED_SITES, CURRENT_NETWORK, NETWORKS } from "../constants/constants";
 import { nanoid } from "nanoid";
 import { resolvePassphrase } from "@/utils/lazy"
 
@@ -22,9 +22,9 @@ export default class Wallet {
    * @param {string | () => string} passphrase 
    * @param {string | undefined} origin
    */
-  constructor(passphrase, origin) {
-    this.api = new Graphql();
-    this.storage = new Storage(passphrase);
+  constructor(passphrase, origin, storage, api) {
+    this.storage = storage;
+    this.api = api;
     this.passphrase = passphrase;
     this.origin = origin;
     this.canCall = [
@@ -43,8 +43,16 @@ export default class Wallet {
       "getPublicKey",
       "connect",
       "isConnected",
+      "getCurrentNetwork"
     ];
   }
+
+  static async createInstance(passphrase, origin) {
+    const storage = new Storage(passphrase);
+    const api = await Graphql.createInstance(storage);
+    return new Wallet(passphrase, origin, storage, api);
+  }
+
   canCallExternal(method) {
     return this.canCall.indexOf(method) >= 0;
   }
@@ -193,8 +201,9 @@ export default class Wallet {
         const wallet = await this.loadWallet(signer, resolvePassphrase(this.passphrase));
         const account = RawPrivateKey.fromHex(wallet.privateKey.slice(2));
         const sender = Address.fromHex(wallet.address);
+        const currentNetwork = await this.storage.get(CURRENT_NETWORK);
         const genesisHash = Buffer.from(
-          "4582250d0da33b06779a8475d283d5dd210c683b9b999d74d03fac4f58fa6bce",  // Switchable by network.
+          currentNetwork.genesisHash,
           "hex"
         );
 
@@ -282,6 +291,27 @@ export default class Wallet {
   async isConnected() {
     const connectedSites = await this._getConnectedSites();
     return connectedSites.hasOwnProperty(this.origin);
+  }
+
+  async getCurrentNetwork() {
+    const currentNetworkId = await this.storage.get(CURRENT_NETWORK);
+    const networks = await this.storage.get(NETWORKS);
+    const found = networks.find(network => network.id === currentNetworkId);
+    if (found) {
+      return found;
+    } else {
+      throw "The storage error";
+    }
+  }
+
+  async switchNetwork(id) {
+    const networks = await this.storage.get(NETWORKS);
+    const found = networks.find(network => network.id === id);
+    if (found) {
+      await this.storage.set(CURRENT_NETWORK, found.id);
+    } else {
+      throw "The storage error";
+    }
   }
 
   async _getConnectedSites() {

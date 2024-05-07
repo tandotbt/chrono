@@ -1,6 +1,12 @@
 {
+    "extends": "@vue/tsconfig/tsconfig.json",
     "compilerOptions": {
         "allowJs": true,
-        "types": ["chrome"]
-    }
+        "types": ["chrome"],
+        "isolatedModules": true,
+        "paths": {
+            "@/*": ["./src/*"]
+        }
+    },
+    "include": ["src"]
 }

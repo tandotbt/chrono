@@ -58,7 +58,6 @@ const isConnected = await window.chronoWallet.isConnected();
 
 ```typescript
 function listAccounts(): Promise<{
-    activated: boolean;
     address: Address;
 }[]>;
 ```

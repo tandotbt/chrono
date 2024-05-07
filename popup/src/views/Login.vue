@@ -72,6 +72,7 @@ export default {
                     if (await this.$store.dispatch('Account/isValidPassphrase', passphrase)) {
                         await this.$store.dispatch('Account/setPassphrase', passphrase)
                         await this.$store.dispatch('Account/loadAccounts')
+                        await this.$store.dispatch('Network/loadNetworks')
                         await this.$store.dispatch('Account/loadApprovalRequests')
                         console.log("this.approvalRequests.length", this.approvalRequests.length);
                         if (this.approvalRequests.length > 0) {
