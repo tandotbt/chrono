@@ -138,6 +138,7 @@ export default {
                     address: this.wallet.address,
                     ew: encryptedWallet
                 })
+                await this.$store.dispatch('Network/initNetworks');
                 await this.$router.replace({name: 'index'})
             } else {
                 await this.$router.replace({name: 'initiate'})

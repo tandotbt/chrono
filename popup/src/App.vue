@@ -26,6 +26,7 @@ export default {
             let signedIn = await bg.isSignedIn()
             if (signedIn) {
                 await this.$store.dispatch('Account/loadAccounts')
+                await this.$store.dispatch('Network/loadNetworks')
                 await this.$store.dispatch('Account/loadApprovalRequests')
                 this.init()
                 if (this.approvalRequests.length > 0) {
