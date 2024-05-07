@@ -84,6 +84,22 @@ window.addEventListener('message', async function(event) {
                 messageId,
                 origin,
             });
+        } else if (method === "getCurrentNetwork") {
+            port.postMessage({
+                action: 'wallet',
+                method: 'getCurrentNetwork',
+                params: [],
+                messageId,
+                origin,
+            });
+        } else if (method === "switchNetwork") {
+            port.postMessage({
+                action: 'wallet',
+                method: 'switchNetwork',
+                params: [event.data.networkId],
+                messageId,
+                origin,
+            });
         }
     } catch(e) {
         console.error(e);

@@ -5,19 +5,17 @@ import { getChronoSdk } from "@planetarium/chrono-sdk";
 import { Address } from "@planetarium/account";
 
 function App() {
-	const client = new ApolloClient({
-		uri: "https://9c-main-full-state.nine-chronicles.com/graphql",
-		cache: new InMemoryCache(),
-	});
-
 	const [accounts, setAccounts] = useState<
 		{
-			activated: boolean;
 			address: Address;
 		}[]
 	>([]);
 	const [currentAccount, setCurrentAccount] = useState<number | null>(null);
 	const [isConnected, setConnected] = useState<boolean>(false);
+	const [currentNetwork, setCurrentNetwork] = useState<{
+		gqlEndpoint: string,
+		id: string,
+	} | null>(null);
 
 	const chronoWallet = getChronoSdk();
 
@@ -39,19 +37,26 @@ function App() {
 			try {
 				const addresses = (await chronoWallet.listAccounts()).map((x) => {
 					return {
-						activated: x.activated,
 						address: x.address,
 					};
 				});
 				setAccounts(addresses);
-				for (let i = 0; i < addresses.length; i++) {
-					if (addresses[i].activated) {
-						setCurrentAccount(i);
-						return;
-					}
-				}
-
 				setCurrentAccount(0);
+			} catch (e) {
+				console.error(e);
+			}	
+		})();
+	}, [chronoWallet]);
+	useEffect(() => {
+		(async () => {
+			if (chronoWallet === undefined) {
+				return;
+			}
+
+			try {
+				const network = await chronoWallet.getCurrentNetwork();
+				console.log(network);
+				setCurrentNetwork(network);
 			} catch (e) {
 				console.error(e);
 			}	
@@ -76,8 +81,17 @@ function App() {
 	}
 
 	if (currentAccount === null) {
-		return <>Loading...</>;
+		return <>Loading... (account)</>;
 	}
+
+	if (currentNetwork === null) {
+		return <>Loading... (network)</>
+	}
+
+	const client = new ApolloClient({
+		uri: currentNetwork.gqlEndpoint,
+		cache: new InMemoryCache(),
+	});
 
 	return (
 		<ApolloProvider client={client}>
@@ -87,7 +101,6 @@ function App() {
 					onChange={(e) => setCurrentAccount(Number(e.target.value))}
 				>
 					{...accounts
-						.filter((acc) => acc.activated)
 						.map((acc, index) => (
 							<option key={acc.address.toString()} value={index}>
 								{acc.address.toString()}

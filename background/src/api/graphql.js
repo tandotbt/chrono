@@ -1,12 +1,64 @@
 import axios from "axios";
+import { CURRENT_NETWORK, NETWORKS } from "../constants/constants";
 
-const MAINNET_ENDPOINTS = [
-  "https://9c-main-full-state.nine-chronicles.com/graphql",
-  "https://9c-main-rpc-2.nine-chronicles.com/graphql"
-];
+
+async function getLastBlockIndex(endpoint) {
+  let { data } = await axios.create({ timeout: 10000 })({
+    method: "POST",
+    url: endpoint,
+    data: {
+      variables: { offset: 0 },
+      query: `
+                query getLastBlockIndex($offset: Int!) {
+                  chainQuery {
+                    blockQuery {
+                      blocks(offset: $offset, limit: 1, desc:true) {
+                        index
+                      }
+                    }
+                  }
+                }
+                `,
+    },
+  });
+  return data["data"]["chainQuery"]["blockQuery"]["blocks"][0]["index"];
+}
+
+async function getEndpoints(storage) {
+  let endpoints = null;
+
+  const currentNetworkId = await storage.get(CURRENT_NETWORK);
+  const networks = await storage.get(NETWORKS);
+  const network = networks.find(n => n.id === currentNetworkId);
+  endpoints = [network.gqlEndpoint];
+
+  let resultEp = {};
+  let maxIdx = 0;
+  for (let endpoint of endpoints) {
+    try {
+      let lastIdx = await getLastBlockIndex(endpoint);
+      maxIdx = Math.max(maxIdx, lastIdx);
+      resultEp[endpoint] = lastIdx;
+    } catch (e) {}
+  }
+  let eps = [];
+  for (let endpoint of Object.keys(resultEp)) {
+    if (maxIdx - resultEp[endpoint] < 30) {
+      eps.push(endpoint);
+    }
+  }
+
+  if (endpoints.length === 1) {
+    return endpoints;
+  }
+
+  return endpoints.filter((ep) => eps.indexOf(ep) >= 0);
+}
+
 export default class Graphql {
-  constructor() {
-    this.updateNetwork();
+  constructor(storage, endpoints) {
+    this.storage = storage;
+    this.endpoints = endpoints;
     this.canCall = [
       "updateNetwork",
       "getLastBlockIndex",
@@ -21,40 +73,9 @@ export default class Graphql {
     return this.canCall.indexOf(method) >= 0;
   }
 
-  async updateNetwork(network = "mainnet") {
-    let endpoints = null;
-    if (network === "mainnet") {
-      endpoints = MAINNET_ENDPOINTS;
-
-      if (!this.endpoints) {
-        this.endpoints = [...endpoints];
-      }
-
-      await this.updateEndpoints(endpoints);
-    } else {
-      throw "Unknown Network " + network;
-    }
-  }
-
-  //block index가 30개 이상 뒤쳐지면 제거
-  async updateEndpoints(endpoints) {
-    let resultEp = {};
-    let maxIdx = 0;
-    for (let endpoint of endpoints) {
-      try {
-        let lastIdx = await this.getLastBlockIndex(endpoint);
-        maxIdx = Math.max(maxIdx, lastIdx);
-        resultEp[endpoint] = lastIdx;
-      } catch (e) {}
-    }
-    let eps = [];
-    for (let endpoint of Object.keys(resultEp)) {
-      if (maxIdx - resultEp[endpoint] < 30) {
-        eps.push(endpoint);
-      }
-    }
-
-    this.endpoints = endpoints.filter((ep) => eps.indexOf(ep) >= 0);
+  static async createInstance(storage) {
+    const endpoints = await getEndpoints(storage);
+    return new Graphql(storage, endpoints);
   }
 
   async callEndpoint(fn) {
@@ -73,26 +94,10 @@ export default class Graphql {
     }
   }
 
-  async getLastBlockIndex(endpoint) {
-    let { data } = await axios.create({ timeout: 10000 })({
-      method: "POST",
-      url: endpoint,
-      data: {
-        variables: { offset: 0 },
-        query: `
-                  query getLastBlockIndex($offset: Int!) {
-                    chainQuery {
-                      blockQuery {
-                        blocks(offset: $offset, limit: 1, desc:true) {
-                          index
-                        }
-                      }
-                    }
-                  }
-                  `,
-      },
-    });
-    return data["data"]["chainQuery"]["blockQuery"]["blocks"][0]["index"];
+  async getLastBlockIndex() {
+    this.callEndpoint(async (endpoint) => {
+      return getLastBlockIndex(endpoint);
+    })
   }
 
   async getBalance(address) {
@@ -198,6 +203,7 @@ export default class Graphql {
   }
 
   async getActivationStatus(address) {
+    console.log("getActivationStatus", this.endpoints, address);
     return this.callEndpoint(async (endpoint) => {
       let { data } = await axios({
         method: "POST",
@@ -215,6 +221,7 @@ export default class Graphql {
                     `,
         },
       });
+      console.log("getActivationStatus", data);
       return data["data"]["stateQuery"]["pledge"]["approved"];
     });
   }

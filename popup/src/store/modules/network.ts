@@ -125,12 +125,14 @@ export default {
         async selectNetwork({commit, dispatch}: ActionHandlers, id: string) {
             await dispatch('Account/assertSignedIn', {}, {root: true});
             await bg.storage.set(CURRENT_NETWORK, id)
-            await commit('selectNetwork', id)
+            await commit('selectNetwork', id);
+            await dispatch('Account/loadAccounts', {}, {root: true});
         },
         async updateNetwork({state, commit, dispatch}: ActionHandlers, network: Network) {
             await dispatch('Account/assertSignedIn', {}, {root: true});
             await commit('updateNetwork', network)
             await bg.storage.set(NETWORKS, state.networks)
+            await dispatch('Account/loadAccounts', {}, {root: true});
         },
     }
 }

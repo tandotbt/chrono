@@ -46,11 +46,11 @@ export default {
                 state.account = found
             }
         },
-        setAccountActivated(state, address) {
+        setAccountActivated(state, {address, activated}) {
             let found = state.accounts.find(a => utils.equalsHex(a.address, address))
             if (found) {
-                console.log('activated', found)
-                found.activated = true
+                console.log('activated', found, address, activated)
+                found.activated = activated
             }
         },
         setAccountTxs(state, txs) {
@@ -154,15 +154,15 @@ export default {
             let accounts = await bg.storage.get(ACCOUNTS)
             if (accounts && accounts.length > 0) {
                 commit('setAccounts', accounts)
-                if (state.account == null) {
-                    let savedSelected = await bg.storage.get(CURRENT_ADDRESS)
-                    if (savedSelected && state.accounts.find(a => utils.equalsHex(a.address, savedSelected))) {
-                        dispatch('selectAccount', savedSelected)
-                    } else {
-                        dispatch('selectAccount', state.accounts[0].address)
-                    }
+                let savedSelected = await bg.storage.get(CURRENT_ADDRESS)
+                if (savedSelected && state.accounts.find(a => utils.equalsHex(a.address, savedSelected))) {
+                    dispatch('selectAccount', savedSelected)
+                } else {
+                    dispatch('selectAccount', state.accounts[0].address)
                 }
             }
+
+            console.log(this.loadAccounts);
         },
         async selectAccount({commit, dispatch}, address) {
             await bg.storage.set(CURRENT_ADDRESS, address)
@@ -178,15 +178,13 @@ export default {
         },
         async checkAccountActivated({state, commit}, {address}) {
             let found = state.accounts.find(a => utils.equalsHex(a.address, address))
-            if (found && !found.activated) {
+            console.log("checkAccountActivated", address);
+            if (found) {
+                console.log("checkAccountActivated found", found);
                 let activated = await bg.graphql('getActivationStatus', address)
                 console.log('act', activated)
-                if (activated) {
-                    commit('setAccountActivated', address)
-                    commit('selectAccount', address)
-                    await bg.storage.set(ACCOUNTS, state.accounts)
-
-                }
+                commit('setAccountActivated', {address, activated})
+                commit('selectAccount', address)
             }
         },
         async refreshBalance({state, commit}, {loading} = {}) {
