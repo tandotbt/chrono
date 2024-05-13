@@ -105,7 +105,7 @@ export default {
             let passphrase = this.$route.params.passphrase
             if (passphrase) {
                 this.wallet = ethers.Wallet.createRandom({locale: 'en'})
-                let m = await this.wallet._mnemonic()
+                let m = await this.wallet.mnemonic
                 this.mnemonic = m.phrase
             } else {
                 await this.$router.replace({name: 'initiate'})
