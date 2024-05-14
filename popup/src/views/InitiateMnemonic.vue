@@ -66,6 +66,7 @@
 </template>
 
 <script>
+import { markRaw } from "vue";
 import InitiateHeader from "@/components/InitiateHeader.vue";
 import _ from "underscore"
 import t from "@/utils/i18n";
@@ -104,8 +105,8 @@ export default {
             }
             let passphrase = this.$route.params.passphrase
             if (passphrase) {
-                this.wallet = ethers.Wallet.createRandom({locale: 'en'})
-                let m = await this.wallet.mnemonic
+                this.wallet = markRaw(ethers.Wallet.createRandom({locale: 'en'}));
+                let m = this.wallet.mnemonic
                 this.mnemonic = m.phrase
             } else {
                 await this.$router.replace({name: 'initiate'})
