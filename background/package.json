@@ -10,7 +10,7 @@
     "test": "jest --coverage --detectOpenHandles"
   },
   "dependencies": {
-    "@planetarium/account": "^4.4.2",
+    "@planetarium/account": "~4.4.2",
     "@planetarium/bencodex": "0.2.2",
     "@planetarium/tx": "^4.4.2",
     "axios": "^0.24.0",

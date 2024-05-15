@@ -20,7 +20,7 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
-    "@planetarium/account": "^4.4.2",
+    "@planetarium/account": "~4.4.2",
     "@planetarium/bencodex": "^0.2.2",
     "@planetarium/tx": "^4.4.2",
     "buffer": "^6.0.3"
