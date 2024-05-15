@@ -1,13 +1,13 @@
 import { Buffer } from "buffer";
 import { BencodexDictionary } from "@planetarium/bencodex";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import {
-	useGetAvatarsWithTipQuery,
 	useStageTransactionMutation,
 } from "./generated/graphql";
 import { getChronoSdk } from "@planetarium/chrono-sdk";
 import { Address } from "@planetarium/account";
+import { GetAvatarsResponse, getAvatars, getTip } from "./mimir-client";
 
 interface RefillButtonProps {
 	signer: Address;
@@ -106,62 +106,49 @@ function RefillButton({ signer, avatarAddress }: RefillButtonProps) {
 }
 
 interface AgentProps {
+	network: "odin" | "heimdall";
 	agentAddress: Address;
 }
 
-function Agent({ agentAddress }: AgentProps) {
-	const { data, loading, error } = useGetAvatarsWithTipQuery({
-		variables: {
-			agentAddress: agentAddress.toString(),
-		},
-		pollInterval: 500,
-	});
+function Agent({ network, agentAddress }: AgentProps) {
+	const [agent, setAgent] = useState<GetAvatarsResponse>();
+	const [tip, setTip] = useState<number>();
 
-	if (loading) {
-		return <p className="mt-8 text-white">Loading</p>;
-	}
+	useEffect(() => {
+		const interval = setInterval(() => {
+			getAvatars(network, agentAddress.toString()).then(setAgent);
+			getTip(network).then(setTip);
+		}, 1000);
 
-	if (error) {
+		return () => clearInterval(interval);
+	}, [network, agentAddress]);
+
+	if (agent === undefined || tip === undefined) {
 		return (
-			<p className="mt-8 text-white">Failed to fetch agent-related states.</p>
+			<p className="mt-8 text-white">Loading or unexpected failure while fetching data.</p>
 		);
 	}
 
-	if (data === undefined) {
+	if (agent.avatars.length < 1) {
 		return (
-			<p className="mt-8 text-white">Unexpected failure while fetching data.</p>
+			<p className="mt-8 text-white">The agent may not have any avatars.</p>
 		);
 	}
-
-	if (data.stateQuery.agent === null || data.stateQuery.agent === undefined) {
-		return (
-			<p className="mt-8 text-white">
-				There is no such agent. (address: {agentAddress.toString()})
-			</p>
-		);
-	}
-	const agent = data.stateQuery.agent;
-
-	if (agent.avatarStates === null || agent.avatarStates === undefined) {
-		return (
-			<p className="mt-8 text-white">The agent may not have avatar states.</p>
-		);
-	}
-	const avatarStates = agent.avatarStates;
-	const tipIndex = data.nodeStatus.tip.index;
+	const avatars = agent.avatars;
+	const REFILL_INTERVAL = 2550 as const;
 
 	return (
 		<div className="flex flex-col mt-8 min-w-full min-h-full justify-center items-center">
-			{avatarStates.map((avatar) => (
-				<div className="p-8 shadow-lg w-4/12 bg-slate-100" key={avatar.address}>
+			{avatars.map(({ avatarAddress, avatarName, actionPoint, dailyRewardReceivedIndex }) => (
+				<div className="p-8 shadow-lg w-4/12 bg-slate-100" key={avatarAddress}>
 					<div className="flex flex-row justify-center items-center gap-4">
 						<span className="font-bold">
-							{avatar.name} ({avatar.actionPoint} / 120)
+							{avatarName} ({actionPoint} / 120)
 						</span>
-						{tipIndex - avatar.dailyRewardReceivedIndex > 2550 ? (
+						{tip - dailyRewardReceivedIndex > REFILL_INTERVAL ? (
 							<RefillButton
 								signer={agentAddress}
-								avatarAddress={Address.fromHex(avatar.address)}
+								avatarAddress={Address.fromHex(avatarAddress)}
 							/>
 						) : (
 							<></>
