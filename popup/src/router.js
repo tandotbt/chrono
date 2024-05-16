@@ -5,8 +5,6 @@ import InitiateMnemonic from "@/views/InitiateMnemonic.vue";
 import Login from "@/views/Login.vue";
 import ForgotPassword from "@/views/ForgotPassword.vue";
 import Send from "@/views/Send.vue";
-import BridgeWNCG from "@/views/BridgeWNCG.vue";
-import Bridge from "@/views/Bridge.vue";
 import Confirmation from "@/views/Confirmation.vue";
 
 let router = createRouter({
@@ -41,16 +39,6 @@ let router = createRouter({
             path: '/send',
             name: 'send',
             component: Send
-        },
-        {
-            path: '/bridge',
-            name: 'bridge',
-            component: Bridge
-        },
-        {
-            path: '/bridge/ncg2wncg',
-            name: 'ncg2wncg',
-            component: BridgeWNCG
         },
         {
             path: '/confirmation',
