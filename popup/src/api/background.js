@@ -10,7 +10,7 @@ const callBackground = function(action, method, params = []) {
                     if (res.error == 'NotSignedIn') {
                         location.reload()
                     } else {
-                        console.log('error callBackground', res)
+                        console.log('error callBackground', action, method, params, res)
                         reject(res.error)
                     }
                 } else {

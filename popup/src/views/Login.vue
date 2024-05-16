@@ -37,7 +37,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-import keccak256 from "keccak256"
+import { keccak_256 } from "@noble/hashes/sha3"
 import InitiateHeader from "@/components/InitiateHeader.vue";
 import t from "@/utils/i18n";
 
@@ -68,7 +68,7 @@ export default {
             this.loginError = null
             try {
                 if (this.password) {
-                    let passphrase = keccak256(this.password).toString('hex')
+                    let passphrase = Buffer.from(keccak_256(this.password)).toString('hex')
                     if (await this.$store.dispatch('Account/isValidPassphrase', passphrase)) {
                         await this.$store.dispatch('Account/setPassphrase', passphrase)
                         await this.$store.dispatch('Account/loadAccounts')

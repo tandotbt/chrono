@@ -10,6 +10,7 @@
     "test": "jest --coverage --detectOpenHandles"
   },
   "dependencies": {
+    "@noble/hashes": "^1.4.0",
     "@planetarium/account": "~4.4.2",
     "@planetarium/bencodex": "0.2.2",
     "@planetarium/tx": "^4.4.2",
@@ -19,7 +20,6 @@
     "core-js": "^3.6.5",
     "decimal.js": "^10.4.3",
     "ethers": "^5.5.1",
-    "keccak256": "^1.0.3",
     "nanoid": "^5.0.7",
     "web3": "^1.6.0"
   },
