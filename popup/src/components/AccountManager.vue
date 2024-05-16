@@ -103,7 +103,7 @@ import AccountSelector from "@/components/buttons/AccountSelector.vue";
 import CopyBtn from "@/components/buttons/CopyBtn.vue";
 
 import rule from "@/utils/rules"
-import keccak256 from "keccak256";
+import { keccak_256 } from "@noble/hashes/sha3";
 import t from "@/utils/i18n"
 import utils from "@/utils/utils";
 import { Wallet } from "ethers";
@@ -261,7 +261,7 @@ export default {
             if (this.pkview.dialog && this.pkview.password) {
                 try {
                     this.pkview.loading = true
-                    let passphrase = keccak256(this.pkview.password).toString('hex')
+                    let passphrase = Buffer.from(keccak_256(this.pkview.password)).toString('hex')
                     let pk = await this.$store.dispatch('Account/getPrivateKey', {
                         address: this.account.address,
                         passphrase: passphrase

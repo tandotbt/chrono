@@ -52,7 +52,7 @@
 <script>
 import rules from "@/utils/rules"
 import t from "@/utils/i18n"
-import keccak256 from "keccak256"
+import { keccak_256 } from "@noble/hashes/sha3"
 import _ from "underscore"
 import InitiateHeader from "@/components/InitiateHeader.vue";
 
@@ -98,7 +98,7 @@ export default {
         t,
         async initiate() {
             if ((await this.$refs['form'].validate()).valid && this.isValidPassword) {
-                let passphrase = keccak256(this.pass1).toString('hex')
+                let passphrase = Buffer.from(keccak_256(this.pass1)).toString('hex')
                 this.$router.replace({
                   name: 'initiateMnemonic',
                   params: {

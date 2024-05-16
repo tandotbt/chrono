@@ -15,6 +15,9 @@ importers:
 
   background:
     dependencies:
+      '@noble/hashes':
+        specifier: ^1.4.0
+        version: 1.4.0
       '@planetarium/account':
         specifier: ~4.4.2
         version: 4.4.2(patch_hash=jb6dglqvmbazko2rjmsq6cngsy)
@@ -42,9 +45,6 @@ importers:
       ethers:
         specifier: ^5.5.1
         version: 5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10)
-      keccak256:
-        specifier: ^1.0.3
-        version: 1.0.6
       nanoid:
         specifier: ^5.0.7
         version: 5.0.7
@@ -238,6 +238,9 @@ importers:
       '@mdi/font':
         specifier: ^5.9.55
         version: 5.9.55
+      '@noble/hashes':
+        specifier: ^1.4.0
+        version: 1.4.0
       '@vue/vue3-jest':
         specifier: '27'
         version: 27.0.0(@babel/core@7.24.4)(babel-jest@27.5.1(@babel/core@7.24.4))(jest@27.5.1(bufferutil@4.0.8)(utf-8-validate@5.0.10))(typescript@5.4.5)(vue@3.4.24(typescript@5.4.5))
@@ -262,9 +265,6 @@ importers:
       ethers:
         specifier: ^6.12.1
         version: 6.12.1(bufferutil@4.0.8)(utf-8-validate@5.0.10)
-      keccak256:
-        specifier: ^1.0.6
-        version: 1.0.6
       moment:
         specifier: ^2.30.1
         version: 2.30.1
@@ -4051,9 +4051,6 @@ packages:
   jsprim@1.4.2:
     resolution: {integrity: sha512-P2bSOMAc/ciLz6DzgjVlGJP9+BrJWu5UDGK70C2iweC5QBIeFf0ZXRvGjEj2uYgrY2MkAAhsSWHDWlFtEroZWw==}
     engines: {node: '>=0.6.0'}
-
-  keccak256@1.0.6:
-    resolution: {integrity: sha512-8GLiM01PkdJVGUhR1e6M/AvWnSqYS0HaERI+K/QtStGDGlSTx2B1zTqZk4Zlqu5TxHJNTxWAdP9Y+WI50OApUw==}
 
   keccak@3.0.4:
     resolution: {integrity: sha512-3vKuW0jV8J3XNTzvfyicFR5qvxrSAGl7KIhvgOu5cmWwM7tZRj3fMbj/pfIf4be7aznbc+prBWGjywox/g2Y6Q==}
@@ -11010,12 +11007,6 @@ snapshots:
       extsprintf: 1.3.0
       json-schema: 0.4.0
       verror: 1.10.0
-
-  keccak256@1.0.6:
-    dependencies:
-      bn.js: 5.2.1
-      buffer: 6.0.3
-      keccak: 3.0.4
 
   keccak@3.0.4:
     dependencies:
