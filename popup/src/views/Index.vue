@@ -15,12 +15,6 @@
         </div>
       </div>
       <div class="mt-4">
-        <v-btn dark size="large" color="#666666" class="mx-1 action-btn" :disabled="balanceLoading" @click="$router.replace({name: 'bridge'})">
-          <div>
-            {{t('bridge')}}
-            <div style="font-size: 10px;color:#888;letter-spacing: 0px">WNCG</div>
-          </div>
-        </v-btn>
         <v-btn dark large
                color="#F0B90B"
                class="mx-1 action-btn point-btn"
@@ -47,8 +41,7 @@
                 <span class="ml-3" :class="tx.status">{{tx.status}}</span>
               </span>
               <span class="tx-type">
-                <span v-if="tx.action === 'bridgeWNCG'">Bridge WNCG</span>
-                <span v-else>{{ tx.type == 'transfer_asset5' ? 'Transfer Asset' : tx.type}}</span>
+                <span>{{ tx.type == 'transfer_asset5' ? 'Transfer Asset' : tx.type}}</span>
               </span>
             </div>
             <div style="margin-right: -16px;" class="d-flex align-center">
