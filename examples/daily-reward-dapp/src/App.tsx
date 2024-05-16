@@ -1,8 +1,9 @@
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Agent from "./Agent";
 import { getChronoSdk } from "@planetarium/chrono-sdk";
 import { Address } from "@planetarium/account";
+import { HEIMDALL_GENESIS_HASH, ODIN_GENESIS_HASH } from "./constants";
 
 function App() {
 	const [accounts, setAccounts] = useState<
@@ -14,8 +15,18 @@ function App() {
 	const [isConnected, setConnected] = useState<boolean>(false);
 	const [currentNetwork, setCurrentNetwork] = useState<{
 		gqlEndpoint: string,
+		genesisHash: string,
 		id: string,
 	} | null>(null);
+	const guessedNetworkName = useMemo<"odin" | "heimdall" | "unknown">(() => {
+		if (currentNetwork?.genesisHash?.toLowerCase() === ODIN_GENESIS_HASH) {
+			return "odin";
+		} else if (currentNetwork?.genesisHash?.toLowerCase() === HEIMDALL_GENESIS_HASH) {
+			return "heimdall";
+		} else {
+			return "unknown";
+		}
+	}, [currentNetwork]);
 
 	const chronoWallet = getChronoSdk();
 
@@ -88,6 +99,10 @@ function App() {
 		return <>Loading... (network)</>
 	}
 
+	if (guessedNetworkName === "unknown") {
+		return <>Unknown network (genesis hash: {currentNetwork.genesisHash})</>
+	}
+
 	const client = new ApolloClient({
 		uri: currentNetwork.gqlEndpoint,
 		cache: new InMemoryCache(),
@@ -107,7 +122,7 @@ function App() {
 							</option>
 						))}
 				</select>
-				<Agent agentAddress={accounts[currentAccount].address} />
+				<Agent network={guessedNetworkName} agentAddress={accounts[currentAccount].address} />
 			</div>
 		</ApolloProvider>
 	);
