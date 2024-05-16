@@ -13,3 +13,8 @@ jobs:
           version: 9
           run_install: true
       - run: pnpm build
+      - if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: chrono-extension
+          path: build
