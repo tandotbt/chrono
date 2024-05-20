@@ -1,9 +1,10 @@
 import axios from "axios";
-import { CURRENT_NETWORK, NETWORKS } from "../constants/constants";
+import type Storage from "@/storage/storage";
+import { CURRENT_NETWORK, NETWORKS, Network, NetworkId } from "../constants/constants";
 
 
-async function getLastBlockIndex(endpoint) {
-  let { data } = await axios.create({ timeout: 10000 })({
+async function getLastBlockIndex(endpoint: string) {
+  const { data } = await axios.create({ timeout: 10000 })({
     method: "POST",
     url: endpoint,
     data: {
@@ -24,25 +25,23 @@ async function getLastBlockIndex(endpoint) {
   return data["data"]["chainQuery"]["blockQuery"]["blocks"][0]["index"];
 }
 
-async function getEndpoints(storage) {
-  let endpoints = null;
-
-  const currentNetworkId = await storage.get(CURRENT_NETWORK);
-  const networks = await storage.get(NETWORKS);
+async function getEndpoints(storage: Storage): Promise<string[]> {
+  const currentNetworkId = await storage.get<NetworkId>(CURRENT_NETWORK);
+  const networks = await storage.get<Network[]>(NETWORKS);
   const network = networks.find(n => n.id === currentNetworkId);
-  endpoints = [network.gqlEndpoint];
+  const endpoints = [network.gqlEndpoint];
 
-  let resultEp = {};
+  const resultEp = {};
   let maxIdx = 0;
-  for (let endpoint of endpoints) {
+  for (const endpoint of endpoints) {
     try {
-      let lastIdx = await getLastBlockIndex(endpoint);
+      const lastIdx = await getLastBlockIndex(endpoint);
       maxIdx = Math.max(maxIdx, lastIdx);
       resultEp[endpoint] = lastIdx;
     } catch (e) {}
   }
-  let eps = [];
-  for (let endpoint of Object.keys(resultEp)) {
+  const eps = [];
+  for (const endpoint of Object.keys(resultEp)) {
     if (maxIdx - resultEp[endpoint] < 30) {
       eps.push(endpoint);
     }
@@ -56,6 +55,10 @@ async function getEndpoints(storage) {
 }
 
 export default class Graphql {
+  private readonly storage: Storage;
+  private readonly endpoints: string[];
+  private readonly canCall: string[];
+
   constructor(storage, endpoints) {
     this.storage = storage;
     this.endpoints = endpoints;
@@ -69,20 +72,20 @@ export default class Graphql {
       "getTransferAsset"
     ];
   }
-  canCallExternal(method) {
+  canCallExternal(method: string) {
     return this.canCall.indexOf(method) >= 0;
   }
 
-  static async createInstance(storage) {
+  static async createInstance(storage: Storage) {
     const endpoints = await getEndpoints(storage);
     return new Graphql(storage, endpoints);
   }
 
-  async callEndpoint(fn) {
+  async callEndpoint<T>(fn: (endpoint: string) => Promise<T>): Promise<T> {
     let exceptions = [];
-    for (let endpoint of this.endpoints) {
+    for (const endpoint of this.endpoints) {
       try {
-        let result = await fn(endpoint);
+        const result = await fn(endpoint);
         return result;
       } catch (e) {
         exceptions.push(e);
@@ -94,13 +97,13 @@ export default class Graphql {
     }
   }
 
-  async getLastBlockIndex() {
-    this.callEndpoint(async (endpoint) => {
+  async getLastBlockIndex(): Promise<number> {
+    return this.callEndpoint(async (endpoint) => {
       return getLastBlockIndex(endpoint);
     })
   }
 
-  async getBalance(address) {
+  async getBalance(address: string): Promise<string> {
     return this.callEndpoint(async (endpoint) => {
       let { data } = await axios.create({ timeout: 10000 })({
         method: "POST",
@@ -118,7 +121,7 @@ export default class Graphql {
       return data["data"]["goldBalance"];
     });
   }
-  async getNextTxNonce(address) {
+  async getNextTxNonce(address: string): Promise<number> {
     return this.callEndpoint(async (endpoint) => {
       let { data } = await axios.create({ timeout: 10000 })({
         method: "POST",
@@ -139,7 +142,7 @@ export default class Graphql {
     });
   }
 
-  async unsignedTx(publicKey, plainValue, nonce) {
+  async unsignedTx(publicKey: string, plainValue: string, nonce: number): Promise<string> {
     const maxGasPrice = {
       quantity: 1,
       ticker: 'Mead',
@@ -164,7 +167,7 @@ export default class Graphql {
     });
   }
 
-  async getTransferAsset(sender, receiver, amount){
+  async getTransferAsset(sender: string, receiver: string, amount: string): Promise<string> {
   return this.callEndpoint(async (endpoint) => {
     let { data } = await axios({
       method: "POST",
@@ -184,7 +187,10 @@ export default class Graphql {
   });
 }
 
-  async stageTx(payload) {
+  async stageTx(payload: string): Promise<{
+    txId: string,
+    endpoint: string,
+  }> {
     return this.callEndpoint(async (endpoint) => {
       let { data } = await axios({
         method: "POST",
@@ -202,7 +208,7 @@ export default class Graphql {
     });
   }
 
-  async getActivationStatus(address) {
+  async getActivationStatus(address: string): Promise<boolean> {
     console.log("getActivationStatus", this.endpoints, address);
     return this.callEndpoint(async (endpoint) => {
       let { data } = await axios({
