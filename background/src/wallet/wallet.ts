@@ -62,7 +62,6 @@ export default class Wallet {
       "createSequentialWallet",
       "createPrivateKeyWallet",
       "sendNCG",
-      "bridgeWNCG",
       "nextNonce",
       "getPrivateKey",
       "sign",
@@ -181,33 +180,6 @@ export default class Wallet {
       id: txId,
       endpoint,
       status: "STAGING",
-      type: "transfer_asset5",
-      timestamp: +new Date(),
-      signer: sender,
-      data: {
-        sender: sender,
-        receiver: receiver,
-        amount: amount,
-      },
-    };
-
-    await this.addPendingTxs(result);
-    return result;
-  }
-
-  async bridgeWNCG(sender, receiver, amount, nonce) {
-    let { txId, endpoint } = await this._transferNCG(
-      sender,
-      "0x9093dd96c4bb6b44a9e0a522e2de49641f146223",
-      amount,
-      nonce,
-      receiver
-    );
-    const  result: SavedTransactionHistory = {
-      id: txId,
-      endpoint,
-      status: "STAGING",
-      action: "bridgeWNCG",
       type: "transfer_asset5",
       timestamp: +new Date(),
       signer: sender,
