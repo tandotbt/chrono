@@ -1,23 +1,22 @@
 import aes256 from "@/utils/aes256"
-import { resolvePassphrase } from "@/utils/lazy"
+import { Lazyable, resolve } from "@/utils/lazy"
 
 class Storage {
-    /**
-     * 
-     * @param {string | () => string} passphrase 
-     */
-    constructor(passphrase) {
+    private readonly passphrase: Lazyable<string>;
+    private readonly canCall: string[];
+
+    constructor(passphrase: Lazyable<string>) {
         this.passphrase = passphrase
-        this.canCall = ['set', 'get', 'remove', 'has', 'secureSet', 'clearAll']
+        this.canCall = ['set', 'get', 'remove', 'has', 'secureSet', 'clearAll'] as const;
     }
-    canCallExternal(method) {
+    canCallExternal(method: string): boolean {
         return this.canCall.indexOf(method) >= 0
     }
 
-    async rawSet(name, value) {
+    async rawSet<T>(name: string, value: T): Promise<void> {
         await chrome.storage.local.set({[name]: value})
     }
-    rawGet(name) {
+    rawGet<T>(name: string): Promise<T | null> {
         return new Promise(resolve => {
             chrome.storage.local.get([name], (res) => {
                 resolve(res && res[name] || null)
@@ -33,14 +32,14 @@ class Storage {
     By separating the logic, signing tasks through wallet are executed only
     in the background context, and only the results are returned.
     */
-    async secureSet(name, value) {
-        let _value = await aes256.encrypt(JSON.stringify({v:value, secure: true}), resolvePassphrase(this.passphrase))
+    async secureSet<T>(name: string, value: T): Promise<void> {
+        const _value = await aes256.encrypt(JSON.stringify({v:value, secure: true}), resolve(this.passphrase))
         await this.rawSet(name,  _value)
     }
-    async secureGet(name) {
-        let _value = await this.rawGet(name)
+    async secureGet<T>(name: string): Promise<T | null> {
+        const _value = await this.rawGet<string>(name)
         if (_value) {
-            let v = JSON.parse(await aes256.decrypt(_value, resolvePassphrase(this.passphrase)))
+            const v = JSON.parse(await aes256.decrypt(_value, resolve(this.passphrase)))
             if (!v.secure) {
                 throw 'SecureGet has accessed to not secured data'
             }
@@ -49,14 +48,14 @@ class Storage {
 
         return null
     }
-    async set(name, value) {
-        let _value = await aes256.encrypt(JSON.stringify({v:value}), resolvePassphrase(this.passphrase))
+    async set<T>(name: string, value: T) {
+        const _value = await aes256.encrypt(JSON.stringify({v:value}), resolve(this.passphrase))
         await this.rawSet(name,  _value)
     }
-    async get(name) {
-        let _value = await this.rawGet(name)
+    async get<T>(name: string): Promise<T> {
+        const _value = await this.rawGet<string>(name)
         if (_value) {
-            let v = JSON.parse(await aes256.decrypt(_value, resolvePassphrase(this.passphrase)))
+            const v = JSON.parse(await aes256.decrypt(_value, resolve(this.passphrase)))
             if (v.secure) {
                 throw 'Can not access secure data'
             }
@@ -65,13 +64,13 @@ class Storage {
 
         return null
     }
-    remove(name) {
-        chrome.storage.local.remove(name)
+    async remove(name: string): Promise<void> {
+        await chrome.storage.local.remove(name)
     }
-    async has(name) {
+    async has(name): Promise<boolean> {
         return (await this.rawGet(name)) !== null
     }
-    async clearAll() {
+    async clearAll(): Promise<void> {
         await chrome.storage.local.clear()
     }
 }

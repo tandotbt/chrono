@@ -2,16 +2,17 @@ import Graphql from "@/api/graphql"
 import Storage from "@/storage/storage"
 import Wallet from "@/wallet/wallet"
 import { Buffer } from "buffer";
+import { Account } from "./constants/constants";
 
 window.Buffer = Buffer;
 
 ;(function() {
     let passphrase = null
     let passphraseTTL = 0
-    let connections = [];
+    let connections: chrome.runtime.Port[] = [];
 
 
-    const emitter = (event, data) => {
+    const emitter = (event: string, data: any) => {
         for (const port of connections) {
             port.postMessage({
                 event,
@@ -23,13 +24,14 @@ window.Buffer = Buffer;
     const checkValidPassphrase = async (p) => {
         const storage = new Storage(p)
         try {
-            let accounts = await storage.get('accounts')
+            const accounts = await storage.get<Account[]>('accounts')
             return accounts.length > 0
         } catch(e) {}
         return false
     }
 
-    chrome.extension.onMessage.addListener((req, sender, sendResponse) => {
+    
+    chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
         console.log("req", req);
         try {
             if (req.action == 'passphrase') {

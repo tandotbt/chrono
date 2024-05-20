@@ -1,6 +1,13 @@
 {
     "compilerOptions": {
         "allowJs": true,
-        "types": ["chrome"]
-    }
+        "types": ["chrome"],
+        "lib": ["ESNext", "DOM"],
+        "target": "ESNext",
+        "moduleResolution": "Bundler",
+        "paths": {
+            "@/*": ["./src/*"]
+        }
+    },
+    "include": ["src"]
 }

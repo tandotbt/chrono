@@ -1,29 +1,58 @@
 import Graphql from "@/api/graphql";
 import Storage from "@/storage/storage";
-import { ENCRYPTED_WALLET, TXS, ACCOUNTS } from "@/constants/constants";
+import { ENCRYPTED_WALLET, TXS, ACCOUNTS, Account, Network, NetworkId } from "@/constants/constants";
 import { RawPrivateKey } from "@planetarium/account";
-import { BencodexDictionary, decode, encode, isDictionary } from "@planetarium/bencodex";
+import { BencodexDictionary, Value, decode, encode, isDictionary } from "@planetarium/bencodex";
 import * as ethers from "ethers";
 import { Address } from "@planetarium/account";
 import Decimal from "decimal.js";
 import { encodeSignedTx, encodeUnsignedTx, signTx } from "@planetarium/tx";
 import { APPROVAL_REQUESTS, CONNECTED_SITES, CURRENT_NETWORK, NETWORKS } from "../constants/constants";
 import { nanoid } from "nanoid";
-import { resolvePassphrase } from "@/utils/lazy"
+import { Lazyable, resolve } from "@/utils/lazy"
+import { Emitter } from "../event";
+import { Buffer } from "buffer";
 
-/**
- * @type {Map<number,object>}
- */
+interface Request {
+  id: string;
+  category: string;
+  data: unknown;
+}
+
+interface SavedTransactionHistory 
+{
+  id: string,
+  endpoint: string,
+  status: "STAGING",
+  action?: string,
+  type: string,
+  timestamp: number,
+  signer: string,
+  data: {
+    sender: string,
+    receiver: string,
+    amount: number,
+  },
+};
+
+
 const pendingApprovals = new Map();
 
 export default class Wallet {
+  private readonly storage: Storage;
+  private readonly api: Graphql;
+  private readonly passphrase: Lazyable<string>;
+  private readonly emitter: Emitter;
+  private readonly origin: string | undefined;
+  private readonly canCall: string[];
+
   /**
    * 
    * @param {string | () => string} passphrase 
    * @param {string | undefined} origin
    * @param {import("../event").Emitter} emitter
    */
-  constructor(passphrase, origin, storage, api, emitter) {
+  constructor(passphrase: Lazyable<string>, origin: string | undefined, storage: Storage, api: Graphql, emitter: Emitter | undefined) {
     this.storage = storage;
     this.api = api;
     this.passphrase = passphrase;
@@ -50,63 +79,66 @@ export default class Wallet {
     ];
   }
 
-  static async createInstance(passphrase, origin, emitter) {
+  static async createInstance(passphrase: Lazyable<string>, origin: string | undefined, emitter: Emitter | undefined) {
     const storage = new Storage(passphrase);
     const api = await Graphql.createInstance(storage);
     return new Wallet(passphrase, origin, storage, api, emitter);
   }
 
-  canCallExternal(method) {
+  canCallExternal(method: string): boolean {
     return this.canCall.indexOf(method) >= 0;
   }
-  hexToBuffer(hex) {
+  hexToBuffer(hex: string): Buffer {
     return Buffer.from(
       ethers.utils.arrayify(hex, { allowMissingPrefix: true })
     );
   }
-  decryptWallet(encryptedWalletJson, passphrase) {
+  decryptWallet(encryptedWalletJson: string, passphrase: string): ethers.Wallet {
     return ethers.Wallet.fromEncryptedJsonSync(
       encryptedWalletJson,
-      passphrase || resolvePassphrase(this.passphrase)
+      passphrase || resolve(this.passphrase)
     );
   }
   async isValidNonce(nonce) {
     let pendingNonce = await this.storage.get("nonce");
     return pendingNonce == nonce;
   }
-  async nextNonce(address) {
+  async nextNonce(address: string) {
     let pendingNonce = await this.api.getNextTxNonce(address);
     this.storage.set("nonce", pendingNonce);
     return pendingNonce;
   }
-  async createSequentialWallet(primaryAddress, index) {
-    let wallet = await this.loadWallet(primaryAddress, resolvePassphrase(this.passphrase));
+  async createSequentialWallet(primaryAddress: string, index: number) {
+    const wallet = await this.loadWallet(primaryAddress, resolve(this.passphrase));
 
-    let mnemonic = wallet._mnemonic().phrase;
+    const mnemonic = wallet._mnemonic().phrase;
 
-    let newWallet = ethers.Wallet.fromMnemonic(
+    const newWallet = ethers.Wallet.fromMnemonic(
       mnemonic,
       "m/44'/60'/0'/0/" + index
     );
-    let encryptedWallet = await newWallet.encrypt(resolvePassphrase(this.passphrase));
-    let address = newWallet.address;
+    const encryptedWallet = await newWallet.encrypt(resolve(this.passphrase));
+    const address = newWallet.address;
 
     return { address, encryptedWallet };
   }
-  async createPrivateKeyWallet(privateKey) {
-    let wallet = new ethers.Wallet(privateKey);
-    let encryptedWallet = await wallet.encrypt(resolvePassphrase(this.passphrase));
-    let address = wallet.address;
+  async createPrivateKeyWallet(privateKey: string): Promise<{
+    address: string;
+    encryptedWallet: string;
+  }> {
+    const wallet = new ethers.Wallet(privateKey);
+    const encryptedWallet = await wallet.encrypt(resolve(this.passphrase));
+    const address = wallet.address;
 
     return { address, encryptedWallet };
   }
-  async loadWallet(address, passphrase) {
-    let encryptedWallet = await this.storage.secureGet(
+  async loadWallet(address: string, passphrase: string): Promise<ethers.Wallet> {
+    const encryptedWallet = await this.storage.secureGet<string>(
       ENCRYPTED_WALLET + address.toLowerCase()
     );
     return this.decryptWallet(encryptedWallet, passphrase);
   }
-  async _transferNCG(sender, receiver, amount, nonce, memo) {
+  async _transferNCG(sender, receiver, amount, nonce, memo?) {
     if (!(await this.isValidNonce(nonce))) {
       throw "Invalid Nonce";
     }
@@ -114,7 +146,7 @@ export default class Wallet {
     const senderEncryptedWallet = await this.storage.secureGet(
       ENCRYPTED_WALLET + sender.toLowerCase()
     );
-    const wallet = await this.loadWallet(sender, resolvePassphrase(this.passphrase));
+    const wallet = await this.loadWallet(sender, resolve(this.passphrase));
     const utxBytes = Buffer.from(await this.api.unsignedTx(
       wallet.publicKey.slice(2),
       await this.api.getTransferAsset(
@@ -127,7 +159,7 @@ export default class Wallet {
 
     const account = RawPrivateKey.fromHex(wallet.privateKey.slice(2));
     const signature = (await account.sign(utxBytes)).toBytes();
-    const utx = decode(utxBytes);
+    const utx = decode(utxBytes) as BencodexDictionary;
     const signedTx = new BencodexDictionary([
       ...utx,
       [new Uint8Array([0x53]), signature],
@@ -139,13 +171,13 @@ export default class Wallet {
   }
 
   async sendNCG(sender, receiver, amount, nonce) {
-    let { txId, endpoint } = await this._transferNCG(
+    const { txId, endpoint } = await this._transferNCG(
       sender,
       receiver,
       amount,
       nonce
     );
-    let result = {
+    const result: SavedTransactionHistory = {
       id: txId,
       endpoint,
       status: "STAGING",
@@ -171,7 +203,7 @@ export default class Wallet {
       nonce,
       receiver
     );
-    let result = {
+    const  result: SavedTransactionHistory = {
       id: txId,
       endpoint,
       status: "STAGING",
@@ -190,7 +222,7 @@ export default class Wallet {
     return result;
   }
 
-  async sign(signer, actionHex) {
+  async sign(signer: string, actionHex: string): Promise<string> {
     const action = decode(Buffer.from(actionHex, "hex"));
     if (!isDictionary(action)) {
       throw new Error("Invalid action. action must be BencodexDictionary.");
@@ -201,10 +233,10 @@ export default class Wallet {
       content: convertBencodexToJSONableType(action),
     })
       .then(async () => {
-        const wallet = await this.loadWallet(signer, resolvePassphrase(this.passphrase));
+        const wallet = await this.loadWallet(signer, resolve(this.passphrase));
         const account = RawPrivateKey.fromHex(wallet.privateKey.slice(2));
         const sender = Address.fromHex(wallet.address);
-        const currentNetwork = await this.storage.get(CURRENT_NETWORK);
+        const currentNetwork = await this.getCurrentNetwork();
         const genesisHash = Buffer.from(
           currentNetwork.genesisHash,
           "hex"
@@ -239,7 +271,7 @@ export default class Wallet {
       });
   }
 
-  async signTx(signer, encodedUnsignedTxHex) {
+  async signTx(signer: string, encodedUnsignedTxHex: string): Promise<string> {
     const encodedUnsignedTxBytes = Buffer.from(encodedUnsignedTxHex, "hex");
     const encodedUnsignedTx = decode(encodedUnsignedTxBytes);
 
@@ -247,7 +279,7 @@ export default class Wallet {
       throw new Error("Invalid unsigned tx");
     }
 
-    const wallet = await this.loadWallet(signer, resolvePassphrase(this.passphrase));
+    const wallet = await this.loadWallet(signer, resolve(this.passphrase));
     const account = RawPrivateKey.fromHex(wallet.privateKey);
     const signature = await account.sign(encodedUnsignedTxBytes);
 
@@ -263,14 +295,14 @@ export default class Wallet {
   }
 
   async _signTx(signer, unsignedTx) {
-    const wallet = await this.loadWallet(signer, resolvePassphrase(this.passphrase));
+    const wallet = await this.loadWallet(signer, resolve(this.passphrase));
     const account = RawPrivateKey.fromHex(wallet.privateKey.slice(2));
 
     return await signTx(unsignedTx, account);
   }
 
   async addPendingTxs(tx) {
-    let txs = await this.storage.get(TXS + tx.signer.toLowerCase());
+    let txs = await this.storage.get<SavedTransactionHistory[]>(TXS + tx.signer.toLowerCase());
     if (!txs) {
       txs = [];
     }
@@ -278,12 +310,12 @@ export default class Wallet {
     await this.storage.set(TXS + tx.signer.toLowerCase(), txs.splice(0, 100));
   }
 
-  async getPrivateKey(address, passphrase) {
+  async getPrivateKey(address: string, passphrase): Promise<string> {
     let wallet = await this.loadWallet(address, passphrase);
     return wallet.privateKey;
   }
 
-  async connect() {
+  async connect(): Promise<void> {
     return this._requestApprove("connect", { origin: this.origin, }).then(async (metadata) => {
       const connectedSites = await this._getConnectedSites();
       connectedSites[this.origin] = metadata;
@@ -291,14 +323,14 @@ export default class Wallet {
     });
   }
 
-  async isConnected() {
+  async isConnected(): Promise<boolean> {
     const connectedSites = await this._getConnectedSites();
     return connectedSites.hasOwnProperty(this.origin);
   }
 
-  async getCurrentNetwork() {
-    const currentNetworkId = await this.storage.get(CURRENT_NETWORK);
-    const networks = await this.storage.get(NETWORKS);
+  async getCurrentNetwork(): Promise<Network> {
+    const currentNetworkId = await this.storage.get<NetworkId>(CURRENT_NETWORK);
+    const networks = await this.storage.get<Network[]>(NETWORKS);
     const found = networks.find(network => network.id === currentNetworkId);
     if (found) {
       return found;
@@ -307,8 +339,8 @@ export default class Wallet {
     }
   }
 
-  async switchNetwork(id) {
-    const networks = await this.storage.get(NETWORKS);
+  async switchNetwork(id: string): Promise<void> {
+    const networks = await this.storage.get<Network[]>(NETWORKS);
     const found = networks.find(network => network.id === id);
     if (found) {
       await this.storage.set(CURRENT_NETWORK, found.id);
@@ -329,7 +361,7 @@ export default class Wallet {
     await this.storage.set(CONNECTED_SITES, sites);
   }
 
-  async _requestApprove(category, data) {
+  async _requestApprove(category: string, data: unknown) {
     const requestId = nanoid();
     await this.addRequest({
       id: requestId,
@@ -344,16 +376,16 @@ export default class Wallet {
     })
   }
 
-  async _showPopup() {
+  async _showPopup(): Promise<void> {
     await chrome.windows.create({ url: "popup/index.html", type: "popup", focused: true, width: 360, height: 600 });
   }
 
-  async hasApprovalRequest() {
+  async hasApprovalRequest(): Promise<boolean> {
     const requests = await this.getApprovalRequests();
     return requests.length > 0;
   }
 
-  async addRequest(request) {
+  async addRequest(request: Request): Promise<void> {
     const requests = await this.getApprovalRequests();
     if (requests.find(({ id }) => id === request.id)) {
       throw new Error("Duplicated request.");
@@ -362,11 +394,7 @@ export default class Wallet {
     await this.setApprovalRequests([...requests, request]);
   }
 
-  /**
-   * 
-   * @param {number} requestId 
-   */
-  async approveRequest(requestId, metadata) {
+  async approveRequest(requestId: string, metadata) {
     const requests = await this.getApprovalRequests();
     await this.setApprovalRequests(requests.filter(({ id }) => id !== requestId));
 
@@ -377,11 +405,7 @@ export default class Wallet {
     }
   }
 
-  /**
-   * 
-   * @param {number} requestId 
-   */
-  async rejectRequest(requestId) {
+  async rejectRequest(requestId: string) {
     const requests = await this.getApprovalRequests();
     await this.setApprovalRequests(requests.filter(({ id }) => id !== requestId));
 
@@ -395,7 +419,7 @@ export default class Wallet {
   /**
    * @returns {Promise<Array>}
    */
-  async getApprovalRequests() {
+  async getApprovalRequests(): Promise<Request[]> {
     const requests = JSON.parse(await this.storage.rawGet(APPROVAL_REQUESTS));
     if (requests === null) {
       return [];
@@ -404,8 +428,8 @@ export default class Wallet {
     return requests;
   }
 
-  async listAccounts() {
-    const accounts = await this.storage.get(ACCOUNTS);
+  async listAccounts(): Promise<Account[]> {
+    const accounts = await this.storage.get<Account[]>(ACCOUNTS);
     if (this.origin) {
       const connectedSites = await this._getConnectedSites();
       const connectedAddresses = connectedSites[this.origin];
@@ -416,22 +440,18 @@ export default class Wallet {
     return accounts;
   }
 
-  async getPublicKey(address) {
-    const wallet = await this.loadWallet(address, resolvePassphrase(this.passphrase));
+  async getPublicKey(address: string): Promise<string> {
+    const wallet = await this.loadWallet(address, resolve(this.passphrase));
     return wallet.publicKey;
   }
 
-  /**
-   * 
-   * @param {Array<object>} requests 
-   */
-  async setApprovalRequests(requests) {
+  async setApprovalRequests(requests: Request[]): Promise<void> {
     console.log("setApprovalRequests", requests);
     await this.storage.rawSet(APPROVAL_REQUESTS, JSON.stringify(requests));
   }
 }
 
-function convertBencodexToJSONableType(v) {
+function convertBencodexToJSONableType(v: Value) {
   if (v instanceof Array) {
     return v.map(convertBencodexToJSONableType);
   }
