@@ -14,6 +14,12 @@ port.onMessage.addListener((res, _) => {
             messageId: messageId,
             error: res.error,
         });
+    } else if (!messageId && res && typeof res === 'object' && res.hasOwnProperty('event') && res.hasOwnProperty('data')) {
+        window.postMessage({
+            type: "FROM_CHRONO",
+            event: res.event,
+            data: res.data,
+        });
     } else {
         window.postMessage({
             type: "FROM_CHRONO",

@@ -1,5 +1,5 @@
 {
-  "extends": ["plugin:vue/base"],
+  "extends": ["plugin:vue/base", "plugin:@typescript-eslint/eslint-recommended"],
   "parserOptions": {
     "ecmaVersion": 2018
   },

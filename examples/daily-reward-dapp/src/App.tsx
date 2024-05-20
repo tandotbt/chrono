@@ -31,6 +31,16 @@ function App() {
 	const chronoWallet = getChronoSdk();
 
 	useEffect(() => {
+		if (chronoWallet === undefined) {
+			return;
+		}
+
+		chronoWallet.subscribe("network:changed", (network) => {
+			console.log("check", network);
+			setCurrentNetwork(network);
+		});
+	}, [chronoWallet]);
+	useEffect(() => {
 		(async() => {
 			if (chronoWallet === undefined) {
 				return;

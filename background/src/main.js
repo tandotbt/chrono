@@ -8,6 +8,17 @@ window.Buffer = Buffer;
 ;(function() {
     let passphrase = null
     let passphraseTTL = 0
+    let connections = [];
+
+
+    const emitter = (event, data) => {
+        for (const port of connections) {
+            port.postMessage({
+                event,
+                data,
+            });
+        }
+    }
 
     const checkValidPassphrase = async (p) => {
         const storage = new Storage(p)
@@ -73,7 +84,7 @@ window.Buffer = Buffer;
                 }
 
                 if (req.action == 'wallet') {
-                    Wallet.createInstance(passphrase).then(wallet => {
+                    Wallet.createInstance(passphrase, undefined, emitter).then(wallet => {
                         if (wallet[req.method] && wallet.canCallExternal(req.method)) {
                             wallet[req.method].call(wallet, ...req.params)
                                 .then(sendResponse)
@@ -96,10 +107,16 @@ window.Buffer = Buffer;
 
     chrome.runtime.onConnect.addListener(function(port) {
         console.assert(port.name === "content-script");
+
+        connections.push(port);
+        port.onDisconnect.addListener(function(port) {
+            connections = connections.filter(p => p !== port);
+        });
+
         port.onMessage.addListener(function(req) {
             console.log(port.name, req);
             if (req.action == 'wallet') {
-                Wallet.createInstance(() => passphrase, req.origin).then(wallet => {
+                Wallet.createInstance(() => passphrase, req.origin, emitter).then(wallet => {
                     wallet.isConnected().then((connected) => {
                         if (!connected && req.method !== "connect" && req.method !== "isConnected") {
                             port.postMessage({error: `${req.origin} is not connected. Call 'window.chronoWallet.connect' first.`, messageId: req.messageId});

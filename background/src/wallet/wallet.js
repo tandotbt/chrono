@@ -21,11 +21,13 @@ export default class Wallet {
    * 
    * @param {string | () => string} passphrase 
    * @param {string | undefined} origin
+   * @param {import("../event").Emitter} emitter
    */
-  constructor(passphrase, origin, storage, api) {
+  constructor(passphrase, origin, storage, api, emitter) {
     this.storage = storage;
     this.api = api;
     this.passphrase = passphrase;
+    this.emitter = emitter;
     this.origin = origin;
     this.canCall = [
       "createSequentialWallet",
@@ -43,14 +45,15 @@ export default class Wallet {
       "getPublicKey",
       "connect",
       "isConnected",
-      "getCurrentNetwork"
+      "getCurrentNetwork",
+      "switchNetwork",
     ];
   }
 
-  static async createInstance(passphrase, origin) {
+  static async createInstance(passphrase, origin, emitter) {
     const storage = new Storage(passphrase);
     const api = await Graphql.createInstance(storage);
-    return new Wallet(passphrase, origin, storage, api);
+    return new Wallet(passphrase, origin, storage, api, emitter);
   }
 
   canCallExternal(method) {
@@ -309,6 +312,9 @@ export default class Wallet {
     const found = networks.find(network => network.id === id);
     if (found) {
       await this.storage.set(CURRENT_NETWORK, found.id);
+      console.log("switchNetwork");
+      console.log(this.emitter)
+      this.emitter("network:changed", found);
     } else {
       throw "The storage error";
     }
