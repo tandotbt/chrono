@@ -106,6 +106,9 @@ export default {
         },
         rejectRequest: (requestId) => {
             return callWallet("rejectRequest", [requestId]);
+        },
+        switchNetwork: (id) => {
+            return callWallet("switchNetwork", [id]);
         }
     },
 }
