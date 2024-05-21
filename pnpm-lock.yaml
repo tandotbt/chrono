@@ -239,7 +239,7 @@ importers:
         version: 6.0.3
     devDependencies:
       '@planetarium/lib9c':
-        specifier: npm:@jsr/planetarium__lib9c@0.1.0-dev
+        specifier: npm:@jsr/planetarium__lib9c@0.1.0-dev+c93e993e16713fb3ed43e1683b4beb0ccf0c6a69
         version: '@jsr/planetarium__lib9c@0.1.0-dev+c93e993e16713fb3ed43e1683b4beb0ccf0c6a69'
       typescript:
         specifier: ^5.4.5
