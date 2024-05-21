@@ -92,7 +92,7 @@ window.addEventListener('message', async function(event) {
             });
         } else if (method === "getCurrentNetwork") {
             port.postMessage({
-                action: 'wallet',
+                action: 'network',
                 method: 'getCurrentNetwork',
                 params: [],
                 messageId,
@@ -100,7 +100,7 @@ window.addEventListener('message', async function(event) {
             });
         } else if (method === "switchNetwork") {
             port.postMessage({
-                action: 'wallet',
+                action: 'network',
                 method: 'switchNetwork',
                 params: [event.data.networkId],
                 messageId,

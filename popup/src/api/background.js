@@ -31,6 +31,10 @@ const callWallet = function(method, params = []) {
     return callBackground('wallet', method, params)
 }
 
+const callNetwork = function(method, params = []) {
+    return callBackground('network', method, params)
+}
+
 export default {
     graphql: (method, params) => {
         return callBackground('graphql', method, params)
@@ -107,8 +111,10 @@ export default {
         rejectRequest: (requestId) => {
             return callWallet("rejectRequest", [requestId]);
         },
-        switchNetwork: (id) => {
-            return callWallet("switchNetwork", [id]);
-        }
     },
+    network: {
+        switchNetwork: (id) => {
+            return callNetwork("switchNetwork", [id]);
+        }
+    }
 }
