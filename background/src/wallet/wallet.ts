@@ -79,6 +79,7 @@ export default class Wallet {
 		this.storage = storage;
 		this.api = api;
 		this.popup = popupController;
+		this.networkController = networkController;
 		this.confirmationController = confirmationController;
 		this.passphrase = passphrase;
 		this.emitter = emitter;
