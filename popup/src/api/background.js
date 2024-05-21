@@ -35,6 +35,10 @@ const callNetwork = function(method, params = []) {
     return callBackground('network', method, params)
 }
 
+const callConfirmation = function(method, params = []) {
+    return callBackground('confirmation', method, params)
+}
+
 export default {
     graphql: (method, params) => {
         return callBackground('graphql', method, params)
@@ -102,19 +106,21 @@ export default {
         getPrivateKey: async (address, passphrase) => {
             return await callWallet('getPrivateKey', [address, passphrase])
         },
-        getApprovalRequests: async () => {
-            return callWallet('getApprovalRequests')
-        },
-        approveRequest: (requestId, ...params) => {
-            return callWallet("approveRequest", [requestId, ...params]);
-        },
-        rejectRequest: (requestId) => {
-            return callWallet("rejectRequest", [requestId]);
-        },
     },
     network: {
         switchNetwork: (id) => {
             return callNetwork("switchNetwork", [id]);
         }
+    },
+    confirmation: {
+        getApprovalRequests: async () => {
+            return callConfirmation('getAll')
+        },
+        approveRequest: (requestId, ...params) => {
+            return callConfirmation("approve", [requestId, ...params]);
+        },
+        rejectRequest: (requestId) => {
+            return callConfirmation("reject", [requestId]);
+        },
     }
 }

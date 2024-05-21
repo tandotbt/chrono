@@ -237,7 +237,7 @@ export default {
             }
         },
         async loadApprovalRequests({state, commit}) {
-            let approvalRequests = await bg.wallet.getApprovalRequests();
+            let approvalRequests = await bg.confirmation.getApprovalRequests();
             if (!approvalRequests) {
                 approvalRequests = []
             }

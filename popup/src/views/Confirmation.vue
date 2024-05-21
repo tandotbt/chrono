@@ -88,11 +88,11 @@ export default {
       t,
       shortAddress: utils.shortAddress,
       async approveRequest(requestId) {
-        await bg.wallet.approveRequest(requestId, this.selectedAddresses);
+        await bg.confirmation.approveRequest(requestId, this.selectedAddresses);
         await this.$store.dispatch('Account/loadApprovalRequests')
       },
       async rejectRequest(requestId) {
-        await bg.wallet.rejectRequest(requestId);
+        await bg.confirmation.rejectRequest(requestId);
         await this.$store.dispatch('Account/loadApprovalRequests')
       }
     }

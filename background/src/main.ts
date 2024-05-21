@@ -4,6 +4,8 @@ import Wallet from "@/wallet/wallet";
 import { Buffer } from "buffer";
 import { Account, ENCRYPTED_WALLET } from "./constants/constants";
 import { NetworkController } from "./controllers/network";
+import { ConfirmationController } from "./controllers/confirmation";
+import { PopupController } from "./controllers/popup";
 
 window.Buffer = Buffer;
 (function () {
@@ -92,6 +94,23 @@ window.Buffer = Buffer;
 					if (storage[req.method] && storage.canCallExternal(req.method)) {
 						storage[req.method]
 							.call(storage, ...req.params)
+							.then(sendResponse)
+							.catch((e) => sendResponse({ error: e }));
+					} else {
+						sendResponse({ error: "Unknown Method" });
+					}
+				}
+
+				if (req.action == "confirmation") {
+					const storage = new Storage(passphrase);
+					const popupController = new PopupController();
+					const confirmationController = new ConfirmationController(
+						storage,
+						popupController,
+					);
+					if (confirmationController[req.method]) {
+						confirmationController[req.method]
+							.call(confirmationController, ...req.params)
 							.then(sendResponse)
 							.catch((e) => sendResponse({ error: e }));
 					} else {
@@ -205,6 +224,37 @@ window.Buffer = Buffer;
 				if (networkController[req.method]) {
 					networkController[req.method]
 						.call(networkController, ...req.params)
+						.then((x) =>
+							port.postMessage({
+								result: x,
+								messageId: req.messageId,
+							}),
+						)
+						.catch((e) => {
+							console.error(e);
+							port.postMessage({
+								error: `${req.method} is rejected`,
+								messageId: req.messageId,
+							});
+						});
+				} else {
+					port.postMessage({
+						error: "Unknown Method",
+						messageId: req.messageId,
+					});
+				}
+			}
+
+			if (req.action == "confirmation") {
+				const storage = new Storage(passphrase);
+				const popupController = new PopupController();
+				const confirmationController = new ConfirmationController(
+					storage,
+					popupController,
+				);
+				if (confirmationController[req.method]) {
+					confirmationController[req.method]
+						.call(confirmationController, ...req.params)
 						.then((x) =>
 							port.postMessage({
 								result: x,
