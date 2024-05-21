@@ -1,50 +1,21 @@
-import { Buffer } from "buffer";
-import { BencodexDictionary } from "@planetarium/bencodex";
 import { useEffect, useMemo, useState } from "react";
-import { v4 as uuidv4 } from "uuid";
 import {
 	useStageTransactionMutation,
 } from "./generated/graphql";
 import { getChronoSdk } from "@planetarium/chrono-sdk";
 import { Address } from "@planetarium/account";
 import { GetAvatarsResponse, getAvatars, getTip } from "./mimir-client";
+import { DailyReward } from "@planetarium/lib9c";
 
 interface RefillButtonProps {
 	signer: Address;
 	avatarAddress: Address;
 }
 
-function uuidv4ToBuffer(uuid: string): Buffer {
-	const source = Buffer.from(uuid.replace(/-/g, ""), "hex");
-	const buffer = new Buffer(16);
-
-	// Match byte-order.
-	buffer[0] = source[3];
-	buffer[1] = source[2];
-	buffer[2] = source[1];
-	buffer[3] = source[0];
-	buffer[4] = source[5];
-	buffer[5] = source[4];
-	buffer[6] = source[7];
-	buffer[7] = source[6];
-
-	source.copy(buffer, 8, 8, 16);
-
-	return buffer;
-}
-
-function createDailyRewardAction(avatarAddress: Address): BencodexDictionary {
-	const id = uuidv4();
-	return new BencodexDictionary([
-		["type_id", "daily_reward7"],
-		[
-			"values",
-			new BencodexDictionary([
-				["id", uuidv4ToBuffer(id)],
-				["a", avatarAddress.toBytes()],
-			]),
-		],
-	]);
+function createDailyRewardAction(avatarAddress: Address): DailyReward {
+	return new DailyReward({
+		avatarAddress,
+	});
 }
 
 type RefillProgress = "None" | "Signing" | "Staging" | "Done";

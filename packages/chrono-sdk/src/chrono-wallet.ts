@@ -4,6 +4,7 @@ import { WindowMessageHandler } from "./handler";
 import { Buffer } from "buffer";
 import { encodeUnsignedTx, type UnsignedTx } from "@planetarium/tx";
 import { EventType, EventHandler, Network } from "./event";
+import type { PolymorphicAction } from "@planetarium/lib9c";
 
 export class ChronoWallet {
     constructor(private readonly handler: WindowMessageHandler) {}
@@ -52,11 +53,11 @@ export class ChronoWallet {
         });
     }
 
-    sign(signer: Address, action: Value): Promise<Buffer> {
+    sign(signer: Address, action: PolymorphicAction): Promise<Buffer> {
         return new Promise((resolve, reject) => {
             this.handler.send(
                 { resolve: (value: string) => resolve(Buffer.from(value, "hex")), reject },
-                { method: 'sign', signer: signer.toString(), action: Buffer.from(encode(action)).toString("hex") }
+                { method: 'sign', signer: signer.toString(), action: Buffer.from(action.serialize()).toString("hex") }
             );
         });
     }
