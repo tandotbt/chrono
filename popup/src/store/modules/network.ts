@@ -125,7 +125,7 @@ export default {
         async selectNetwork({commit, dispatch}: ActionHandlers, id: string) {
             await dispatch('Account/assertSignedIn', {}, {root: true});
             await commit('selectNetwork', id);
-            await bg.wallet.switchNetwork(id);
+            await bg.network.switchNetwork(id);
             await dispatch('Account/loadAccounts', {}, {root: true});
         },
         async updateNetwork({state, commit, dispatch}: ActionHandlers, network: Network) {

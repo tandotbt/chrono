@@ -3,6 +3,7 @@ import Storage from "@/storage/storage";
 import Wallet from "@/wallet/wallet";
 import { Buffer } from "buffer";
 import { Account } from "./constants/constants";
+import { NetworkController } from "./controllers/network";
 
 window.Buffer = Buffer;
 (function () {
@@ -85,21 +86,43 @@ window.Buffer = Buffer;
 				}
 
 				if (req.action == "wallet") {
-					Wallet.createInstance(passphrase, undefined, emitter).then(
-						(wallet) => {
-							if (wallet[req.method] && wallet.canCallExternal(req.method)) {
-								wallet[req.method]
-									.call(wallet, ...req.params)
-									.then(sendResponse)
-									.catch((e) => {
-										console.error(e);
-										sendResponse({ error: e });
-									});
-							} else {
-								sendResponse({ error: "Unknown Method" });
-							}
-						},
-					);
+					Wallet.createInstance(passphrase, emitter).then((wallet) => {
+						if (wallet[req.method] && wallet.canCallExternal(req.method)) {
+							wallet[req.method]
+								.call(wallet, ...req.params)
+								.then(sendResponse)
+								.catch((e) => {
+									console.error(e);
+									sendResponse({ error: e });
+								});
+						} else {
+							sendResponse({ error: "Unknown Method" });
+						}
+					});
+				}
+
+				if (req.action == "network") {
+					const storage = new Storage(() => passphrase);
+					const networkController = new NetworkController(storage, emitter);
+					if (networkController[req.method]) {
+						networkController[req.method]
+							.call(networkController, ...req.params)
+							.then((x) =>
+								sendResponse({
+									result: x,
+								}),
+							)
+							.catch((e) => {
+								console.error(e);
+								sendResponse({
+									error: `${req.method} is rejected`,
+								});
+							});
+					} else {
+						sendResponse({
+							error: "Unknown Method",
+						});
+					}
 				}
 			}
 		} catch (e) {
@@ -120,7 +143,7 @@ window.Buffer = Buffer;
 		port.onMessage.addListener(function (req) {
 			console.log(port.name, req);
 			if (req.action == "wallet") {
-				Wallet.createInstance(() => passphrase, req.origin, emitter).then(
+				Wallet.createInstance(() => passphrase, emitter, req.origin).then(
 					(wallet) => {
 						wallet.isConnected().then((connected) => {
 							if (
@@ -160,6 +183,33 @@ window.Buffer = Buffer;
 						});
 					},
 				);
+			}
+
+			if (req.action == "network") {
+				const storage = new Storage(() => passphrase);
+				const networkController = new NetworkController(storage, emitter);
+				if (networkController[req.method]) {
+					networkController[req.method]
+						.call(networkController, ...req.params)
+						.then((x) =>
+							port.postMessage({
+								result: x,
+								messageId: req.messageId,
+							}),
+						)
+						.catch((e) => {
+							console.error(e);
+							port.postMessage({
+								error: `${req.method} is rejected`,
+								messageId: req.messageId,
+							});
+						});
+				} else {
+					port.postMessage({
+						error: "Unknown Method",
+						messageId: req.messageId,
+					});
+				}
 			}
 		});
 	});

@@ -31,6 +31,7 @@ import { Lazyable, resolve } from "@/utils/lazy";
 import { Emitter } from "../event";
 import { Buffer } from "buffer";
 import { PopupController } from "@/controllers/popup";
+import { NetworkController } from "@/controllers/network";
 
 interface Request {
 	id: string;
@@ -59,6 +60,7 @@ export default class Wallet {
 	private readonly storage: Storage;
 	private readonly api: Graphql;
 	private readonly popup: PopupController;
+	private readonly networkController: NetworkController;
 	private readonly passphrase: Lazyable<string>;
 	private readonly emitter: Emitter;
 	private readonly origin: string | undefined;
@@ -76,6 +78,7 @@ export default class Wallet {
 		storage: Storage,
 		api: Graphql,
 		popupController: PopupController,
+		networkController: NetworkController,
 		emitter: Emitter | undefined,
 	) {
 		this.storage = storage;
@@ -99,20 +102,27 @@ export default class Wallet {
 			"getPublicKey",
 			"connect",
 			"isConnected",
-			"getCurrentNetwork",
-			"switchNetwork",
 		];
 	}
 
 	static async createInstance(
 		passphrase: Lazyable<string>,
-		origin: string | undefined,
-		emitter: Emitter | undefined,
+		emitter: Emitter,
+		origin?: string | undefined,
 	) {
 		const popup = new PopupController();
 		const storage = new Storage(passphrase);
 		const api = await Graphql.createInstance(storage);
-		return new Wallet(passphrase, origin, storage, api, popup, emitter);
+		const networkController = new NetworkController(storage, emitter);
+		return new Wallet(
+			passphrase,
+			origin,
+			storage,
+			api,
+			popup,
+			networkController,
+			emitter,
+		);
 	}
 
 	canCallExternal(method: string): boolean {
@@ -250,7 +260,7 @@ export default class Wallet {
 			const wallet = await this.loadWallet(signer, resolve(this.passphrase));
 			const account = RawPrivateKey.fromHex(wallet.privateKey.slice(2));
 			const sender = Address.fromHex(wallet.address);
-			const currentNetwork = await this.getCurrentNetwork();
+			const currentNetwork = await this.networkController.getCurrentNetwork();
 			const genesisHash = Buffer.from(currentNetwork.genesisHash, "hex");
 
 			const actionTypeId = action.get("type_id");
@@ -343,30 +353,6 @@ export default class Wallet {
 	async isConnected(): Promise<boolean> {
 		const connectedSites = await this._getConnectedSites();
 		return connectedSites.hasOwnProperty(this.origin);
-	}
-
-	async getCurrentNetwork(): Promise<Network> {
-		const currentNetworkId = await this.storage.get<NetworkId>(CURRENT_NETWORK);
-		const networks = await this.storage.get<Network[]>(NETWORKS);
-		const found = networks.find((network) => network.id === currentNetworkId);
-		if (found) {
-			return found;
-		} else {
-			throw "The storage error";
-		}
-	}
-
-	async switchNetwork(id: string): Promise<void> {
-		const networks = await this.storage.get<Network[]>(NETWORKS);
-		const found = networks.find((network) => network.id === id);
-		if (found) {
-			await this.storage.set(CURRENT_NETWORK, found.id);
-			console.log("switchNetwork");
-			console.log(this.emitter);
-			this.emitter("network:changed", found);
-		} else {
-			throw "The storage error";
-		}
 	}
 
 	async _getConnectedSites() {
