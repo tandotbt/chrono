@@ -12,6 +12,7 @@ import { nanoid } from "nanoid";
 import { Lazyable, resolve } from "@/utils/lazy"
 import { Emitter } from "../event";
 import { Buffer } from "buffer";
+import { PopupController } from "@/controllers/popup";
 
 interface Request {
   id: string;
@@ -41,6 +42,7 @@ const pendingApprovals = new Map();
 export default class Wallet {
   private readonly storage: Storage;
   private readonly api: Graphql;
+  private readonly popup: PopupController;
   private readonly passphrase: Lazyable<string>;
   private readonly emitter: Emitter;
   private readonly origin: string | undefined;
@@ -52,7 +54,7 @@ export default class Wallet {
    * @param {string | undefined} origin
    * @param {import("../event").Emitter} emitter
    */
-  constructor(passphrase: Lazyable<string>, origin: string | undefined, storage: Storage, api: Graphql, emitter: Emitter | undefined) {
+  constructor(passphrase: Lazyable<string>, origin: string | undefined, storage: Storage, api: Graphql, popupController: PopupController, emitter: Emitter | undefined) {
     this.storage = storage;
     this.api = api;
     this.passphrase = passphrase;
@@ -341,7 +343,7 @@ export default class Wallet {
       data,
     });
 
-    await this._showPopup();
+    await this.popup.show();
 
     return new Promise((resolve, reject) => {
       pendingApprovals.set(requestId, { resolve, reject });
