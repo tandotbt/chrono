@@ -71,15 +71,16 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import SignedInHeader from "@/components/SignedInHeader.vue";
 import AccountManager from "@/components/AccountManager.vue";
 import {mapGetters} from "vuex";
 import t from "@/utils/i18n"
 import utils from "@/utils/utils";
 import CopyBtn from "@/components/buttons/CopyBtn.vue";
+import { defineComponent } from "vue";
 
-export default {
+export default defineComponent({
     name: 'Index',
     components: {
         CopyBtn,
@@ -110,7 +111,7 @@ export default {
       t,
       shortAddress: utils.shortAddress,
     }
-}
+})
 </script>
 
 <style scoped lang="scss">

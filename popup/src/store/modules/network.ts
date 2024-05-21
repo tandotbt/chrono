@@ -92,15 +92,16 @@ export default {
             }
         },
         async importNetwork({dispatch}: ActionHandlers, {
-            id, name, genesisHash, gqlEndpoint,
+            id, name, genesisHash, gqlEndpoint, isMainnet,
         }: Network) {
             await dispatch('Account/assertSignedIn', {}, {root: true});
-            const networks = await bg.storage.get(NETWORKS)
+            const networks = await bg.storage.get<Network[]>(NETWORKS)
             networks.push({
                 id,
                 name,
                 genesisHash,
                 gqlEndpoint,
+                isMainnet,
             });
             await bg.storage.set(NETWORKS, networks)
 
@@ -109,7 +110,7 @@ export default {
         },
         async loadNetworks({state, commit, dispatch}: ActionHandlers) {
             await dispatch('Account/assertSignedIn', {}, {root: true});
-            const networks = await bg.storage.get(NETWORKS)
+            const networks = await bg.storage.get<Network[]>(NETWORKS)
             if (networks && networks.length > 0) {
                 commit('setNetworks', networks)
                 if (state.network == null) {

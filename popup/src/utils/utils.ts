@@ -1,7 +1,7 @@
 import moment from 'moment'
 
 export default {
-    equalsHex: (a, b) => {
+    equalsHex: (a: string, b: string): boolean => {
         let _a = a.toLowerCase()
         if (_a && !_a.startsWith('0x')) {
             _a = '0x' + _a
@@ -11,12 +11,12 @@ export default {
             _b = '0x' + _b
         }
 
-        return (_a || _b) && _a === _b
+        return _a === _b
     },
-    timeFormat(ts) {
+    timeFormat(ts: moment.Moment) {
         return moment(ts).format('ll, LT')
     },
-    shortAddress(address, left = 4, right = 4) {
+    shortAddress(address: string, left = 4, right = 4): string {
         return address.substr(0, left + 2)
             + '..'
             + address.substr(address.length - right, right)

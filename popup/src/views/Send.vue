@@ -109,7 +109,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import SignedInHeader from "@/components/SignedInHeader.vue";
 import AccountManager from "@/components/AccountManager.vue";
 import {mapGetters} from "vuex";
@@ -120,8 +120,9 @@ import bg from "@/api/background"
 import _ from "underscore"
 import t from "@/utils/i18n";
 import utils from "@/utils/utils";
+import { defineComponent } from "vue";
 
-export default {
+export default defineComponent({
     name: 'Send',
     components: {
         CopyBtn,
@@ -175,7 +176,7 @@ export default {
             this.$router.replace({name: 'index'})
         }
     }
-}
+})
 </script>
 
 <style scoped lang="scss">

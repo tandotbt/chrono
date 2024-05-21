@@ -49,14 +49,15 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import rules from "@/utils/rules"
 import t from "@/utils/i18n"
 import { keccak_256 } from "@noble/hashes/sha3"
 import _ from "underscore"
 import InitiateHeader from "@/components/InitiateHeader.vue";
+import { defineComponent } from "vue";
 
-export default {
+export default defineComponent({
     name: 'Initiate',
     components: {
         InitiateHeader
@@ -109,7 +110,7 @@ export default {
             }
         }
     }
-}
+})
 </script>
 
 <style scoped lang="scss">

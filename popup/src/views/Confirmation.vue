@@ -51,13 +51,14 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import bg from "@/api/background"
 import {mapGetters} from "vuex";
 import t from "@/utils/i18n"
 import utils from "@/utils/utils";
+import { defineComponent } from "vue";
 
-export default {
+export default defineComponent({
     name: 'Confirmation',
     components: {},
     computed: {
@@ -96,7 +97,7 @@ export default {
         await this.$store.dispatch('Account/loadApprovalRequests')
       }
     }
-}
+})
 </script>
 
 <style scoped lang="scss">

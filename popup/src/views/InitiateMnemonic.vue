@@ -65,15 +65,16 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { markRaw } from "vue";
 import InitiateHeader from "@/components/InitiateHeader.vue";
 import _ from "underscore"
 import t from "@/utils/i18n";
 import { ethers } from "ethers";
+import { defineComponent } from "vue";
 
 
-export default {
+export default defineComponent({
     name: 'InitiateMnemonic',
     components: {
         InitiateHeader
@@ -146,7 +147,7 @@ export default {
             }
         }
     }
-}
+});
 </script>
 
 <style scoped lang="scss">

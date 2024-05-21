@@ -4,11 +4,12 @@
   </v-app>
 </template>
 
-<script>
+<script lang="ts">
 import bg from "@/api/background"
 import {ENCRYPTED_WALLET, PRIMARY_ADDRESS, PASSPHRASE, ACCOUNTS} from "@/constants/constants"
 import {mapGetters} from "vuex";
-export default {
+import { defineComponent } from "vue";
+export default defineComponent({
     name: 'App',
     components: {
     },
@@ -50,7 +51,7 @@ export default {
             }, 1000 * 60)
         }
     }
-}
+})
 </script>
 
 <style lang="scss">

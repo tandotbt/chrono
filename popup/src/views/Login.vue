@@ -35,14 +35,15 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapGetters } from "vuex";
 import { keccak_256 } from "@noble/hashes/sha3"
 import InitiateHeader from "@/components/InitiateHeader.vue";
 import t from "@/utils/i18n";
+import { defineComponent } from "vue";
 
 
-export default {
+export default defineComponent({
     name: 'Login',
     components: {
         InitiateHeader
@@ -92,7 +93,7 @@ export default {
         },
         t,
     }
-}
+})
 </script>
 
 <style scoped lang="scss">
