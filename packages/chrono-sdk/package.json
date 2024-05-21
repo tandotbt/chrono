@@ -17,7 +17,7 @@
   "author": "Planetarium",
   "license": "GPL-3.0-only",
   "devDependencies": {
-    "@planetarium/lib9c": "npm:@jsr/planetarium__lib9c@0.1.0-dev+bf6b83d9ac9ad1ca12b50c07f472da9f0307ab79",
+    "@planetarium/lib9c": "npm:@jsr/planetarium__lib9c@0.1.0-dev",
     "typescript": "^5.4.5"
   },
   "dependencies": {
