@@ -33,32 +33,37 @@ class Storage {
     in the background context, and only the results are returned.
     */
     async secureSet<T>(name: string, value: T): Promise<void> {
-        const _value = await aes256.encrypt(JSON.stringify({v:value, secure: true}), resolve(this.passphrase))
+        const _value = JSON.stringify(
+            {
+                v: await aes256.encrypt(JSON.stringify(value), resolve(this.passphrase)),
+                secure: true
+            });
         await this.rawSet(name,  _value)
     }
     async secureGet<T>(name: string): Promise<T | null> {
         const _value = await this.rawGet<string>(name)
         if (_value) {
-            const v = JSON.parse(await aes256.decrypt(_value, resolve(this.passphrase)))
+            const v = JSON.parse(_value);
             if (!v.secure) {
                 throw 'SecureGet has accessed to not secured data'
             }
-            return v.v
+            return JSON.parse(await aes256.decrypt(v.v, resolve(this.passphrase)));
         }
 
         return null
     }
     async set<T>(name: string, value: T) {
-        const _value = await aes256.encrypt(JSON.stringify({v:value}), resolve(this.passphrase))
+        const _value = JSON.stringify({v:value});
         await this.rawSet(name,  _value)
     }
     async get<T>(name: string): Promise<T> {
         const _value = await this.rawGet<string>(name)
         if (_value) {
-            const v = JSON.parse(await aes256.decrypt(_value, resolve(this.passphrase)))
+            const v = JSON.parse(_value)
             if (v.secure) {
                 throw 'Can not access secure data'
             }
+
             return v.v
         }
 
