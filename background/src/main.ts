@@ -2,7 +2,7 @@ import Graphql from "@/api/graphql";
 import Storage from "@/storage/storage";
 import Wallet from "@/wallet/wallet";
 import { Buffer } from "buffer";
-import { Account } from "./constants/constants";
+import { Account, ENCRYPTED_WALLET } from "./constants/constants";
 import { NetworkController } from "./controllers/network";
 
 window.Buffer = Buffer;
@@ -24,7 +24,14 @@ window.Buffer = Buffer;
 		const storage = new Storage(p);
 		try {
 			const accounts = await storage.get<Account[]>("accounts");
-			return accounts.length > 0;
+			if (accounts.length < 1) {
+				return false;
+			}
+
+			await storage.secureGet(
+				ENCRYPTED_WALLET + accounts[0].address.toLowerCase(),
+			);
+			return true;
 		} catch (e) {}
 		return false;
 	};
@@ -46,6 +53,13 @@ window.Buffer = Buffer;
 					passphrase = null;
 					sendResponse({});
 				} else if (req.method == "isSignedIn") {
+					if (passphrase === null) {
+						console.log("return isSignedIn", false);
+						sendResponse(false);
+					} else {
+						console.log("return isSignedIn", true);
+						sendResponse(true);
+					}
 					checkValidPassphrase(passphrase).then(sendResponse);
 				} else if (req.method == "isValid") {
 					checkValidPassphrase(req.params[0]).then(sendResponse);
