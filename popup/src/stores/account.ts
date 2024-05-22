@@ -6,48 +6,7 @@ import { useRouter } from "vue-router";
 import _ from "underscore";
 import utils from "@/utils/utils";
 import { ref } from "vue";
-
-interface Account {
-	name: string;
-	index: number;
-	address: string;
-	primary?: boolean;
-    activated?: boolean;
-    imported?: boolean;
-}
-
-type GraphQLTxStatus = "SUCCESS" | "FAILURE" | "STAGING" | "INCLUDED" | "INVALID";
-
-interface SavedTransactionHistory {
-	id: string;
-	endpoint: string;
-	status: GraphQLTxStatus | "TXUNKNOWN";
-	action?: string;
-	type: string;
-	timestamp: number;
-	signer: string;
-	data: {
-		sender: string;
-		receiver: string;
-		amount: number;
-	};
-}
-
-type ApprovalRequest = {
-    id: string;
-    category: "connect",
-    data: {
-        origin: string,
-        content: string,
-    }
-} | {
-    id: string;
-    category: "sign",
-    data: {
-        signer: string;
-        content: object;
-    }
-}
+import type { Account, SavedTransactionHistory, ApprovalRequest, GraphQLTxStatus } from "@/types";
 
 function getAccounts(): Promise<Account[]> {
     return bg.storage.get<Account[]>(ACCOUNTS);

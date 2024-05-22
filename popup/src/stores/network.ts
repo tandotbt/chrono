@@ -5,14 +5,7 @@ import { CURRENT_NETWORK, NETWORKS } from "@/constants/constants";
 import _ from "underscore";
 import { useAccounts } from "./account";
 import { ref } from "vue";
-
-export interface Network {
-    id: string,
-    name: string,
-    genesisHash: string,
-    gqlEndpoint: string,
-    isMainnet: boolean,
-}
+import type { Network } from "@/types";
 
 export const useNetwork = defineStore('Network', () => {
     const networks = ref<Network[]>([]);
