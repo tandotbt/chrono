@@ -32,8 +32,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import type { PropType } from 'vue';
-import type { Network } from "../../store/modules/network";
-import { useNetwork } from '@/stores/network';
+import { useNetwork, type Network } from '@/stores/network';
 import { mapStores } from 'pinia';
 
 export default defineComponent({

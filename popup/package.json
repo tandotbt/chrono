@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "serve": "vite --port 8001",
-    "build": "vite build --base /popup --outDir ../build/popup",
+    "build": "vue-tsc --noEmit && vite build --base /popup --outDir ../build/popup",
     "lint": "eslint --ext .js,.vue --fix src",
     "test": "jest --coverage --detectOpenHandles"
   },
