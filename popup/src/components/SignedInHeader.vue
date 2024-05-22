@@ -10,18 +10,18 @@
       <v-dialog v-model="edit.dialog"  theme="dark" scroll-strategy="reposition" dark width="320px">
         <v-card title="Edit Network">
           <template v-slot:text>
-            <v-text-field readonly maxlength="16" outlined :rules="requiredRule" dense label="Planet ID" v-model="edit.id" style="margin-bottom:-10px;"></v-text-field>
-            <v-text-field maxlength="10" outlined :rules="requiredRule" dense label="Name" v-model="edit.name" style="margin-bottom:-10px;"></v-text-field>
-            <v-text-field minlength="16" maxlength="64" outlined :rules="requiredRule" dense label="Genesis Hash" v-model="edit.genesisHash" style="margin-bottom:-10px;"></v-text-field>
-            <v-text-field outlined :rules="requiredRule" dense rows="4" label="GraphQL endpoint" v-model="edit.gqlEndpoint" style="margin-bottom:-10px;"></v-text-field>
-            <v-switch outlined :rules="requiredRule" dense label="Is Mainnet?" v-model="edit.isMainnet" style="margin-bottom:-10px;"></v-switch>
+            <v-text-field readonly maxlength="16" outlined :rules="[requiredRule]" dense label="Planet ID" v-model="edit.id" style="margin-bottom:-10px;"></v-text-field>
+            <v-text-field maxlength="10" outlined :rules="[requiredRule]" dense label="Name" v-model="edit.name" style="margin-bottom:-10px;"></v-text-field>
+            <v-text-field minlength="16" maxlength="64" outlined :rules="[requiredRule]" dense label="Genesis Hash" v-model="edit.genesisHash" style="margin-bottom:-10px;"></v-text-field>
+            <v-text-field outlined :rules="[requiredRule]" dense rows="4" label="GraphQL endpoint" v-model="edit.gqlEndpoint" style="margin-bottom:-10px;"></v-text-field>
+            <v-switch outlined :rules="[requiredRule]" dense label="Is Mainnet?" v-model="edit.isMainnet" style="margin-bottom:-10px;"></v-switch>
           </template>
           <v-card-actions class="justify-space-between">
             <div>
               <v-btn icon size="small" v-if="networks && networks.length > 1" @click="deleteEditingNetwork" :disabled="edit.loading"><v-icon color="grey">mdi-trash-can-outline</v-icon></v-btn>
             </div>
             <div>
-              <v-btn text size="small" @click="edit.dialog = false" :disabled="edit.loading || edit.deleteLoading">{{ t('cancel') }}</v-btn>
+              <v-btn variant="text" size="small" @click="edit.dialog = false" :disabled="edit.loading || edit.deleteLoading">{{ t('cancel') }}</v-btn>
               <v-btn size="small" color="pointyellow" @click="editNetwork" :loading="edit.loading" :disabled="edit.deleteLoading">{{ t('save') }}</v-btn>
             </div>
           </v-card-actions>
@@ -32,17 +32,17 @@
       <v-card title="Import Network">
         <template v-slot:text>
           <div class="mt-4">
-            <v-text-field maxlength="16" outlined :rules="requiredRule" dense label="Planet ID" v-model="imports.id" style="margin-bottom:-10px;"></v-text-field>
-            <v-text-field maxlength="10" outlined :rules="requiredRule" dense label="Name" v-model="imports.name" style="margin-bottom:-10px;"></v-text-field>
-            <v-text-field minlength="16" maxlength="64" outlined :rules="requiredRule" dense label="Genesis Hash" v-model="imports.genesisHash" style="margin-bottom:-10px;"></v-text-field>
-            <v-text-field outlined :rules="requiredRule" dense rows="4" label="GraphQL endpoint" v-model="imports.gqlEndpoint" style="margin-bottom:-10px;"></v-text-field>
-            <v-switch outlined :rules="requiredRule" dense label="Is Mainnet?" v-model="imports.isMainnet" style="margin-bottom:-10px;"></v-switch>
+            <v-text-field maxlength="16" outlined :rules="[requiredRule]" dense label="Planet ID" v-model="imports.id" style="margin-bottom:-10px;"></v-text-field>
+            <v-text-field maxlength="10" outlined :rules="[requiredRule]" dense label="Name" v-model="imports.name" style="margin-bottom:-10px;"></v-text-field>
+            <v-text-field minlength="16" maxlength="64" outlined :rules="[requiredRule]" dense label="Genesis Hash" v-model="imports.genesisHash" style="margin-bottom:-10px;"></v-text-field>
+            <v-text-field outlined :rules="[requiredRule]" dense rows="4" label="GraphQL endpoint" v-model="imports.gqlEndpoint" style="margin-bottom:-10px;"></v-text-field>
+            <v-switch outlined :rules="[requiredRule]" dense label="Is Mainnet?" v-model="imports.isMainnet" style="margin-bottom:-10px;"></v-switch>
           </div>
         </template>
         <v-card-actions class="justify-space-between">
           <div></div>
           <div>
-            <v-btn text size="small" @click="imports.dialog = false" :disabled="imports.loading">{{ t('cancel') }}</v-btn>
+            <v-btn variant="text" size="small" @click="imports.dialog = false" :disabled="imports.loading">{{ t('cancel') }}</v-btn>
             <v-btn size="small" color="pointyellow" @click="addNewNetwork" :loading="imports.loading">{{ t('import') }}</v-btn>
           </div>
         </v-card-actions>
@@ -52,11 +52,13 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import bg from "@/api/background"
 import NetworkSelector from "@/components/buttons/NetworkSelector.vue"
-import { mapGetters } from "vuex";
 import t from "@/utils/i18n";
+import { useNetwork } from "@/stores/network";
+import { mapStores, mapState } from "pinia";
+import Rules from "@/utils/rules";
 
 export default {
     name: 'SignedInHeader',
@@ -90,7 +92,8 @@ export default {
         }
     },
     computed: {
-      ...mapGetters('Network', ['networks', 'network'])
+      ...mapStores(useNetwork),
+      ...mapState(useNetwork, ['networks', 'network']),
     },
     async created() {
     },
@@ -98,7 +101,8 @@ export default {
     },
     methods: {
         t,
-        openDialog(type) {
+        requiredRule: Rules.required,
+        openDialog(type: string) {
           if (type === "import") {
             this.imports.id = "";
             this.imports.name = "";
@@ -108,6 +112,10 @@ export default {
             this.imports.dialog = true;
             this.imports.loading = false;
           } else if (type === "edit") {
+            if (!this.network) {
+              throw new Error("Unexpected state. this.network doesn't work.");
+            }
+
             this.edit.id = this.network.id;
             this.edit.name = this.network.name;
             this.edit.gqlEndpoint = this.network.gqlEndpoint;
@@ -121,7 +129,7 @@ export default {
         async addNewNetwork() {
           this.imports.loading = true;
           try {
-            await this.$store.dispatch('Network/importNetwork', this.imports);
+            await this.NetworkStore.importNetwork(this.imports);
           }
           finally {
             this.imports.loading = false;
@@ -130,7 +138,7 @@ export default {
         async editNetwork() {
           this.edit.loading = true;
           try {
-            await this.$store.dispatch('Network/updateNetwork', this.edit);
+            await this.NetworkStore.updateNetwork(this.edit);
           }
           finally {
             this.edit.loading = false;
@@ -139,7 +147,7 @@ export default {
         async deleteEditingNetwork() {
           this.edit.deleteLoading = true;
           try {
-            await this.$store.dispatch('Network/deleteNetwork', this.edit.id);
+            await this.NetworkStore.deleteNetwork(this.edit.id);
           }
           finally {
             this.edit.deleteLoading = false;

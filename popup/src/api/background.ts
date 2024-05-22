@@ -39,6 +39,22 @@ const callConfirmation = function<T>(method: string, params: unknown[] = []): Pr
     return callBackground<T>('confirmation', method, params)
 }
 
+type ApprovalRequest = {
+    id: string;
+    category: "connect",
+    data: {
+        origin: string,
+        content: string,
+    }
+} | {
+    id: string;
+    category: "sign",
+    data: {
+        signer: string;
+        content: object;
+    }
+};
+
 export default {
     graphql: <T>(method: string, params: unknown | unknown[]): Promise<T> => {
         return callBackground<T>('graphql', method, params)
@@ -106,6 +122,9 @@ export default {
         getPrivateKey: async (address: string, passphrase: string) => {
             return await callWallet<string>('getPrivateKey', [address, passphrase])
         },
+        getPublicKey: async (address: string) => {
+            return await callWallet<string>('getPublicKey', [address])
+        },
     },
     network: {
         switchNetwork: (id: string) => {
@@ -114,7 +133,7 @@ export default {
     },
     confirmation: {
         getApprovalRequests: async () => {
-            return callConfirmation('getAll')
+            return callConfirmation<ApprovalRequest[]>('getAll')
         },
         approveRequest: (requestId: string, ...params: unknown[]) => {
             return callConfirmation("approve", [requestId, ...params]);

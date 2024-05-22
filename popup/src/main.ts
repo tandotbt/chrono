@@ -9,15 +9,27 @@ import _ from 'underscore'
 import axios from 'axios'
 import moment from 'moment'
 import router from '@/router'
-import store from '@/store'
 import { Buffer } from "buffer";
 
 import '@mdi/font/css/materialdesignicons.css'
+import { createPinia } from 'pinia'
+
+declare global {
+  interface Window {
+    _: typeof _
+    axios: typeof axios
+    moment: typeof moment
+    Event: typeof Event
+    Buffer: typeof Buffer
+  }
+}
+
+// Assign values to global window variables
 window._ = _
 window.axios = axios
 window.moment = moment
 window.Event = Event
-window.Buffer = Buffer;
+window.Buffer = Buffer
 // Vue.prototype.moment = moment
 moment.locale('en-gb', {
   relativeTime: {
@@ -42,6 +54,7 @@ moment.locale('en-gb')
 // Vue.prototype.rules = require('./utils/rules')
 // Vue.mixin(mixin)
 
+const pinia = createPinia();
 const vuetify = createVuetify({
   icons: {
     defaultSet: 'mdi',
@@ -51,10 +64,6 @@ const vuetify = createVuetify({
     },
   },
   theme: {
-    options: {
-      customProperties: true,
-      variations: true
-    },
     themes: {
       light: {
         dark: true,
@@ -68,7 +77,7 @@ const vuetify = createVuetify({
           "text-lighten2": '#b7b7bb',
           'primary': '#2A8BA9',
           'point': '#f6a14c',
-          'pointred': '#ff4142', 
+          'pointred': '#ff4142',
           'piontred-lighten1': '#ff3a40',
           'pointblue': '#3E2A8C',
           'pointblue-darken1': '#2c1e65',
@@ -78,48 +87,14 @@ const vuetify = createVuetify({
           'pointlink': '#1d9bf0',
           'pointlink-lighten1': '#8ed1ff',
         },
-        inputbg: {
-          base: '#1d1e1f'
-        },
-        text: {
-          base: '#6e6e73',
-          lighten1: '#9999a0',
-          lighten2: '#b7b7bb',
-        },
-        primary: {
-          base: '#2A8BA9'
-        },
-        point: {
-          base: '#f6a14c',
-        },
-        pointred: {
-          base: '#ff4142',
-          lighten1: '#ff3a40'
-        },
-        pointblue: {
-          base: '#3E2A8C',
-          darken1: '#2c1e65',
-          darken2: '#1b123f',
-        },
-        pointyellow: {
-          base: '#f0b90b',
-          lighten1: '#eec23f',
-        },
-        pointlink: {
-          base: '#1d9bf0',
-          lighten1: '#8ed1ff'
-        }
       }
     }
-  },
-  icons: {
-    iconfont: 'mdi',
   },
   components,
   directives,
 });
 createApp(App)
   .use(router)
-  .use(store)
+  .use(pinia)
   .use(vuetify)
   .mount('#app');

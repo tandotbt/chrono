@@ -8,7 +8,8 @@
         <v-btn icon dark size="large" disabled></v-btn>
       </div>
 
-      <div class="mt-10">
+      <div v-if="!account">Account Loading</div>
+      <div class="mt-10" v-else>
         <v-form ref="sendForm">
         <v-row class="px-6">
           <v-col cols="4" class="pb-0 text-left">{{t('sender')}}</v-col>
@@ -62,7 +63,8 @@
       </div>
     </div>
 
-    <v-dialog dark v-model="confirmDialog" fullscreen>
+    <div v-if="!account">Account Loading</div>
+    <v-dialog v-else dark v-model="confirmDialog" fullscreen>
       <v-card>
         <v-card-title class="py-8">NCG {{t('transfer')}}</v-card-title>
         <v-card-text class="mt-4">
@@ -112,7 +114,6 @@
 <script lang="ts">
 import SignedInHeader from "@/components/SignedInHeader.vue";
 import AccountManager from "@/components/AccountManager.vue";
-import {mapGetters} from "vuex";
 import AccountSelector from "@/components/buttons/AccountSelector.vue";
 import rule from "@/utils/rules"
 import CopyBtn from "@/components/buttons/CopyBtn.vue";
@@ -121,6 +122,9 @@ import _ from "underscore"
 import t from "@/utils/i18n";
 import utils from "@/utils/utils";
 import { defineComponent } from "vue";
+import type { VForm } from "vuetify/components";
+import { useAccounts } from "@/stores/account";
+import { mapState, mapStores } from "pinia";
 
 export default defineComponent({
     name: 'Send',
@@ -131,12 +135,13 @@ export default defineComponent({
         SignedInHeader
     },
     computed: {
-        ...mapGetters('Account', ['accounts', 'account', 'balance', 'balanceLoading']),
+        ...mapState(useAccounts, ['account', 'accounts', 'balance', 'balanceLoading']),
+        ...mapStores(useAccounts),
         isValidInput() {
             return this.receiver && this.amount > 0
         },
         amountRule() {
-            return [rule.required, rule.canNotZero, rule.ncgAmount, (v) => (Number(v) <= Number(this.balance) || 'Exceeded balance')]
+            return [rule.required, rule.canNotZero, rule.ncgAmount, (v: any) => (Number(v) <= Number(this.balance) || 'Exceeded balance')]
         },
         receiverRule() {
             return [rule.required, rule.address]
@@ -157,21 +162,27 @@ export default defineComponent({
         }
     },
     async created() {
-        this.$store.dispatch('Account/refreshBalance')
+        await this.AccountStore.refreshBalance()
     },
     methods: {
         t,
         shortAddress: utils.shortAddress,
         async confirmSend() {
-            if (this.$refs['sendForm'].validate()) {
+            if (!this.account) {
+              throw new Error("'account' state seems not loaded yet.");
+            }
+            if (await (this.$refs['sendForm'] as VForm).validate()) {
                 this.nonce = await bg.wallet.nextNonce(this.account.address)
                 this.confirmDialog = true
             }
         },
         async sendNCG() {
+            if (!this.account) {
+              throw new Error("'account' state seems not loaded yet.");
+            }
             this.loading = true
             await bg.wallet.sendNCG(this.account.address, this.receiver, this.amount, this.nonce)
-            await this.$store.dispatch('Account/loadTxs')
+            await this.AccountStore.loadTxs();
             this.loading = false
             this.$router.replace({name: 'index'})
         }

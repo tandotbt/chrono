@@ -33,6 +33,8 @@
 import { defineComponent } from 'vue';
 import type { PropType } from 'vue';
 import type { Network } from "../../store/modules/network";
+import { useNetwork } from '@/stores/network';
+import { mapStores } from 'pinia';
 
 export default defineComponent({
     name: 'NetworkSelector',
@@ -59,7 +61,8 @@ export default defineComponent({
                 }
             }
             return '-'
-        }
+        },
+        ...mapStores(useNetwork),
     },
     async created() {
       console.log("NetworkSelector created", this.$props.networks);
@@ -68,8 +71,7 @@ export default defineComponent({
         select(id: string) {
           console.log("set network");
             if (this.network?.id !== id) {
-              // @ts-ignore
-              this.$store.dispatch('Network/selectNetwork', id)
+              this.NetworkStore.selectNetwork(id)
             }
         },
         addNewNetwork() {

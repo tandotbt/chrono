@@ -56,6 +56,7 @@ import { keccak_256 } from "@noble/hashes/sha3"
 import _ from "underscore"
 import InitiateHeader from "@/components/InitiateHeader.vue";
 import { defineComponent } from "vue";
+import type { VForm } from "vuetify/components";
 
 export default defineComponent({
     name: 'Initiate',
@@ -92,13 +93,13 @@ export default defineComponent({
     async created() {
     },
     mounted() {
-      let $input = document.querySelector('#password-input')
+      let $input = document.querySelector<HTMLInputElement>('#password-input')
       $input && $input.focus()
     },
     methods: {
         t,
         async initiate() {
-            if ((await this.$refs['form'].validate()).valid && this.isValidPassword) {
+            if ((await (this.$refs['form'] as VForm).validate()).valid && this.isValidPassword) {
                 let passphrase = Buffer.from(keccak_256(this.pass1)).toString('hex')
                 this.$router.replace({
                   name: 'initiateMnemonic',

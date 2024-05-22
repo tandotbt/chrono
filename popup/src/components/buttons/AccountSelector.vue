@@ -22,22 +22,34 @@
       </v-list-item>
       <v-list-item dark style="border-top: 1px solid #444;" class="mt-4 pt-2" v-if="!onlySelect">
         <div class="w-100 d-flex flex-wrap">
-          <v-btn size="small" text color="point" class="flex-fill" @click="addNewAddress">Add New</v-btn>
-          <v-btn size="small" text color="point" class="flex-fill" @click="importAddress">Import</v-btn>
+          <v-btn size="small" variant="text" color="point" class="flex-fill" @click="addNewAddress">Add New</v-btn>
+          <v-btn size="small" variant="text" color="point" class="flex-fill" @click="importAddress">Import</v-btn>
         </div>
       </v-list-item>
     </v-list>
   </v-menu>
 </template>
 
-<script>
+<script lang="ts">
+import { useAccounts } from "@/stores/account";
 import utils from "@/utils/utils";
+import { mapStores } from "pinia";
+import { defineComponent, type PropType } from "vue";
 
-export default {
+interface Account {
+	name: string;
+	index: number;
+	address: string;
+	primary?: boolean;
+    activated?: boolean;
+    imported?: boolean;
+}
+
+export default defineComponent({
     name: 'AccountSelector',
     props: {
-        accounts: {type: Array},
-        account: {type: Object},
+        accounts: {type: Array as PropType<Account[]>},
+        account: {type: Object as PropType<Account>, required: true},
         color: {type: String, default: 'white'},
         onlySelect: {type:Boolean, default: false}
     },
@@ -50,23 +62,24 @@ export default {
     },
     computed: {
         currentSelectedText() {
-            if (this.account) {
+            if (this.account && this.accounts) {
                 let found = this.accounts.find(i => utils.equalsHex(i.address, this.account.address))
                 if (found) {
                     return found.name
                 }
             }
             return '-'
-        }
+        },
+        ...mapStores(useAccounts),
     },
     async created() {
       console.log("AccountSelector created", this.$props.accounts);
     },
     methods: {
-        select(account) {
+        select(account: Account) {
           console.log("set account");
             if (!utils.equalsHex(this.account && this.account.address, account.address)) {
-                this.$store.dispatch('Account/selectAccount', account.address)
+                this.AccountStore.selectAccount(account.address)
             }
         },
         addNewAddress() {
@@ -75,12 +88,12 @@ export default {
         importAddress() {
             this.$emit('import')
         },
-        editAccount(account) {
+        editAccount(account: Account) {
             this.$emit('edit', account)
         },
         shortAddress: utils.shortAddress,
     }
-}
+})
 </script>
 
 <style lang="scss">
