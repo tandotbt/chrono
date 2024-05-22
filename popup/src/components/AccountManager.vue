@@ -19,7 +19,7 @@
             <v-btn icon size="small" v-if="edit.account && !edit.account.primary" @click="deleteEditingAccount"><v-icon color="grey">mdi-trash-can-outline</v-icon></v-btn>
           </div>
           <div>
-            <v-btn text size="small" @click="edit.dialog = false" :disabled="edit.loading">{{ t('cancel') }}</v-btn>
+            <v-btn variant="text" size="small" @click="edit.dialog = false" :disabled="edit.loading">{{ t('cancel') }}</v-btn>
             <v-btn size="small" color="pointyellow" @click="saveEditingAccount" :loading="edit.loading">{{ t('save') }}</v-btn>
           </div>
         </v-card-actions>
@@ -42,7 +42,7 @@
         <v-card-actions class="justify-space-between">
           <div></div>
           <div>
-            <v-btn text size="small" @click="imports.dialog = false" :disabled="imports.loading">{{ t('cancel') }}</v-btn>
+            <v-btn variant="text" size="small" @click="imports.dialog = false" :disabled="imports.loading">{{ t('cancel') }}</v-btn>
             <v-btn size="small" color="pointyellow" @click="importAccount" :loading="imports.loading">{{ t('import') }}</v-btn>
           </div>
         </v-card-actions>
@@ -54,13 +54,13 @@
         <template v-slot:text>
           <div class="mt-4 text-center">
             <div class="text-left pa-3 mb-4" style="background-color: #444;border-radius:8px;">{{account.address}}</div>
-            <copy-btn :text="account.address" color="pointyellow" size="small" text-color="white !important" :rounded="false">  
+            <copy-btn :text="account.address" color="pointyellow" size="small" text-color="white !important" :rounded="false">
               {{ t('copyAddress') }}
             </copy-btn>
           </div>
         </template>
         <v-card-actions class="justify-space-between">
-          <v-btn text color="grey" @click="openPrivateKeyDialog">{{ t('showPk') }}</v-btn>
+          <v-btn variant="text" color="grey" @click="openPrivateKeyDialog">{{ t('showPk') }}</v-btn>
           <v-btn color="secondary" size="small" @click="detail.dialog = false">{{ t('close') }}</v-btn>
         </v-card-actions>
       </v-card>
@@ -96,9 +96,8 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 
-import {mapGetters} from "vuex";
 import AccountSelector from "@/components/buttons/AccountSelector.vue";
 import CopyBtn from "@/components/buttons/CopyBtn.vue";
 
@@ -107,8 +106,21 @@ import { keccak_256 } from "@noble/hashes/sha3";
 import t from "@/utils/i18n"
 import utils from "@/utils/utils";
 import { Wallet } from "ethers";
+import { useAccounts } from "@/stores/account";
+import { mapStores, mapState } from "pinia";
+import { defineComponent } from "vue";
 
-export default {
+interface Account {
+	name: string;
+	index: number;
+	address: string;
+	primary?: boolean;
+    activated?: boolean;
+    imported?: boolean;
+}
+
+
+export default defineComponent({
     name: 'AccountManager',
     components: {
         CopyBtn,
@@ -121,16 +133,17 @@ export default {
                 loading: false,
                 title: 'Add New',
                 dialog: false,
-                accountName: ''
+                accountName: '',
+                account: null as (Account | null),
             },
             imports: {
                 loading: false,
                 dialog: false,
                 accountName: '',
                 privateKey: '',
-                error: null,
+                error: null as (string | null),
                 importType: 'raw',
-                jsonFile: null,
+                jsonFile: undefined as (File | undefined),
                 jsonPassphrase: '',
             },
             detail: {
@@ -139,9 +152,9 @@ export default {
             pkview: {
                 dialog: false,
                 password: '',
-                pk: null,
+                pk: null as (string | null),
                 hide: true,
-                error: null,
+                error: null as (string | null),
                 loading: false
             }
         }
@@ -149,7 +162,8 @@ export default {
     computed: {
         requiredRule() { return [rule.required] },
         importDialogTitle() { return t('importPk') },
-        ...mapGetters('Account', ['accounts', 'account'])
+        ...mapState(useAccounts, ['accounts', 'account']),
+        ...mapStores(useAccounts),
     },
     async created() {
     },
@@ -158,7 +172,7 @@ export default {
     methods: {
         t,
         shortAddress: utils.shortAddress,
-        openDialog(type) {
+        openDialog(type: string) {
             if (type === 'AddNewAccount') {
                 this.edit.title = 'Add New'
                 this.edit.accountName = 'Account ' + (this.accounts.length + 1)
@@ -168,12 +182,12 @@ export default {
                 this.imports.accountName = 'Account ' + (this.accounts.length + 1)
                 this.imports.privateKey = ''
                 this.imports.importType = 'raw';
-                this.imports.jsonFile = null;
+                this.imports.jsonFile = undefined;
                 this.imports.jsonPassphrase = '';
                 this.imports.dialog = true
             }
         },
-        editAccount(account) {
+        editAccount(account: Account) {
             if (account) {
                 this.edit.title = 'Account ' + this.shortAddress(account.address)
                 this.edit.accountName = account.name
@@ -183,7 +197,7 @@ export default {
         },
         async deleteEditingAccount() {
             if (this.edit.account && this.accounts.length > 1) {
-                await this.$store.dispatch('Account/deleteAccount', this.edit.account.address)
+                await this.AccountStore.deleteAccount(this.edit.account.address)
                 this.edit.dialog = false
             }
         },
@@ -194,11 +208,9 @@ export default {
             this.edit.loading = true
             setTimeout(async () => {
                 if (this.edit.account) {
-                    await this.$store.dispatch('Account/updateAccountName',
-                        {address: this.edit.account.address, name:accountName})
+                    await this.AccountStore.updateAccountName(this.edit.account.address, accountName);
                 } else {
-                    await this.$store.dispatch('Account/createNewAccount',
-                        accountName)
+                    await this.AccountStore.createNewAccount(accountName);
                 }
                 this.edit.loading = false
                 this.edit.dialog = false
@@ -224,10 +236,20 @@ export default {
               payload = {accountName, privateKey: pk};
             } else if (type === "json") {
               const jsonFile = this.imports.jsonFile;
+              if (jsonFile === undefined) {
+                throw new Error("Unexpected statement. jsonFile is not set.");
+              }
+
               const jsonPassphrase = this.imports.jsonPassphrase;
-              const jsonFiletring = await new Promise((resolve, reject) => {
+              const jsonFiletring = await new Promise<string>((resolve, reject) => {
                 const fileReader = new FileReader();
-                fileReader.onload = e => resolve(e.target.result);
+                fileReader.onload = e => {
+                  if (e.target === null || typeof e.target.result !== "string") {
+                    reject()
+                  } else {
+                    resolve(e.target.result)
+                  }
+                };
                 fileReader.readAsText(jsonFile);
               });
 
@@ -240,7 +262,7 @@ export default {
             }
 
             try {
-                await this.$store.dispatch('Account/importAccount', payload)
+                await this.AccountStore.importAccount(payload.accountName, payload.privateKey)
                 this.imports.dialog = false
             } catch(e) {
                 this.imports.error = 'Invalid Private Key'
@@ -258,14 +280,15 @@ export default {
             this.pkview.pk = ''
         },
         async loadPrivateKey() {
+            if (this.account === null) {
+              throw new Error("Unexpected statement. this.account is null.");
+            }
+
             if (this.pkview.dialog && this.pkview.password) {
                 try {
                     this.pkview.loading = true
                     let passphrase = Buffer.from(keccak_256(this.pkview.password)).toString('hex')
-                    let pk = await this.$store.dispatch('Account/getPrivateKey', {
-                        address: this.account.address,
-                        passphrase: passphrase
-                    })
+                    let pk = await this.AccountStore.getPrivateKey(this.account.address, passphrase);
                     this.pkview.pk = pk
                 } catch(e) {
                     this.pkview.error = 'Invalid Password'
@@ -275,7 +298,7 @@ export default {
             }
         }
     }
-}
+});
 </script>
 
 <style scoped lang="scss">

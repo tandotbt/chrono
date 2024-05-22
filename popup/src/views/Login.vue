@@ -30,24 +30,31 @@
             tabindex="3"
         >{{ t('unlock') }}</v-btn>
       </div>
-      <v-btn text size="small" color="#777" class="mt-1" @click="$router.replace({name:'forgotPassword'})">{{t('forgotPassword')}}</v-btn>
+      <v-btn variant="text" size="small" color="#777" class="mt-1" @click="$router.replace({name:'forgotPassword'})">{{t('forgotPassword')}}</v-btn>
     </div>
   </div>
 </template>
 
-<script>
-import { mapGetters } from "vuex";
+<script lang="ts">
 import { keccak_256 } from "@noble/hashes/sha3"
 import InitiateHeader from "@/components/InitiateHeader.vue";
 import t from "@/utils/i18n";
+import { defineComponent } from "vue";
+import { mapState, mapStores } from "pinia";
+import { useAccounts } from "@/stores/account";
+import { useNetwork } from "@/stores/network";
 
 
-export default {
+export default defineComponent({
     name: 'Login',
     components: {
         InitiateHeader
     },
-    data() {
+    data(): {
+      password: string,
+      showPass: boolean,
+      loginError: string | null,
+    } {
         return {
             password: '',
             showPass: false,
@@ -55,12 +62,13 @@ export default {
         }
     },
     computed: {
-      ...mapGetters("Account", ["approvalRequests"]),
+      ...mapState(useAccounts, ['approvalRequests']),
+      ...mapStores(useAccounts, useNetwork),
     },
     async created() {
     },
     mounted() {
-      let $input = document.querySelector('#password-input')
+      let $input = document.querySelector<HTMLInputElement>('#password-input')
       $input && $input.focus()
     },
     methods: {
@@ -69,11 +77,11 @@ export default {
             try {
                 if (this.password) {
                     let passphrase = Buffer.from(keccak_256(this.password)).toString('hex')
-                    if (await this.$store.dispatch('Account/isValidPassphrase', passphrase)) {
-                        await this.$store.dispatch('Account/setPassphrase', passphrase)
-                        await this.$store.dispatch('Account/loadAccounts')
-                        await this.$store.dispatch('Network/loadNetworks')
-                        await this.$store.dispatch('Account/loadApprovalRequests')
+                    if (await this.AccountStore.isValidPassphrase(passphrase)) {
+                        await this.AccountStore.setPassphrase(passphrase);
+                        await this.AccountStore.loadAccounts();
+                        await this.NetworkStore.loadNetworks();
+                        await this.AccountStore.loadApprovalRequests();
                         console.log("this.approvalRequests.length", this.approvalRequests.length);
                         if (this.approvalRequests.length > 0) {
                           this.$router.replace({name: "confirmation"}).catch(() => {})
@@ -92,7 +100,7 @@ export default {
         },
         t,
     }
-}
+})
 </script>
 
 <style scoped lang="scss">

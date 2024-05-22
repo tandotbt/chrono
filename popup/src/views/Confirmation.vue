@@ -51,32 +51,40 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import bg from "@/api/background"
-import {mapGetters} from "vuex";
 import t from "@/utils/i18n"
 import utils from "@/utils/utils";
+import { defineComponent } from "vue";
+import { useAccounts } from "@/stores/account";
+import { mapState, mapStores } from "pinia";
 
-export default {
+export default defineComponent({
     name: 'Confirmation',
     components: {},
     computed: {
-      ...mapGetters('Account', ['approvalRequests', 'accounts'])
+      ...mapState(useAccounts, ['approvalRequests', 'accounts']),
+      ...mapStores(useAccounts),
     },
-    data() {
+    data(): {
+      refreshTimer: ReturnType<typeof setInterval> | null,
+      selectedAddresses: string[]
+    } {
       return {
-          refreshTimer: 0,
+          refreshTimer: null,
           selectedAddresses: []
       }
     },
     beforeDestroy() {
-      clearInterval(this.refreshTimer)
+      if (this.refreshTimer) {
+        clearInterval(this.refreshTimer)
+      }
     },
     async created() {
-        await this.$store.dispatch('Account/loadApprovalRequests')
-        await this.$store.dispatch('Account/loadAccounts')
+        await this.AccountStore.loadApprovalRequests();
+        await this.AccountStore.loadAccounts();
         this.refreshTimer = setInterval(() => {
-            this.$store.dispatch('Account/loadApprovalRequests')
+            this.AccountStore.loadApprovalRequests();
         }, 1000)
     },
     async updated() {
@@ -87,16 +95,16 @@ export default {
     methods: {
       t,
       shortAddress: utils.shortAddress,
-      async approveRequest(requestId) {
-        await bg.confirmation.approveRequest(requestId, this.selectedAddresses);
-        await this.$store.dispatch('Account/loadApprovalRequests')
+      async approveRequest(requestId: string, metadata?: unknown) {
+        await bg.confirmation.approveRequest(requestId, metadata);
+        await this.AccountStore.loadApprovalRequests();
       },
-      async rejectRequest(requestId) {
+      async rejectRequest(requestId: string) {
         await bg.confirmation.rejectRequest(requestId);
-        await this.$store.dispatch('Account/loadApprovalRequests')
+        await this.AccountStore.loadApprovalRequests();
       }
     }
-}
+})
 </script>
 
 <style scoped lang="scss">

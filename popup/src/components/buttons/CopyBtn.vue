@@ -1,6 +1,6 @@
 <template>
   <span>
-    <v-btn :color="color" :icon="icon" :text="textMode" :style="'color:'+textColor" @click="copyText" variant="flat" :class="contentClass" :size="legacySize || size" :rounded="rounded">
+    <v-btn :color="color" :icon="icon" :style="'color:'+textColor" @click="copyText" variant="flat" :class="contentClass" :size="legacySize || size" :rounded="rounded">
       <v-tooltip top v-model="copied" transition="slide-y-transition" content-class="copy-tooltip" location="top" nudge-left="-13" nudge-top="10">
         <template v-slot:activator="{ props }"><span v-bind="props"></span></template>
         <span><v-icon color="white" size="small" class="mr-1">mdi-check</v-icon><strong>Copied</strong></span>
@@ -9,7 +9,7 @@
   </span>
 </template>
 
-<script>
+<script lang="ts">
 export default {
     name: 'CopyBtn',
     props: {

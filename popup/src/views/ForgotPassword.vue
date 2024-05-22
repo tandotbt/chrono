@@ -16,12 +16,13 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import InitiateHeader from "@/components/InitiateHeader.vue";
 import t from "@/utils/i18n";
+import { defineComponent } from "vue";
 
 
-export default {
+export default defineComponent({
     name: 'ForgotPassword',
     components: {
         InitiateHeader
@@ -39,7 +40,7 @@ export default {
     methods: {
       t,
     }
-}
+})
 </script>
 
 <style scoped lang="scss">

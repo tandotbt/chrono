@@ -4,11 +4,13 @@
   </v-app>
 </template>
 
-<script>
+<script lang="ts">
 import bg from "@/api/background"
-import {ENCRYPTED_WALLET, PRIMARY_ADDRESS, PASSPHRASE, ACCOUNTS} from "@/constants/constants"
-import {mapGetters} from "vuex";
-export default {
+import { defineComponent } from "vue";
+import { useAccounts } from "./stores/account";
+import { mapState, mapStores } from "pinia";
+import { useNetwork } from "./stores/network";
+export default defineComponent({
     name: 'App',
     components: {
     },
@@ -17,7 +19,8 @@ export default {
         }
     },
     computed: {
-      ...mapGetters("Account", ["approvalRequests"]),
+      ...mapStores(useAccounts, useNetwork),
+      ...mapState(useAccounts, ["approvalRequests"]),
     },
     async created() {
         let hasWallet = await bg.hasWallet()
@@ -25,11 +28,11 @@ export default {
             await bg.checkTTL()
             let signedIn = await bg.isSignedIn()
             if (signedIn) {
-                await this.$store.dispatch('Account/loadAccounts')
-                await this.$store.dispatch('Network/loadNetworks')
-                await this.$store.dispatch('Account/loadApprovalRequests')
+                await this.AccountStore.loadAccounts();
+                await this.NetworkStore.loadNetworks();
+                await this.AccountStore.loadApprovalRequests();
                 this.init()
-                if (this.approvalRequests.length > 0) {
+                if (this.approvalRequests!.length > 0) {
                   this.$router.replace({name: "confirmation"}).catch(() => {})
                 } else {
                   this.$router.replace({name: 'index'}).catch(() => {})
@@ -50,7 +53,7 @@ export default {
             }, 1000 * 60)
         }
     }
-}
+})
 </script>
 
 <style lang="scss">

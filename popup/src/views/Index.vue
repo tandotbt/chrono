@@ -45,7 +45,7 @@
               </span>
             </div>
             <div style="margin-right: -16px;" class="d-flex align-center">
-              <v-btn text size="small" color="grey" :href="'https://9cscan.com/tx/' + tx.id" target="_blank">9cscan<v-icon color="grey" size="x-small" class="ml-1" style="margin-top:3px">mdi-open-in-new</v-icon></v-btn>
+              <v-btn variant="text" size="small" color="grey" :href="'https://9cscan.com/tx/' + tx.id" target="_blank">9cscan<v-icon color="grey" size="x-small" class="ml-1" style="margin-top:3px">mdi-open-in-new</v-icon></v-btn>
             </div>
           </div>
           <div class="text-left d-flex align-center mt-1 mb-2" v-if="tx.type=='transfer_asset5'">
@@ -71,15 +71,18 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import SignedInHeader from "@/components/SignedInHeader.vue";
 import AccountManager from "@/components/AccountManager.vue";
-import {mapGetters} from "vuex";
 import t from "@/utils/i18n"
 import utils from "@/utils/utils";
 import CopyBtn from "@/components/buttons/CopyBtn.vue";
+import { defineComponent } from "vue";
+import { mapState, mapStores } from "pinia";
+import { useAccounts } from "@/stores/account";
+import moment from "moment";
 
-export default {
+export default defineComponent({
     name: 'Index',
     components: {
         CopyBtn,
@@ -87,30 +90,37 @@ export default {
         SignedInHeader,
     },
     computed: {
-        ...mapGetters('Account', ['account', 'accountTxs', 'balance', 'balanceLoading'])
+        ...mapState(useAccounts, ['account', 'accountTxs', 'balance', 'balanceLoading']),
+        ...mapStores(useAccounts),
     },
-    data() {
+    data(): {
+      refreshTimer: ReturnType<typeof setInterval> | null
+    } {
         return {
-            refreshTimer: 0
+            refreshTimer: null
         }
     },
     beforeDestroy() {
-        clearInterval(this.refreshTimer)
+        if (this.refreshTimer) {
+          clearInterval(this.refreshTimer)
+        }
     },
     async created() {
         this.refreshTimer = setInterval(() => {
-            this.$store.dispatch('Account/refreshBalance')
-            this.$store.dispatch('Account/refreshStagingTxStatus')
+            this.AccountStore.refreshBalance();
+            this.AccountStore.refreshStagingTxStatus();
         }, 10000)
         setTimeout(() => {
-            this.$store.dispatch('Account/refreshStagingTxStatus')
+            this.AccountStore.refreshStagingTxStatus();
         }, 1000)
     },
     methods: {
       t,
       shortAddress: utils.shortAddress,
+      timeFormat: utils.timeFormat,
+      moment,
     }
-}
+})
 </script>
 
 <style scoped lang="scss">
