@@ -24,7 +24,8 @@
       </div>
     </div>
 
-    <div class="mt-12 px-4">
+    <div v-if="network === null">Network is not loaded yet.</div>
+    <div class="mt-12 px-4" v-else>
       <h3 class="text-left">{{t('transactions')}}</h3>
       <v-card dark color="#2a2a2a" class="my-3 tx-card" v-if="accountTxs && accountTxs.length == 0">
         <v-card-text class="py-12" style="font-size: 13px;color:#888;">
@@ -45,7 +46,7 @@
               </span>
             </div>
             <div style="margin-right: -16px;" class="d-flex align-center">
-              <v-btn variant="text" size="small" color="grey" :href="'https://9cscan.com/tx/' + tx.id" target="_blank">9cscan<v-icon color="grey" size="x-small" class="ml-1" style="margin-top:3px">mdi-open-in-new</v-icon></v-btn>
+              <v-btn variant="text" size="small" color="grey" :href="network.explorerEndpoint + '/tx/' + tx.id" target="_blank">9cscan<v-icon color="grey" size="x-small" class="ml-1" style="margin-top:3px">mdi-open-in-new</v-icon></v-btn>
             </div>
           </div>
           <div class="text-left d-flex align-center mt-1 mb-2" v-if="tx.type=='transfer_asset5'">
@@ -81,6 +82,7 @@ import { defineComponent } from "vue";
 import { mapState, mapStores } from "pinia";
 import { useAccounts } from "@/stores/account";
 import moment from "moment";
+import { useNetwork } from "@/stores/network";
 
 export default defineComponent({
     name: 'Index',
@@ -91,6 +93,7 @@ export default defineComponent({
     },
     computed: {
         ...mapState(useAccounts, ['account', 'accountTxs', 'balance', 'balanceLoading']),
+        ...mapState(useNetwork, ['network']),
         ...mapStores(useAccounts),
     },
     data(): {

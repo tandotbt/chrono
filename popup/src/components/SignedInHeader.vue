@@ -14,6 +14,7 @@
             <v-text-field maxlength="10" outlined :rules="[requiredRule]" dense label="Name" v-model="edit.name" style="margin-bottom:-10px;"></v-text-field>
             <v-text-field minlength="16" maxlength="64" outlined :rules="[requiredRule]" dense label="Genesis Hash" v-model="edit.genesisHash" style="margin-bottom:-10px;"></v-text-field>
             <v-text-field outlined :rules="[requiredRule]" dense rows="4" label="GraphQL endpoint" v-model="edit.gqlEndpoint" style="margin-bottom:-10px;"></v-text-field>
+            <v-text-field outlined :rules="[requiredRule]" dense rows="4" label="Explorer endpoint" v-model="edit.explorerEndpoint" style="margin-bottom:-10px;"></v-text-field>
             <v-switch outlined :rules="[requiredRule]" dense label="Is Mainnet?" v-model="edit.isMainnet" style="margin-bottom:-10px;"></v-switch>
           </template>
           <v-card-actions class="justify-space-between">
@@ -73,6 +74,7 @@ export default {
             name: "",
             genesisHash: "",
             gqlEndpoint: "",
+            explorerEndpoint: "",
             isMainnet: false,
 
             dialog: false,
@@ -83,6 +85,7 @@ export default {
             name: "",
             genesisHash: "",
             gqlEndpoint: "",
+            explorerEndpoint: "",
             isMainnet: false,
 
             dialog: false,
@@ -107,6 +110,7 @@ export default {
             this.imports.id = "";
             this.imports.name = "";
             this.imports.gqlEndpoint = "";
+            this.imports.explorerEndpoint = "";
             this.imports.genesisHash = "";
             this.imports.isMainnet = false;
             this.imports.dialog = true;
@@ -119,6 +123,7 @@ export default {
             this.edit.id = this.network.id;
             this.edit.name = this.network.name;
             this.edit.gqlEndpoint = this.network.gqlEndpoint;
+            this.edit.explorerEndpoint = "";
             this.edit.genesisHash = this.network.genesisHash;
             this.edit.isMainnet = this.network.isMainnet;
             this.edit.dialog = true;

@@ -3,10 +3,11 @@
     <div>
       <account-selector :accounts="accounts" :account="account" @addNew="openDialog('AddNewAccount')" @import="openDialog('ImportAccount')" @edit="editAccount"></account-selector>
     </div>
-    <div class="hex account-address grey--text d-flex align-center">
+    <div v-if="network === null"></div>
+    <div class="hex account-address grey--text d-flex align-center" v-else>
       <a class="address-link hex" @click="detail.dialog = true">{{shortAddress(account.address)}}</a>
       <copy-btn :text="account.address" icon size="x-small" class="ml-1"><v-icon size="x-small" color="grey">mdi-content-copy</v-icon></copy-btn>
-      <v-btn size="x-small" icon style="margin-top:3px;" target="_blank" :href="'https://9cscan.com/address/' + account.address"><v-icon size="x-small" color="grey">mdi-open-in-new</v-icon></v-btn>
+      <v-btn size="x-small" icon style="margin-top:3px;" target="_blank" :href="network.explorerEndpoint + '/address/' + account.address"><v-icon size="x-small" color="grey">mdi-open-in-new</v-icon></v-btn>
     </div>
 
     <v-dialog v-model="edit.dialog"  theme="dark" scroll-strategy="reposition" dark width="320px">
@@ -109,6 +110,7 @@ import { Wallet } from "ethers";
 import { useAccounts } from "@/stores/account";
 import { mapStores, mapState } from "pinia";
 import { defineComponent } from "vue";
+import { useNetwork } from "@/stores/network";
 
 interface Account {
 	name: string;
@@ -163,6 +165,7 @@ export default defineComponent({
         requiredRule() { return [rule.required] },
         importDialogTitle() { return t('importPk') },
         ...mapState(useAccounts, ['accounts', 'account']),
+        ...mapState(useNetwork, ['network']),
         ...mapStores(useAccounts),
     },
     async created() {

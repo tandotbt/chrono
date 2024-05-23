@@ -1,3 +1,5 @@
+import type { ApprovalRequest } from "@/types";
+
 const callBackground = function<T>(action: string, method?: string, params: unknown | unknown[] = []): Promise<T> {
     return new Promise((resolve, reject) => {
         try {
@@ -38,22 +40,6 @@ const callNetwork = function<T>(method: string, params: unknown[] = []): Promise
 const callConfirmation = function<T>(method: string, params: unknown[] = []): Promise<T> {
     return callBackground<T>('confirmation', method, params)
 }
-
-type ApprovalRequest = {
-    id: string;
-    category: "connect",
-    data: {
-        origin: string,
-        content: string,
-    }
-} | {
-    id: string;
-    category: "sign",
-    data: {
-        signer: string;
-        content: object;
-    }
-};
 
 export default {
     graphql: <T>(method: string, params: unknown | unknown[]): Promise<T> => {
