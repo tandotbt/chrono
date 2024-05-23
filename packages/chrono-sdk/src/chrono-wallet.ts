@@ -35,10 +35,10 @@ export class ChronoWallet {
         });
     }
 
-    connect(): Promise<void> {
+    connect(): Promise<string[]> {
         return new Promise((resolve, reject) => {
             this.handler.send(
-                { resolve: () => resolve(), reject },
+                { resolve: (x) => resolve(x), reject },
                 { method: 'connect', }
             );
         });
