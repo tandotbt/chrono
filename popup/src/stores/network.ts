@@ -92,7 +92,7 @@ export const useNetwork = defineStore('Network', () => {
             network.value = found
         }
         await bg.network.switchNetwork(id);
-        await accountsStore.loadAccounts();
+        accountsStore.loadAccounts();
     }
 
     async function updateNetwork({id, name, gqlEndpoint, explorerEndpoint, genesisHash, isMainnet}: Network) {
@@ -106,7 +106,7 @@ export const useNetwork = defineStore('Network', () => {
             found.isMainnet = isMainnet
         }
         await bg.storage.set(NETWORKS, networks.value)
-        await accountsStore.loadAccounts();
+        accountsStore.loadAccounts();
     }
 
     return {

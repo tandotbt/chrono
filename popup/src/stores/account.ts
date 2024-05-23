@@ -1,12 +1,13 @@
 import { defineStore } from "pinia";
 
 import bg from "@/api/background"
-import { ACCOUNTS, CURRENT_ADDRESS, ENCRYPTED_WALLET, TXS } from "@/constants/constants";
+import { ACCOUNTS, CURRENT_ADDRESS, ENCRYPTED_WALLET, PASSWORD_CHECKER, PASSWORD_CHECKER_VALUE, TXS } from "@/constants/constants";
 import { useRouter } from "vue-router";
 import _ from "underscore";
 import utils from "@/utils/utils";
 import { ref } from "vue";
 import type { Account, SavedTransactionHistory, ApprovalRequest, GraphQLTxStatus } from "@/types";
+import aes256 from "@/utils/aes256";
 
 function getAccounts(): Promise<Account[]> {
     return bg.storage.get<Account[]>(ACCOUNTS);
@@ -23,13 +24,8 @@ export const useAccounts = defineStore('Account', () => {
     const approvalRequests = ref<ApprovalRequest[]>([]);
 
     async function assertSignedIn() {
-        const accounts = await getAccounts();
-        if (accounts
-            && accounts.length > 0
-            && accounts[0].address
-            && accounts[0].address.startsWith('0x')) {
-            const _ = await bg.wallet.getPublicKey(accounts[0].address);
-            return true
+        if (await bg.isSignedIn()) {
+            return true;
         }
 
         const router = useRouter();
@@ -58,10 +54,15 @@ export const useAccounts = defineStore('Account', () => {
         await bg.setPassphrase(passphrase)
     }
     async function initAccounts(address: string, ew: string, passphrase: string) {
-        await bg.setPassphrase(passphrase)
-        await bg.storage.clearAll()
-        await bg.storage.set(ACCOUNTS, [{name: 'Account 1', index: 0, address, primary: true}])
-        await bg.storage.secureSet(ENCRYPTED_WALLET + address.toLowerCase(), ew)
+        await Promise.all([
+            bg.setPassphrase(passphrase),
+            bg.storage.clearAll(),
+            aes256.encrypt(PASSWORD_CHECKER_VALUE, passphrase).then(x => bg.storage.set(PASSWORD_CHECKER, x)),
+        ]);
+        await Promise.all([
+            bg.storage.set(ACCOUNTS, [{name: 'Account 1', index: 0, address, primary: true}]),
+            bg.storage.secureSet(ENCRYPTED_WALLET + address.toLowerCase(), ew),
+        ]);
 
         await loadAccounts();
         await selectAccount(address);

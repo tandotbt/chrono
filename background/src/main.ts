@@ -2,10 +2,11 @@ import Graphql from "@/api/graphql";
 import Storage from "@/storage/storage";
 import Wallet from "@/wallet/wallet";
 import { Buffer } from "buffer";
-import { Account, ENCRYPTED_WALLET } from "./constants/constants";
+import { Account, ENCRYPTED_WALLET, PASSWORD_CHECKER, PASSWORD_CHECKER_VALUE } from "./constants/constants";
 import { NetworkController } from "./controllers/network";
 import { ConfirmationController } from "./controllers/confirmation";
 import { PopupController } from "./controllers/popup";
+import aes256 from "./utils/aes256";
 
 window.Buffer = Buffer;
 (function () {
@@ -25,15 +26,9 @@ window.Buffer = Buffer;
 	const checkValidPassphrase = async (p) => {
 		const storage = new Storage(p);
 		try {
-			const accounts = await storage.get<Account[]>("accounts");
-			if (accounts.length < 1) {
-				return false;
-			}
-
-			await storage.secureGet(
-				ENCRYPTED_WALLET + accounts[0].address.toLowerCase(),
-			);
-			return true;
+			const value = await storage.get<string>(PASSWORD_CHECKER);
+			const decrypted = await aes256.decrypt(value, p);
+			return decrypted === PASSWORD_CHECKER_VALUE;
 		} catch (e) {}
 		return false;
 	};

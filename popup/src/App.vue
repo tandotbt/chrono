@@ -28,9 +28,11 @@ export default defineComponent({
             await bg.checkTTL()
             let signedIn = await bg.isSignedIn()
             if (signedIn) {
-                await this.AccountStore.loadAccounts();
-                await this.NetworkStore.loadNetworks();
-                await this.AccountStore.loadApprovalRequests();
+                await Promise.all([
+                  this.AccountStore.loadAccounts(),
+                  this.NetworkStore.loadNetworks(),
+                  this.AccountStore.loadApprovalRequests()
+                ]);
                 this.init()
                 if (this.approvalRequests!.length > 0) {
                   this.$router.replace({name: "confirmation"}).catch(() => {})
