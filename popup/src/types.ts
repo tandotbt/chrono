@@ -3,6 +3,7 @@ export interface Network {
     name: string,
     genesisHash: string,
     gqlEndpoint: string,
+    explorerEndpoint: string,
     isMainnet: boolean,
 }
 
