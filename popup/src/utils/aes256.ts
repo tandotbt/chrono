@@ -1,39 +1,54 @@
-const crypto = require('crypto')
-import { keccak_256 } from "@noble/hashes/sha3"
-import { Buffer } from "buffer"
-const IV_LENGTH = 16
+// const crypto = require('crypto')
+import { keccak_256 } from "@noble/hashes/sha3";
+import { Buffer } from "buffer";
+const IV_LENGTH = 16;
 export default {
-    encrypt: (text: string, passphrase: string): string => {
-        const iv = crypto.randomBytes(IV_LENGTH)
-        const cipher = crypto.createCipheriv(
-            'aes-256-cbc',
-            Buffer.from(keccak_256(passphrase)),
-            iv,
-        )
-        const encrypted = cipher.update(text)
+	encrypt: async (text: string, passphrase: string): Promise<string> => {
+		const key = await window.crypto.subtle.importKey(
+			"raw",
+			Buffer.from(keccak_256(passphrase)),
+			{ name: "AES-CBC" },
+			true,
+			["encrypt", "decrypt"],
+		);
+		const iv = window.crypto.getRandomValues(new Uint8Array(IV_LENGTH));
+		const encrypted = await window.crypto.subtle.encrypt(
+			{
+				name: "AES-CBC",
+				iv,
+				length: 256,
+			},
+			key,
+			Buffer.from(text),
+		);
 
-        return (
-            iv.toString('hex') +
-            ':' +
-            Buffer.concat([encrypted, cipher.final()]).toString('hex')
-        )
-    },
-    decrypt: (text: string, passphrase: string): string => {
-        const textParts = text.split(':')
-        const ivRaw = textParts.shift();
-        if (ivRaw === undefined) {
-            throw new Error(`Invalid encrypted text: ${text}`);
-        }
+		return (
+			Buffer.from(iv).toString("hex") +
+			":" +
+			Buffer.from(encrypted).toString("hex")
+		);
+	},
+	decrypt: async (text: string, passphrase: string): Promise<string> => {
+		const textParts = text.split(":");
+		const iv = Buffer.from(textParts.shift()!, "hex");
+		const encryptedText = Buffer.from(textParts.join(":"), "hex");
+		const key = await window.crypto.subtle.importKey(
+			"raw",
+			Buffer.from(keccak_256(passphrase)),
+			{ name: "AES-CBC" },
+			true,
+			["encrypt", "decrypt"],
+		);
+		const decrypted = await window.crypto.subtle.decrypt(
+			{
+				name: "AES-CBC",
+				iv,
+				length: 256,
+			},
+			key,
+			encryptedText,
+		);
 
-        const iv = Buffer.from(ivRaw, 'hex')
-        const encryptedText = Buffer.from(textParts.join(':'), 'hex')
-        const decipher = crypto.createDecipheriv(
-            'aes-256-cbc',
-            Buffer.from(keccak_256(passphrase)),
-            iv,
-        )
-        const decrypted = decipher.update(encryptedText)
-
-        return Buffer.concat([decrypted, decipher.final()]).toString()
-    }
-}
+		return Buffer.from(decrypted).toString();
+	},
+};

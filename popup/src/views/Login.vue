@@ -78,10 +78,12 @@ export default defineComponent({
                 if (this.password) {
                     let passphrase = Buffer.from(keccak_256(this.password)).toString('hex')
                     if (await this.AccountStore.isValidPassphrase(passphrase)) {
-                        await this.AccountStore.setPassphrase(passphrase);
-                        await this.AccountStore.loadAccounts();
-                        await this.NetworkStore.loadNetworks();
-                        await this.AccountStore.loadApprovalRequests();
+                        await Promise.all([
+                          this.AccountStore.setPassphrase(passphrase),
+                          this.AccountStore.loadAccounts(),
+                          this.NetworkStore.loadNetworks(),
+                          this.AccountStore.loadApprovalRequests(),
+                        ]);
                         console.log("this.approvalRequests.length", this.approvalRequests.length);
                         if (this.approvalRequests.length > 0) {
                           this.$router.replace({name: "confirmation"}).catch(() => {})

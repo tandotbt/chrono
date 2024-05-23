@@ -151,8 +151,10 @@ export default defineComponent({
                 this.loading = true
                 let encryptedWallet = await this.wallet.encrypt(passphrase)
 
-                await this.AccountStore.initAccounts(this.wallet.address, encryptedWallet, passphrase);
-                await this.NetworkStore.initNetworks();
+                await Promise.all([
+                  this.AccountStore.initAccounts(this.wallet.address, encryptedWallet, passphrase),
+                  this.NetworkStore.initNetworks(),
+                ])
                 await this.$router.replace({name: 'index'})
             } else {
                 await this.$router.replace({name: 'initiate'})

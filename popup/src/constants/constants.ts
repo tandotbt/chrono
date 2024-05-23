@@ -7,3 +7,5 @@ export const TXS = 'txs'
 export const PASSPHRASE = 'pp'
 export const NETWORKS = 'n';
 export const CURRENT_NETWORK = 'cn';
+export const PASSWORD_CHECKER = 'passwordChecker';
+export const PASSWORD_CHECKER_VALUE = 'password';

@@ -8,6 +8,8 @@ export const APPROVAL_REQUESTS = "approval_requests";
 export const CONNECTED_SITES = "connected_sites";
 export const NETWORKS = "n";
 export const CURRENT_NETWORK = "cn";
+export const PASSWORD_CHECKER = 'passwordChecker';
+export const PASSWORD_CHECKER_VALUE = 'password';
 
 export interface Account {
 	name: string;
