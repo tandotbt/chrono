@@ -37,6 +37,7 @@
         <div class="d-flex">
           <button
             class="flex-fill border border-primary border-2 rounded-pill m-2 p-4"
+            :disabled="!selectedAddresses.length"
             @click="approveRequest(approvalRequests[0].id, selectedAddresses)">
             Approve
           </button>
