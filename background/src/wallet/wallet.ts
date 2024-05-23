@@ -357,6 +357,7 @@ export default class Wallet {
 				const connectedSites = await this._getConnectedSites();
 				connectedSites[this.origin] = metadata;
 				await this._setConnectedSites(connectedSites);
+				this.emitter('connected', metadata);
 				return metadata;
 			});
 	}
