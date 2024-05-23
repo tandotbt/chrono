@@ -140,6 +140,9 @@ importers:
       '@planetarium/lib9c':
         specifier: npm:@jsr/planetarium__lib9c@0.1.0-dev+c93e993e16713fb3ed43e1683b4beb0ccf0c6a69
         version: '@jsr/planetarium__lib9c@0.1.0-dev+c93e993e16713fb3ed43e1683b4beb0ccf0c6a69'
+      '@tanstack/react-query':
+        specifier: ^5.37.1
+        version: 5.37.1(react@18.2.0)
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
@@ -234,13 +237,22 @@ importers:
       '@planetarium/tx':
         specifier: ^4.4.2
         version: 4.4.2(@planetarium/account@4.4.2(patch_hash=jb6dglqvmbazko2rjmsq6cngsy))
+      '@tanstack/react-query':
+        specifier: ^5.37.1
+        version: 5.37.1(react@18.2.0)
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
     devDependencies:
       '@planetarium/lib9c':
         specifier: npm:@jsr/planetarium__lib9c@0.1.0-dev+c93e993e16713fb3ed43e1683b4beb0ccf0c6a69
         version: '@jsr/planetarium__lib9c@0.1.0-dev+c93e993e16713fb3ed43e1683b4beb0ccf0c6a69'
+      '@types/react':
+        specifier: ^18.2.66
+        version: 18.2.79
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -1733,6 +1745,14 @@ packages:
   '@szmarczak/http-timer@5.0.1':
     resolution: {integrity: sha512-+PmQX0PiAYPMeVYe237LJAYvOMYW1j2rH5YROyS3b4CTVJum34HfRvKvAzozHAQG0TnHNdUfY9nCeUyRAs//cw==}
     engines: {node: '>=14.16'}
+
+  '@tanstack/query-core@5.36.1':
+    resolution: {integrity: sha512-BteWYEPUcucEu3NBcDAgKuI4U25R9aPrHSP6YSf2NvaD2pSlIQTdqOfLRsxH9WdRYg7k0Uom35Uacb6nvbIMJg==}
+
+  '@tanstack/react-query@5.37.1':
+    resolution: {integrity: sha512-EhtBNA8GL3XFeSx6VYUjXQ96n44xe3JGKZCzBINrCYlxbZP6UwBafv7ti4eSRWc2Fy+fybQre0w17gR6lMzULA==}
+    peerDependencies:
+      react: ^18.0.0
 
   '@tootallnate/once@1.1.2':
     resolution: {integrity: sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw==}
@@ -7996,6 +8016,13 @@ snapshots:
   '@szmarczak/http-timer@5.0.1':
     dependencies:
       defer-to-connect: 2.0.1
+
+  '@tanstack/query-core@5.36.1': {}
+
+  '@tanstack/react-query@5.37.1(react@18.2.0)':
+    dependencies:
+      '@tanstack/query-core': 5.36.1
+      react: 18.2.0
 
   '@tootallnate/once@1.1.2': {}
 

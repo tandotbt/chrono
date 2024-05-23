@@ -347,16 +347,18 @@ export default class Wallet {
 		return wallet.privateKey;
 	}
 
-	async connect(): Promise<void> {
+	async connect(): Promise<string[]> {
 		return this.confirmationController
 			.request({
 				category: "connect",
 				data: { origin: this.origin },
 			})
-			.then(async (metadata) => {
+			.then(async (metadata: string[]) => {
 				const connectedSites = await this._getConnectedSites();
 				connectedSites[this.origin] = metadata;
 				await this._setConnectedSites(connectedSites);
+				this.emitter('connected', metadata);
+				return metadata;
 			});
 	}
 

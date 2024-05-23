@@ -16,6 +16,7 @@
     "@planetarium/bencodex": "^0.2.2",
     "@planetarium/chrono-sdk": "workspace:^",
     "@planetarium/lib9c": "npm:@jsr/planetarium__lib9c@0.1.0-dev+c93e993e16713fb3ed43e1683b4beb0ccf0c6a69",
+    "@tanstack/react-query": "^5.37.1",
     "buffer": "^6.0.3",
     "graphql": "^16.8.1",
     "graphql-request": "^6.1.0",
