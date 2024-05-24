@@ -1,57 +1,18 @@
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import Agent from "./Agent";
 import { getChronoSdk } from "@planetarium/chrono-sdk";
 import { HEIMDALL_GENESIS_HASH, ODIN_GENESIS_HASH } from "./constants";
-import { useAccounts, useConnect } from "@planetarium/chrono-sdk/hooks";
+import { useAccounts, useConnect, useNetwork } from "@planetarium/chrono-sdk/hooks";
 
 function App() {
 	const [currentAccount, setCurrentAccount] = useState<number>(0);
-	const [currentNetwork, setCurrentNetwork] = useState<{
-		gqlEndpoint: string,
-		genesisHash: string,
-		id: string,
-	} | null>(null);
-	const guessedNetworkName = useMemo<"odin" | "heimdall" | "unknown">(() => {
-		if (currentNetwork?.genesisHash?.toLowerCase() === ODIN_GENESIS_HASH) {
-			return "odin";
-		} else if (currentNetwork?.genesisHash?.toLowerCase() === HEIMDALL_GENESIS_HASH) {
-			return "heimdall";
-		} else {
-			return "unknown";
-		}
-	}, [currentNetwork]);
 
 	const { data: accountsData, isLoading: accountsLoading, isSuccess: accountsSuccess, error: accountsError } = useAccounts();
 	const { connectAsync, isPending } = useConnect();
+	const { data: networksData, isLoading: networksLoading, isSuccess: networksSuccess } = useNetwork();
 
 	const chronoWallet = getChronoSdk();
-
-	useEffect(() => {
-		if (chronoWallet === undefined) {
-			return;
-		}
-
-		chronoWallet.subscribe("network:changed", (network) => {
-			console.log("check", network);
-			setCurrentNetwork(network);
-		});
-	}, [chronoWallet]);
-	useEffect(() => {
-		(async () => {
-			if (chronoWallet === undefined) {
-				return;
-			}
-
-			try {
-				const network = await chronoWallet.getCurrentNetwork();
-				console.log(network);
-				setCurrentNetwork(network);
-			} catch (e) {
-				console.error(e);
-			}
-		})();
-	}, [chronoWallet]);
 
 	if (chronoWallet === undefined) {
 		return <div className="flex flex-col bg-gray-900 justify-center items-center min-w-screen min-h-screen">
@@ -59,7 +20,7 @@ function App() {
 		</div>
 	}
 
-	if (accountsLoading) {
+	if (accountsLoading || networksLoading) {
 		return <>Loading...</>
 	}
 
@@ -67,9 +28,14 @@ function App() {
 		return <>Accounts are not loaded successful. error: {accountsError}</>
 	}
 
-	const { accounts, isConnected } = accountsData;
+	if (!networksSuccess) {
+		return <>Network is not loaded successful.</>
+	}
 
-	if (!isConnected) {
+	const { accounts, isConnected } = accountsData;
+	const { network, isConnected: networkIsConnected } = networksData;
+
+	if (!isConnected || !networkIsConnected) {
 		return <div className="flex flex-col bg-gray-900 justify-center items-center min-w-screen min-h-screen">
 			<p className="text-white mb-6 text-lg font-bold">You must connect (allow) this site on Chrono first.</p>
 			{isPending || <button className="bg-white p-4 font-bold" onClick={() => connectAsync()}>Connect</button>}
@@ -77,16 +43,22 @@ function App() {
 		</div>
 	}
 
-	if (currentNetwork === null) {
-		return <>Loading... (network)</>
-	}
+	const guessedNetworkName = (() => {
+		if (network.genesisHash.toLowerCase() === ODIN_GENESIS_HASH) {
+			return "odin";
+		} else if (network.genesisHash.toLowerCase() === HEIMDALL_GENESIS_HASH) {
+			return "heimdall";
+		} else {
+			return "unknown";
+		}
+	})();
 
 	if (guessedNetworkName === "unknown") {
-		return <>Unknown network (genesis hash: {currentNetwork.genesisHash})</>
+		return <>Unknown network (genesis hash: {network.genesisHash})</>
 	}
 
 	const client = new ApolloClient({
-		uri: currentNetwork.gqlEndpoint,
+		uri: network.gqlEndpoint,
 		cache: new InMemoryCache(),
 	});
 

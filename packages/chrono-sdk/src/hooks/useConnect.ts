@@ -18,9 +18,11 @@ export function useConnect() {
             }
         },
         onSuccess: async (variables) => {
-            await queryClient.invalidateQueries({
+            await Promise.all([queryClient.invalidateQueries({
                 queryKey: ["accounts"]
-            })
+            }), queryClient.invalidateQueries({
+                queryKey: ["networks"]
+            })])
         }
     });
 

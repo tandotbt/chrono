@@ -1,80 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
-import {
-	useStageTransactionMutation,
-} from "./generated/graphql";
-import { getChronoSdk } from "@planetarium/chrono-sdk";
 import { Address } from "@planetarium/account";
-import { GetAvatarsResponse, getAvatars, getTip } from "./mimir-client";
-import { DailyReward } from "@planetarium/lib9c";
-
-interface RefillButtonProps {
-	signer: Address;
-	avatarAddress: Address;
-}
-
-function createDailyRewardAction(avatarAddress: Address): DailyReward {
-	return new DailyReward({
-		avatarAddress,
-	});
-}
-
-type RefillProgress = "None" | "Signing" | "Staging" | "Done";
-
-function RefillButton({ signer, avatarAddress }: RefillButtonProps) {
-	const [progress, setProgress] = useState<RefillProgress>("None");
-	const [stage] = useStageTransactionMutation();
-	const action = useMemo(() => {
-		return createDailyRewardAction(avatarAddress);
-	}, [avatarAddress]);
-
-	const onClick = () => {
-		setProgress("Signing");
-		const chronoWallet = getChronoSdk();
-		if (chronoWallet === undefined) {
-			return;
-		}
-
-		chronoWallet
-			.sign(signer, action)
-			.then((tx) => {
-				console.log(tx);
-				setProgress("Staging");
-				return stage({
-					variables: {
-						tx: tx.toString("hex"),
-					},
-				}).then(({ data, errors }) => {
-					setProgress("Done");
-					console.log(data, errors);
-				});
-			})
-			.catch((e: unknown) => {
-				console.error(e);
-				setProgress("None");
-			});
-	};
-
-	if (progress !== "None") {
-		return (
-			<button
-				type="button"
-				className="rounded-md bg-black text-white p-3 font-bold"
-			>
-				{progress}
-			</button>
-		);
-	}
-
-	return (
-		<button
-			type="button"
-			className="rounded-md bg-yellow-400 text-white p-3 font-bold"
-			onClick={onClick}
-		>
-			Refill
-		</button>
-	);
-}
+import { RefillButton } from "./RefillButton";
+import { useAgent } from "./hooks/useAgent";
+import { useTip } from "./hooks/useTip";
 
 interface AgentProps {
 	network: "odin" | "heimdall";
@@ -82,21 +9,21 @@ interface AgentProps {
 }
 
 function Agent({ network, agentAddress }: AgentProps) {
-	const [agent, setAgent] = useState<GetAvatarsResponse>();
-	const [tip, setTip] = useState<number>();
+	const { data: agent, isLoading: agentLoading, isSuccess: agentSuccess } = useAgent(network, agentAddress.toString());
+	const { data: tip, isLoading: tipLoading, isSuccess: tipSuccess } = useTip(network);
 
-	useEffect(() => {
-		const interval = setInterval(() => {
-			getAvatars(network, agentAddress.toString()).then(setAgent);
-			getTip(network).then(setTip);
-		}, 1000);
+	const isLoading = agentLoading || tipLoading;
+	const isSuccess = agentSuccess && tipSuccess;
 
-		return () => clearInterval(interval);
-	}, [network, agentAddress]);
-
-	if (agent === undefined || tip === undefined) {
+	if (isLoading) {
 		return (
-			<p className="mt-8 text-white">Loading or unexpected failure while fetching data.</p>
+			<p className="mt-8 text-white">Loading...</p>
+		);
+	}
+
+	if (!isSuccess) {
+		return (
+			<p className="mt-8 text-white">Failed to fetch data.</p>
 		);
 	}
 
