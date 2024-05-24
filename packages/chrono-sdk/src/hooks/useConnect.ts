@@ -1,7 +1,15 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getChronoSdk } from "..";
+import { getChronoSdk } from "../index.js";
 
-export function useConnect() {
+type UseConnectMutationReturnType = ReturnType<typeof useMutation<{
+    accounts: string[],
+}, Error, void, unknown>>;
+type UseConnectReturnType = Omit<UseConnectMutationReturnType, "mutate" | "mutateAsync"> & {
+    connect: UseConnectMutationReturnType["mutate"],
+    connectAsync: UseConnectMutationReturnType["mutateAsync"],
+};
+
+export function useConnect(): UseConnectReturnType {
     const queryClient = useQueryClient();
     const { mutate, mutateAsync, ...result } = useMutation({
         mutationFn: async () => {

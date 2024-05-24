@@ -13,6 +13,9 @@ jobs:
           version: 9
           run_install: true
       - run: pnpm build
+      - name: jsr publish dry-run
+        run: npx jsr publish --dry-run
+        working-directory: packages/chrono-sdk
       - if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
         with:
