@@ -1,7 +1,16 @@
-import { getChronoSdk } from "..";
+import type { Address } from "@planetarium/account";
+import { getChronoSdk } from "../index.js";
 import { useQuery } from "@tanstack/react-query";
 
-export function useAccounts() {
+type UseAccountsReturnType = ReturnType<typeof useQuery<{
+    accounts: Address[],
+    isConnected: true,
+} | {
+    accounts: never[],
+    isConnected: false,
+}>>;
+
+export function useAccounts(): UseAccountsReturnType {
     const sdk = getChronoSdk();
 
     const { refetch, ...result } = useQuery({

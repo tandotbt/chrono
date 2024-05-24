@@ -1,7 +1,16 @@
-import { getChronoSdk } from "..";
+import { Network } from "../event.js";
+import { getChronoSdk } from "../index.js";
 import { useQuery } from "@tanstack/react-query";
 
-export function useNetwork() {
+type UseNetworkReturnType = ReturnType<typeof useQuery<{
+    network: null,
+    isConnected: false
+} | {
+    network: Network,
+    isConnected: true,
+}>>;
+
+export function useNetwork(): UseNetworkReturnType {
     const sdk = getChronoSdk();
 
     const { refetch, ...result } = useQuery({

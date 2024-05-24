@@ -1,9 +1,9 @@
 import { Address, PublicKey } from "@planetarium/account";
 import { Value, encode } from "@planetarium/bencodex";
-import { WindowMessageHandler } from "./handler";
+import { WindowMessageHandler } from "./handler.js";
 import { Buffer } from "buffer";
 import { encodeUnsignedTx, type UnsignedTx } from "@planetarium/tx";
-import { EventType, EventHandler, Network } from "./event";
+import { EventType, EventHandler, Network } from "./event.js";
 import type { PolymorphicAction } from "@planetarium/lib9c";
 
 export class ChronoWallet {

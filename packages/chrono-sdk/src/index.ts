@@ -1,5 +1,5 @@
-import { ChronoWallet } from "./chrono-wallet";
-import { WindowMessageHandler } from "./handler";
+import { ChronoWallet } from "./chrono-wallet.js";
+import { WindowMessageHandler } from "./handler.js";
 
 export function setupChronoSdk() {
     const handler = new WindowMessageHandler(window);
