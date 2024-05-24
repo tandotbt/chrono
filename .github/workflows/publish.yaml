@@ -7,8 +7,7 @@ on:
 
 jobs:
   jsr:
-    uses: planetarium/.github/.github/workflows/publish_jsr.yaml@e956907c32272dc5c0a2cd670cf015539fab86bd
+    uses: planetarium/.github/.github/workflows/publish_jsr.yaml@2b72e856e480478f6b9dbfa944f43e985cd83f5f
     with:
       working_directory: "packages/chrono-sdk"
-      pnpm_version: 9.1.2
-
+      pnpm_version: "9.1.2"
