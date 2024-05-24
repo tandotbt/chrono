@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
 import { Address } from "@planetarium/account";
-import { GetAvatarsResponse, getAvatars, getTip } from "./mimir-client";
 import { RefillButton } from "./RefillButton";
+import { useAgent } from "./hooks/useAgent";
+import { useTip } from "./hooks/useTip";
 
 interface AgentProps {
 	network: "odin" | "heimdall";
@@ -9,21 +9,21 @@ interface AgentProps {
 }
 
 function Agent({ network, agentAddress }: AgentProps) {
-	const [agent, setAgent] = useState<GetAvatarsResponse>();
-	const [tip, setTip] = useState<number>();
+	const { data: agent, isLoading: agentLoading, isSuccess: agentSuccess } = useAgent(network, agentAddress.toString());
+	const { data: tip, isLoading: tipLoading, isSuccess: tipSuccess } = useTip(network);
 
-	useEffect(() => {
-		const interval = setInterval(() => {
-			getAvatars(network, agentAddress.toString()).then(setAgent);
-			getTip(network).then(setTip);
-		}, 1000);
+	const isLoading = agentLoading || tipLoading;
+	const isSuccess = agentSuccess && tipSuccess;
 
-		return () => clearInterval(interval);
-	}, [network, agentAddress]);
-
-	if (agent === undefined || tip === undefined) {
+	if (isLoading) {
 		return (
-			<p className="mt-8 text-white">Loading or unexpected failure while fetching data.</p>
+			<p className="mt-8 text-white">Loading...</p>
+		);
+	}
+
+	if (!isSuccess) {
+		return (
+			<p className="mt-8 text-white">Failed to fetch data.</p>
 		);
 	}
 
