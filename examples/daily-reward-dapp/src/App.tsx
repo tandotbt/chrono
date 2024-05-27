@@ -11,6 +11,7 @@ import {
 
 function App() {
 	const [currentAccount, setCurrentAccount] = useState<number>(0);
+	const [txId, setTxId] = useState<string | null>(null);
 
 	const {
 		data: accountsData,
@@ -97,6 +98,8 @@ function App() {
 		cache: new InMemoryCache(),
 	});
 
+	const explorerEndpoint = (network as any).explorerEndpoint; // @ts-ignore
+
 	return (
 		<ApolloProvider client={client}>
 			<div className="flex flex-col bg-gray-900 justify-center items-center min-w-screen min-h-screen">
@@ -113,7 +116,9 @@ function App() {
 				<Agent
 					network={guessedNetworkName}
 					agentAddress={accounts[currentAccount]}
+					setTxId={setTxId}
 				/>
+				{txId && (<p className="text-white mt-4">Last Transaction : <a className="text-cyan-500 underline" href={`${explorerEndpoint}/tx/${txId}`}>9cscan</a></p>)}
 			</div>
 		</ApolloProvider>
 	);
