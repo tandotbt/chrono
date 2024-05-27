@@ -7,6 +7,8 @@ import { DailyReward } from "@planetarium/lib9c";
 interface RefillButtonProps {
 	signer: Address;
 	avatarAddress: Address;
+
+	setTxId: (value: string | null) => void;
 }
 
 function createDailyRewardAction(avatarAddress: Address): DailyReward {
@@ -17,7 +19,7 @@ function createDailyRewardAction(avatarAddress: Address): DailyReward {
 
 type RefillProgress = "None" | "Signing" | "Staging" | "Done";
 
-export function RefillButton({ signer, avatarAddress }: RefillButtonProps) {
+export function RefillButton({ signer, avatarAddress, setTxId }: RefillButtonProps) {
 	const [progress, setProgress] = useState<RefillProgress>("None");
 	const [stage] = useStageTransactionMutation();
 	const action = useMemo(() => {
@@ -42,6 +44,7 @@ export function RefillButton({ signer, avatarAddress }: RefillButtonProps) {
 					},
 				}).then(({ data, errors }) => {
 					setProgress("Done");
+					setTxId(data?.stageTransaction || null);
 					console.log(data, errors);
 				});
 			})

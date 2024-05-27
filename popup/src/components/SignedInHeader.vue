@@ -37,6 +37,7 @@
             <v-text-field maxlength="10" outlined :rules="[requiredRule]" dense label="Name" v-model="imports.name" style="margin-bottom:-10px;"></v-text-field>
             <v-text-field minlength="16" maxlength="64" outlined :rules="[requiredRule]" dense label="Genesis Hash" v-model="imports.genesisHash" style="margin-bottom:-10px;"></v-text-field>
             <v-text-field outlined :rules="[requiredRule]" dense rows="4" label="GraphQL endpoint" v-model="imports.gqlEndpoint" style="margin-bottom:-10px;"></v-text-field>
+            <v-text-field outlined :rules="[requiredRule]" dense rows="4" label="Explorer endpoint" v-model="imports.explorerEndpoint" style="margin-bottom:-10px;"></v-text-field>
             <v-switch outlined :rules="[requiredRule]" dense label="Is Mainnet?" v-model="imports.isMainnet" style="margin-bottom:-10px;"></v-switch>
           </div>
         </template>
@@ -133,6 +134,7 @@ export default {
 			this.imports.loading = true;
 			try {
 				await this.NetworkStore.importNetwork(this.imports);
+				this.imports.dialog = false;
 			} finally {
 				this.imports.loading = false;
 			}
@@ -141,6 +143,7 @@ export default {
 			this.edit.loading = true;
 			try {
 				await this.NetworkStore.updateNetwork(this.edit);
+				this.edit.dialog = false;
 			} finally {
 				this.edit.loading = false;
 			}

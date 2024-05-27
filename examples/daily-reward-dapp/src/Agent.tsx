@@ -6,9 +6,11 @@ import { useTip } from "./hooks/useTip";
 interface AgentProps {
 	network: "odin" | "heimdall";
 	agentAddress: Address;
+
+	setTxId: (value: string | null) => void;
 }
 
-function Agent({ network, agentAddress }: AgentProps) {
+function Agent({ network, agentAddress, setTxId }: AgentProps) {
 	const {
 		data: agent,
 		isLoading: agentLoading,
@@ -60,6 +62,7 @@ function Agent({ network, agentAddress }: AgentProps) {
 								<RefillButton
 									signer={agentAddress}
 									avatarAddress={Address.fromHex(avatarAddress)}
+									setTxId={setTxId}
 								/>
 							) : (
 								<></>
