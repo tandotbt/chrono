@@ -62,6 +62,10 @@ export const useNetwork = defineStore("Network", () => {
 	}: Network) {
 		await accountsStore.assertSignedIn();
 		const networks = await bg.storage.get<Network[]>(NETWORKS);
+		if (networks.find((network) => network.id === id)) {
+			throw new Error(`There is already the network with ${id} id.`);
+		}
+
 		networks.push({
 			id,
 			name,
