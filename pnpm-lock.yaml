@@ -141,8 +141,8 @@ importers:
         specifier: workspace:^
         version: link:../../packages/chrono-sdk
       '@planetarium/lib9c':
-        specifier: npm:@jsr/planetarium__lib9c@0.1.0-dev.202405270537074763
-        version: '@jsr/planetarium__lib9c@0.1.0-dev.202405270537074763+21f6e3fdfa17b344d2db6d893f6c500624ae23b7'
+        specifier: npm:@jsr/planetarium__lib9c@0.2.0-dev.202405270607435878+5300e991debf3ce9444201f037490c4f0e02406e
+        version: '@jsr/planetarium__lib9c@0.2.0-dev.202405270607435878+5300e991debf3ce9444201f037490c4f0e02406e'
       '@tanstack/react-query':
         specifier: ^5.37.1
         version: 5.37.1(react@18.2.0)
@@ -254,8 +254,8 @@ importers:
         version: 18.2.0
     devDependencies:
       '@planetarium/lib9c':
-        specifier: npm:@jsr/planetarium__lib9c@0.1.0-dev.202405270537074763+21f6e3fdfa17b344d2db6d893f6c500624ae23b7
-        version: '@jsr/planetarium__lib9c@0.1.0-dev.202405270537074763+21f6e3fdfa17b344d2db6d893f6c500624ae23b7'
+        specifier: npm:@jsr/planetarium__lib9c@0.2.0-dev.202405270607435878
+        version: '@jsr/planetarium__lib9c@0.2.0-dev.202405270607435878+5300e991debf3ce9444201f037490c4f0e02406e'
       '@types/react':
         specifier: ^18.2.66
         version: 18.2.79
@@ -1540,8 +1540,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
 
-  '@jsr/planetarium__lib9c@0.1.0-dev.202405270537074763+21f6e3fdfa17b344d2db6d893f6c500624ae23b7':
-    resolution: {integrity: sha512-IoxdoikJ/qGoDKkrIEaxkrNVt/RHbJvjx848jAPM9nGvtl+1E2FJ+9AlsuJzC/hsoku596RXH5m9M2SUJgQ9/w==, tarball: https://npm.jsr.io/~/11/@jsr/planetarium__lib9c/0.1.0-dev.202405270537074763+21f6e3fdfa17b344d2db6d893f6c500624ae23b7.tgz}
+  '@jsr/planetarium__lib9c@0.2.0-dev.202405270607435878+5300e991debf3ce9444201f037490c4f0e02406e':
+    resolution: {integrity: sha512-mwK24vLWiy2zM4ihYxowyjEqoVXYMUVnLXzHUEcaQoHbBGg+s/2HMaXOLvOSrrN5HO85quIspwLp4K/OWsqvTA==, tarball: https://npm.jsr.io/~/11/@jsr/planetarium__lib9c/0.2.0-dev.202405270607435878+5300e991debf3ce9444201f037490c4f0e02406e.tgz}
 
   '@kamilkisiela/fast-url-parser@1.1.4':
     resolution: {integrity: sha512-gbkePEBupNydxCelHCESvFSFM8XPh1Zs/OAVRW/rKpEqPAl5PbOM90Si8mv9bvnR53uPD2s/FiRxdvSejpRJew==}
@@ -7833,7 +7833,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.4.15
 
-  '@jsr/planetarium__lib9c@0.1.0-dev.202405270537074763+21f6e3fdfa17b344d2db6d893f6c500624ae23b7':
+  '@jsr/planetarium__lib9c@0.2.0-dev.202405270607435878+5300e991debf3ce9444201f037490c4f0e02406e':
     dependencies:
       '@planetarium/account': 4.4.2(patch_hash=jb6dglqvmbazko2rjmsq6cngsy)
       '@planetarium/bencodex': 0.2.2
