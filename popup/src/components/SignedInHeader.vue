@@ -133,6 +133,7 @@ export default {
 			this.imports.loading = true;
 			try {
 				await this.NetworkStore.importNetwork(this.imports);
+				this.imports.dialog = false;
 			} finally {
 				this.imports.loading = false;
 			}
@@ -141,6 +142,7 @@ export default {
 			this.edit.loading = true;
 			try {
 				await this.NetworkStore.updateNetwork(this.edit);
+				this.edit.dialog = false;
 			} finally {
 				this.edit.loading = false;
 			}
