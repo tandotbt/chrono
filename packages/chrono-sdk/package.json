@@ -20,7 +20,7 @@
   "author": "Planetarium",
   "license": "GPL-3.0-only",
   "devDependencies": {
-    "@planetarium/lib9c": "npm:@jsr/planetarium__lib9c@0.2.0-dev.202405270607435878",
+    "@planetarium/lib9c": "npm:@jsr/planetarium__lib9c@^0.2.0-dev.202405270607435878+5300e991debf3ce9444201f037490c4f0e02406e",
     "@types/react": "^18.2.66",
     "typescript": "^5.4.5"
   },
