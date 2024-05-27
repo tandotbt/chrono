@@ -30,57 +30,59 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import type { PropType } from 'vue';
-import { useNetwork } from '@/stores/network';
-import { mapStores } from 'pinia';
-import type { Network } from '@/types';
+import { defineComponent } from "vue";
+import type { PropType } from "vue";
+import { useNetwork } from "@/stores/network";
+import { mapStores } from "pinia";
+import type { Network } from "@/types";
 
 export default defineComponent({
-    name: 'NetworkSelector',
-    props: {
-        networks: {type: Array as PropType<Network[]>, required: true},
-        network: {type: Object as PropType<Network | null>, required: true},
-        color: {type: String, default: 'white'},
-        onlySelect: {type:Boolean, default: false}
-    },
-    components: {},
-    mixins: [],
-    data() {
-        return {
-            copied: false
-        }
-    },
-    computed: {
-        currentSelectedText() {
-          console.log(this.network, this.networks);
-            if (this.network) {
-                const found = this.networks.find(network => network.id === this.network?.id);
-                if (found) {
-                    return found.name
-                }
-            }
-            return '-'
-        },
-        ...mapStores(useNetwork),
-    },
-    async created() {
-      console.log("NetworkSelector created", this.$props.networks);
-    },
-    methods: {
-        select(id: string) {
-          console.log("set network");
-            if (this.network?.id !== id) {
-              this.NetworkStore.selectNetwork(id)
-            }
-        },
-        addNewNetwork() {
-            this.$emit('addNew')
-        },
-        editNetwork(id: string) {
-            this.$emit('edit', id)
-        },
-    }
+	name: "NetworkSelector",
+	props: {
+		networks: { type: Array as PropType<Network[]>, required: true },
+		network: { type: Object as PropType<Network | null>, required: true },
+		color: { type: String, default: "white" },
+		onlySelect: { type: Boolean, default: false },
+	},
+	components: {},
+	mixins: [],
+	data() {
+		return {
+			copied: false,
+		};
+	},
+	computed: {
+		currentSelectedText() {
+			console.log(this.network, this.networks);
+			if (this.network) {
+				const found = this.networks.find(
+					(network) => network.id === this.network?.id,
+				);
+				if (found) {
+					return found.name;
+				}
+			}
+			return "-";
+		},
+		...mapStores(useNetwork),
+	},
+	async created() {
+		console.log("NetworkSelector created", this.$props.networks);
+	},
+	methods: {
+		select(id: string) {
+			console.log("set network");
+			if (this.network?.id !== id) {
+				this.NetworkStore.selectNetwork(id);
+			}
+		},
+		addNewNetwork() {
+			this.$emit("addNew");
+		},
+		editNetwork(id: string) {
+			this.$emit("edit", id);
+		},
+	},
 });
 </script>
 

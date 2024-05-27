@@ -21,26 +21,21 @@ import InitiateHeader from "@/components/InitiateHeader.vue";
 import t from "@/utils/i18n";
 import { defineComponent } from "vue";
 
-
 export default defineComponent({
-    name: 'ForgotPassword',
-    components: {
-        InitiateHeader
-    },
-    data() {
-        return {
-        }
-    },
-    computed: {
-    },
-    async created() {
-    },
-    mounted() {
-    },
-    methods: {
-      t,
-    }
-})
+	name: "ForgotPassword",
+	components: {
+		InitiateHeader,
+	},
+	data() {
+		return {};
+	},
+	computed: {},
+	async created() {},
+	mounted() {},
+	methods: {
+		t,
+	},
+});
 </script>
 
 <style scoped lang="scss">

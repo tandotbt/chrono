@@ -10,23 +10,17 @@
 
 <script lang="ts">
 export default {
-    name: 'InitiateHeader',
-    components: {
-    },
-    props: ['description'],
-    data() {
-        return {
-        }
-    },
-    computed: {
-    },
-    async created() {
-    },
-    mounted() {
-    },
-    methods: {
-    }
-}
+	name: "InitiateHeader",
+	components: {},
+	props: ["description"],
+	data() {
+		return {};
+	},
+	computed: {},
+	async created() {},
+	mounted() {},
+	methods: {},
+};
 </script>
 
 <style scoped lang="scss">

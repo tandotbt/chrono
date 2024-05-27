@@ -68,7 +68,7 @@
 <script lang="ts">
 import { markRaw, type Raw } from "vue";
 import InitiateHeader from "@/components/InitiateHeader.vue";
-import _ from "underscore"
+import _ from "underscore";
 import t from "@/utils/i18n";
 import { HDNodeWallet, ethers } from "ethers";
 import { defineComponent } from "vue";
@@ -76,91 +76,93 @@ import { useAccounts } from "@/stores/account";
 import { mapStores } from "pinia";
 import { useNetwork } from "@/stores/network";
 
-
 export default defineComponent({
-    name: 'InitiateMnemonic',
-    components: {
-        InitiateHeader
-    },
-    data(): {
-      checks: [boolean, boolean],
-      tab: number,
-      mnemonic: string,
-      recoverMnemonic: string,
-      errorRecoverMnemonic: string | null,
-      wallet: Raw<HDNodeWallet> | null,
-      loading: boolean,
-    } {
-        return {
-            checks: [false, false],
-            tab: 0,
-            mnemonic: '',
-            recoverMnemonic: '',
-            errorRecoverMnemonic: null,
-            wallet: null,
-            loading: false
-        }
-    },
-    computed: {
-        ...mapStores(useAccounts, useNetwork),
-        allChecked() {
-            return _.all(this.checks, c => c)
-        }
-    },
-    async created() {
-        await this.initiate()
-    },
-    methods: {
-        t,
-        async initiate() {
-            if (this.$route.query && this.$route.query.mode == 'recover') {
-                this.tab = 1
-            }
-            let passphrase = this.$route.params.passphrase
-            if (passphrase) {
-                this.wallet = markRaw(ethers.Wallet.createRandom());
-                const m = this.wallet.mnemonic
-                if (!m) {
-                  throw new Error("HDNodeWallet was failed.");
-                }
+	name: "InitiateMnemonic",
+	components: {
+		InitiateHeader,
+	},
+	data(): {
+		checks: [boolean, boolean];
+		tab: number;
+		mnemonic: string;
+		recoverMnemonic: string;
+		errorRecoverMnemonic: string | null;
+		wallet: Raw<HDNodeWallet> | null;
+		loading: boolean;
+	} {
+		return {
+			checks: [false, false],
+			tab: 0,
+			mnemonic: "",
+			recoverMnemonic: "",
+			errorRecoverMnemonic: null,
+			wallet: null,
+			loading: false,
+		};
+	},
+	computed: {
+		...mapStores(useAccounts, useNetwork),
+		allChecked() {
+			return _.all(this.checks, (c) => c);
+		},
+	},
+	async created() {
+		await this.initiate();
+	},
+	methods: {
+		t,
+		async initiate() {
+			if (this.$route.query && this.$route.query.mode == "recover") {
+				this.tab = 1;
+			}
+			let passphrase = this.$route.params.passphrase;
+			if (passphrase) {
+				this.wallet = markRaw(ethers.Wallet.createRandom());
+				const m = this.wallet.mnemonic;
+				if (!m) {
+					throw new Error("HDNodeWallet was failed.");
+				}
 
-                this.mnemonic = m.phrase
-            } else {
-                await this.$router.replace({name: 'initiate'})
-            }
-        },
-        async recoverFromMnemonic() {
-            try {
-                this.errorRecoverMnemonic = null
-                let mnemonic = this.recoverMnemonic
-                    .split(' ')
-                    .filter(w => w)
-                    .map(w => w.trim())
-                    .join(' ')
+				this.mnemonic = m.phrase;
+			} else {
+				await this.$router.replace({ name: "initiate" });
+			}
+		},
+		async recoverFromMnemonic() {
+			try {
+				this.errorRecoverMnemonic = null;
+				let mnemonic = this.recoverMnemonic
+					.split(" ")
+					.filter((w) => w)
+					.map((w) => w.trim())
+					.join(" ");
 
-                this.wallet = ethers.Wallet.fromPhrase(mnemonic)
-                await this.start()
-            } catch(e) {
-                this.errorRecoverMnemonic = 'invalid mnemonic'
-            }
+				this.wallet = ethers.Wallet.fromPhrase(mnemonic);
+				await this.start();
+			} catch (e) {
+				this.errorRecoverMnemonic = "invalid mnemonic";
+			}
+		},
+		async start() {
+			let passphrase = this.$route.params.passphrase;
+			if (passphrase && typeof passphrase === "string" && this.wallet) {
+				this.loading = true;
+				let encryptedWallet = await this.wallet.encrypt(passphrase);
 
-        },
-        async start() {
-            let passphrase = this.$route.params.passphrase
-            if (passphrase && typeof passphrase === "string" && this.wallet) {
-                this.loading = true
-                let encryptedWallet = await this.wallet.encrypt(passphrase)
-
-                await Promise.all([
-                  this.AccountStore.initAccounts(this.wallet.address, encryptedWallet, passphrase),
-                  this.NetworkStore.initNetworks(),
-                ])
-                await this.$router.replace({name: 'index'})
-            } else {
-                await this.$router.replace({name: 'initiate'})
-            }
-        }
-    }
+				await Promise.all([
+					this.AccountStore.initAccounts(
+						this.wallet.address,
+						encryptedWallet,
+						passphrase,
+					),
+					this.NetworkStore.initNetworks(),
+				]);
+				await this.$router.replace({ name: "index" });
+			} else {
+				await this.$router.replace({ name: "initiate" });
+			}
+		},
+	},
 });
 </script>
 

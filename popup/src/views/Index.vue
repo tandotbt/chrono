@@ -75,7 +75,7 @@
 <script lang="ts">
 import SignedInHeader from "@/components/SignedInHeader.vue";
 import AccountManager from "@/components/AccountManager.vue";
-import t from "@/utils/i18n"
+import t from "@/utils/i18n";
 import utils from "@/utils/utils";
 import CopyBtn from "@/components/buttons/CopyBtn.vue";
 import { defineComponent } from "vue";
@@ -85,45 +85,50 @@ import moment from "moment";
 import { useNetwork } from "@/stores/network";
 
 export default defineComponent({
-    name: 'Index',
-    components: {
-        CopyBtn,
-        AccountManager,
-        SignedInHeader,
-    },
-    computed: {
-        ...mapState(useAccounts, ['account', 'accountTxs', 'balance', 'balanceLoading']),
-        ...mapState(useNetwork, ['network']),
-        ...mapStores(useAccounts),
-    },
-    data(): {
-      refreshTimer: ReturnType<typeof setInterval> | null
-    } {
-        return {
-            refreshTimer: null
-        }
-    },
-    beforeDestroy() {
-        if (this.refreshTimer) {
-          clearInterval(this.refreshTimer)
-        }
-    },
-    async created() {
-        this.refreshTimer = setInterval(() => {
-            this.AccountStore.refreshBalance();
-            this.AccountStore.refreshStagingTxStatus();
-        }, 10000)
-        setTimeout(() => {
-            this.AccountStore.refreshStagingTxStatus();
-        }, 1000)
-    },
-    methods: {
-      t,
-      shortAddress: utils.shortAddress,
-      timeFormat: utils.timeFormat,
-      moment,
-    }
-})
+	name: "Index",
+	components: {
+		CopyBtn,
+		AccountManager,
+		SignedInHeader,
+	},
+	computed: {
+		...mapState(useAccounts, [
+			"account",
+			"accountTxs",
+			"balance",
+			"balanceLoading",
+		]),
+		...mapState(useNetwork, ["network"]),
+		...mapStores(useAccounts),
+	},
+	data(): {
+		refreshTimer: ReturnType<typeof setInterval> | null;
+	} {
+		return {
+			refreshTimer: null,
+		};
+	},
+	beforeDestroy() {
+		if (this.refreshTimer) {
+			clearInterval(this.refreshTimer);
+		}
+	},
+	async created() {
+		this.refreshTimer = setInterval(() => {
+			this.AccountStore.refreshBalance();
+			this.AccountStore.refreshStagingTxStatus();
+		}, 10000);
+		setTimeout(() => {
+			this.AccountStore.refreshStagingTxStatus();
+		}, 1000);
+	},
+	methods: {
+		t,
+		shortAddress: utils.shortAddress,
+		timeFormat: utils.timeFormat,
+		moment,
+	},
+});
 </script>
 
 <style scoped lang="scss">

@@ -50,68 +50,79 @@
 </template>
 
 <script lang="ts">
-import rules from "@/utils/rules"
-import t from "@/utils/i18n"
-import { keccak_256 } from "@noble/hashes/sha3"
-import _ from "underscore"
+import rules from "@/utils/rules";
+import t from "@/utils/i18n";
+import { keccak_256 } from "@noble/hashes/sha3";
+import _ from "underscore";
 import InitiateHeader from "@/components/InitiateHeader.vue";
 import { defineComponent } from "vue";
 import type { VForm } from "vuetify/components";
 
 export default defineComponent({
-    name: 'Initiate',
-    components: {
-        InitiateHeader
-    },
-    data() {
-        return {
-            pass1: '',
-            pass2: '',
-            showPass1: false,
-            showPass2: false,
-        }
-    },
-    computed: {
-        rulePassword() {
-            return [rules.required, rules.min8Len]
-        },
-        ruleConfirmPassword() {
-            return [rules.required, rules.min8Len, () => {
-                return this.pass1 === this.pass2 || t('Not equals')
-            }]
-        },
-        passedRules() {
-            return _.all(this.rulePassword, r => r(this.pass1) === true && r(this.pass2) === true)
-        },
-        equalsPassword() {
-            return this.pass1 === this.pass2
-        },
-        isValidPassword() {
-            return this.passedRules && this.equalsPassword
-        }
-    },
-    async created() {
-    },
-    mounted() {
-      let $input = document.querySelector<HTMLInputElement>('#password-input')
-      $input && $input.focus()
-    },
-    methods: {
-        t,
-        async initiate() {
-            if ((await (this.$refs['form'] as VForm).validate()).valid && this.isValidPassword) {
-                let passphrase = Buffer.from(keccak_256(this.pass1)).toString('hex')
-                this.$router.replace({
-                  name: 'initiateMnemonic',
-                  params: {
-                    passphrase: passphrase,
-                    "toto": 1,
-                  }
-                }).catch(() => {});
-            }
-        }
-    }
-})
+	name: "Initiate",
+	components: {
+		InitiateHeader,
+	},
+	data() {
+		return {
+			pass1: "",
+			pass2: "",
+			showPass1: false,
+			showPass2: false,
+		};
+	},
+	computed: {
+		rulePassword() {
+			return [rules.required, rules.min8Len];
+		},
+		ruleConfirmPassword() {
+			return [
+				rules.required,
+				rules.min8Len,
+				() => {
+					return this.pass1 === this.pass2 || t("Not equals");
+				},
+			];
+		},
+		passedRules() {
+			return _.all(
+				this.rulePassword,
+				(r) => r(this.pass1) === true && r(this.pass2) === true,
+			);
+		},
+		equalsPassword() {
+			return this.pass1 === this.pass2;
+		},
+		isValidPassword() {
+			return this.passedRules && this.equalsPassword;
+		},
+	},
+	async created() {},
+	mounted() {
+		let $input = document.querySelector<HTMLInputElement>("#password-input");
+		$input && $input.focus();
+	},
+	methods: {
+		t,
+		async initiate() {
+			if (
+				(await (this.$refs["form"] as VForm).validate()).valid &&
+				this.isValidPassword
+			) {
+				let passphrase = Buffer.from(keccak_256(this.pass1)).toString("hex");
+				this.$router
+					.replace({
+						name: "initiateMnemonic",
+						params: {
+							passphrase: passphrase,
+							toto: 1,
+						},
+					})
+					.catch(() => {});
+			}
+		},
+	},
+});
 </script>
 
 <style scoped lang="scss">

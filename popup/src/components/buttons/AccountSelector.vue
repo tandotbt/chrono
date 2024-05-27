@@ -41,59 +41,63 @@ interface Account {
 	index: number;
 	address: string;
 	primary?: boolean;
-    activated?: boolean;
-    imported?: boolean;
+	activated?: boolean;
+	imported?: boolean;
 }
 
 export default defineComponent({
-    name: 'AccountSelector',
-    props: {
-        accounts: {type: Array as PropType<Account[]>},
-        account: {type: Object as PropType<Account>, required: true},
-        color: {type: String, default: 'white'},
-        onlySelect: {type:Boolean, default: false}
-    },
-    components: {},
-    mixins: [],
-    data() {
-        return {
-            copied: false
-        }
-    },
-    computed: {
-        currentSelectedText() {
-            if (this.account && this.accounts) {
-                let found = this.accounts.find(i => utils.equalsHex(i.address, this.account.address))
-                if (found) {
-                    return found.name
-                }
-            }
-            return '-'
-        },
-        ...mapStores(useAccounts),
-    },
-    async created() {
-      console.log("AccountSelector created", this.$props.accounts);
-    },
-    methods: {
-        select(account: Account) {
-          console.log("set account");
-            if (!utils.equalsHex(this.account && this.account.address, account.address)) {
-                this.AccountStore.selectAccount(account.address)
-            }
-        },
-        addNewAddress() {
-            this.$emit('addNew')
-        },
-        importAddress() {
-            this.$emit('import')
-        },
-        editAccount(account: Account) {
-            this.$emit('edit', account)
-        },
-        shortAddress: utils.shortAddress,
-    }
-})
+	name: "AccountSelector",
+	props: {
+		accounts: { type: Array as PropType<Account[]> },
+		account: { type: Object as PropType<Account>, required: true },
+		color: { type: String, default: "white" },
+		onlySelect: { type: Boolean, default: false },
+	},
+	components: {},
+	mixins: [],
+	data() {
+		return {
+			copied: false,
+		};
+	},
+	computed: {
+		currentSelectedText() {
+			if (this.account && this.accounts) {
+				let found = this.accounts.find((i) =>
+					utils.equalsHex(i.address, this.account.address),
+				);
+				if (found) {
+					return found.name;
+				}
+			}
+			return "-";
+		},
+		...mapStores(useAccounts),
+	},
+	async created() {
+		console.log("AccountSelector created", this.$props.accounts);
+	},
+	methods: {
+		select(account: Account) {
+			console.log("set account");
+			if (
+				!utils.equalsHex(this.account && this.account.address, account.address)
+			) {
+				this.AccountStore.selectAccount(account.address);
+			}
+		},
+		addNewAddress() {
+			this.$emit("addNew");
+		},
+		importAddress() {
+			this.$emit("import");
+		},
+		editAccount(account: Account) {
+			this.$emit("edit", account);
+		},
+		shortAddress: utils.shortAddress,
+	},
+});
 </script>
 
 <style lang="scss">
