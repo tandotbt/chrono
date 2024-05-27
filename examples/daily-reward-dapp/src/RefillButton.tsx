@@ -1,7 +1,5 @@
 import { useMemo, useState } from "react";
-import {
-	useStageTransactionMutation,
-} from "./generated/graphql";
+import { useStageTransactionMutation } from "./generated/graphql";
 import { getChronoSdk } from "@planetarium/chrono-sdk";
 import { Address } from "@planetarium/account";
 import { DailyReward } from "@planetarium/lib9c";

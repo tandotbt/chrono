@@ -2,7 +2,12 @@ import Graphql from "@/api/graphql";
 import Storage from "@/storage/storage";
 import Wallet from "@/wallet/wallet";
 import { Buffer } from "buffer";
-import { Account, ENCRYPTED_WALLET, PASSWORD_CHECKER, PASSWORD_CHECKER_VALUE } from "./constants/constants";
+import {
+	Account,
+	ENCRYPTED_WALLET,
+	PASSWORD_CHECKER,
+	PASSWORD_CHECKER_VALUE,
+} from "./constants/constants";
 import { NetworkController } from "./controllers/network";
 import { ConfirmationController } from "./controllers/confirmation";
 import { PopupController } from "./controllers/popup";

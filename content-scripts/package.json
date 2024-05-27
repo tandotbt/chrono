@@ -5,12 +5,14 @@
     "type": "module",
     "license": "GPL-3.0-only",
     "scripts": {
-        "build": "tsc && rollup --config"
+        "build": "tsc && rollup --config",
+        "fmt": "pnpm dlx @biomejs/biome format --write ./src"
     },
     "dependencies": {
         "@planetarium/chrono-sdk": "workspace:^"
     },
     "devDependencies": {
+        "@biomejs/biome": "^1.7.3",
         "@planetarium/bencodex": "^0.2.2",
         "@planetarium/tx": "^4.4.2",
         "@rollup/plugin-commonjs": "^25.0.7",

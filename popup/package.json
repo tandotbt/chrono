@@ -5,6 +5,7 @@
   "scripts": {
     "serve": "vite --port 8001",
     "build": "vue-tsc --noEmit && vite build --base /popup --outDir ../build/popup",
+    "fmt": "pnpm dlx @biomejs/biome format --write ./src",
     "lint": "eslint --ext .js,.vue --fix src",
     "test": "jest --coverage --detectOpenHandles"
   },
@@ -28,6 +29,7 @@
     "vuex": "^4.1.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.7.3",
     "@types/chrome": "^0.0.266",
     "@types/underscore": "^1.11.15",
     "@vitejs/plugin-vue": "^5.0.4",

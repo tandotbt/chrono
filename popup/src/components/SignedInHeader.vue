@@ -54,116 +54,111 @@
 </template>
 
 <script lang="ts">
-import bg from "@/api/background"
-import NetworkSelector from "@/components/buttons/NetworkSelector.vue"
+import bg from "@/api/background";
+import NetworkSelector from "@/components/buttons/NetworkSelector.vue";
 import t from "@/utils/i18n";
 import { useNetwork } from "@/stores/network";
 import { mapStores, mapState } from "pinia";
 import Rules from "@/utils/rules";
 
 export default {
-    name: 'SignedInHeader',
-    components: {
-      NetworkSelector,
-    },
-    props: [],
-    data() {
-        return {
-          imports: {
-            id: "",
-            name: "",
-            genesisHash: "",
-            gqlEndpoint: "",
-            explorerEndpoint: "",
-            isMainnet: false,
+	name: "SignedInHeader",
+	components: {
+		NetworkSelector,
+	},
+	props: [],
+	data() {
+		return {
+			imports: {
+				id: "",
+				name: "",
+				genesisHash: "",
+				gqlEndpoint: "",
+				explorerEndpoint: "",
+				isMainnet: false,
 
-            dialog: false,
-            loading: false,
-          },
-          edit: {
-            id: "",
-            name: "",
-            genesisHash: "",
-            gqlEndpoint: "",
-            explorerEndpoint: "",
-            isMainnet: false,
+				dialog: false,
+				loading: false,
+			},
+			edit: {
+				id: "",
+				name: "",
+				genesisHash: "",
+				gqlEndpoint: "",
+				explorerEndpoint: "",
+				isMainnet: false,
 
-            dialog: false,
-            loading: false,
-            deleteLoading: false,
-          }
-        }
-    },
-    computed: {
-      ...mapStores(useNetwork),
-      ...mapState(useNetwork, ['networks', 'network']),
-    },
-    async created() {
-    },
-    mounted() {
-    },
-    methods: {
-        t,
-        requiredRule: Rules.required,
-        openDialog(type: string) {
-          if (type === "import") {
-            this.imports.id = "";
-            this.imports.name = "";
-            this.imports.gqlEndpoint = "";
-            this.imports.explorerEndpoint = "";
-            this.imports.genesisHash = "";
-            this.imports.isMainnet = false;
-            this.imports.dialog = true;
-            this.imports.loading = false;
-          } else if (type === "edit") {
-            if (!this.network) {
-              throw new Error("Unexpected state. this.network doesn't work.");
-            }
+				dialog: false,
+				loading: false,
+				deleteLoading: false,
+			},
+		};
+	},
+	computed: {
+		...mapStores(useNetwork),
+		...mapState(useNetwork, ["networks", "network"]),
+	},
+	async created() {},
+	mounted() {},
+	methods: {
+		t,
+		requiredRule: Rules.required,
+		openDialog(type: string) {
+			if (type === "import") {
+				this.imports.id = "";
+				this.imports.name = "";
+				this.imports.gqlEndpoint = "";
+				this.imports.explorerEndpoint = "";
+				this.imports.genesisHash = "";
+				this.imports.isMainnet = false;
+				this.imports.dialog = true;
+				this.imports.loading = false;
+			} else if (type === "edit") {
+				if (!this.network) {
+					throw new Error("Unexpected state. this.network doesn't work.");
+				}
 
-            this.edit.id = this.network.id;
-            this.edit.name = this.network.name;
-            this.edit.gqlEndpoint = this.network.gqlEndpoint;
-            this.edit.explorerEndpoint = "";
-            this.edit.genesisHash = this.network.genesisHash;
-            this.edit.isMainnet = this.network.isMainnet;
-            this.edit.dialog = true;
-            this.edit.loading = false;
-            this.edit.deleteLoading = false;
-          }
-        },
-        async addNewNetwork() {
-          this.imports.loading = true;
-          try {
-            await this.NetworkStore.importNetwork(this.imports);
-          }
-          finally {
-            this.imports.loading = false;
-          }
-        },
-        async editNetwork() {
-          this.edit.loading = true;
-          try {
-            await this.NetworkStore.updateNetwork(this.edit);
-          }
-          finally {
-            this.edit.loading = false;
-          }
-        },
-        async deleteEditingNetwork() {
-          this.edit.deleteLoading = true;
-          try {
-            await this.NetworkStore.deleteNetwork(this.edit.id);
-          }
-          finally {
-            this.edit.deleteLoading = false;
-          }
-        },
-        logout() {
-            bg.logout()
-            this.$router.replace({name: 'login'})
-        }
-    }
-}
+				this.edit.id = this.network.id;
+				this.edit.name = this.network.name;
+				this.edit.gqlEndpoint = this.network.gqlEndpoint;
+				this.edit.explorerEndpoint = "";
+				this.edit.genesisHash = this.network.genesisHash;
+				this.edit.isMainnet = this.network.isMainnet;
+				this.edit.dialog = true;
+				this.edit.loading = false;
+				this.edit.deleteLoading = false;
+			}
+		},
+		async addNewNetwork() {
+			this.imports.loading = true;
+			try {
+				await this.NetworkStore.importNetwork(this.imports);
+			} finally {
+				this.imports.loading = false;
+			}
+		},
+		async editNetwork() {
+			this.edit.loading = true;
+			try {
+				await this.NetworkStore.updateNetwork(this.edit);
+			} finally {
+				this.edit.loading = false;
+			}
+		},
+		async deleteEditingNetwork() {
+			this.edit.deleteLoading = true;
+			try {
+				await this.NetworkStore.deleteNetwork(this.edit.id);
+			} finally {
+				this.edit.deleteLoading = false;
+			}
+		},
+		logout() {
+			bg.logout();
+			this.$router.replace({ name: "login" });
+		},
+	},
+};
 </script>
 
 <style scoped lang="scss">

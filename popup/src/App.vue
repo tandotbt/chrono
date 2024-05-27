@@ -5,57 +5,55 @@
 </template>
 
 <script lang="ts">
-import bg from "@/api/background"
+import bg from "@/api/background";
 import { defineComponent } from "vue";
 import { useAccounts } from "./stores/account";
 import { mapState, mapStores } from "pinia";
 import { useNetwork } from "./stores/network";
 export default defineComponent({
-    name: 'App',
-    components: {
-    },
-    data() {
-        return {
-        }
-    },
-    computed: {
-      ...mapStores(useAccounts, useNetwork),
-      ...mapState(useAccounts, ["approvalRequests"]),
-    },
-    async created() {
-        let hasWallet = await bg.hasWallet()
-        if (hasWallet) {
-            await bg.checkTTL()
-            let signedIn = await bg.isSignedIn()
-            if (signedIn) {
-                await Promise.all([
-                  this.AccountStore.loadAccounts(),
-                  this.NetworkStore.loadNetworks(),
-                  this.AccountStore.loadApprovalRequests()
-                ]);
-                this.init()
-                if (this.approvalRequests!.length > 0) {
-                  this.$router.replace({name: "confirmation"}).catch(() => {})
-                } else {
-                  this.$router.replace({name: 'index'}).catch(() => {})
-                }
-            } else {
-                this.$router.replace({name: 'login'}).catch(() => {})
-            }
-        } else {
-            this.$router.replace({name: 'initiate'}).catch(() => {})
-        }
-    },
-    methods: {
-        async init() {
-            console.log('init')
-            await bg.graphql('updateNetwork', 'mainnet')
-            setInterval(() => {
-                bg.graphql('updateNetwork', 'mainnet')
-            }, 1000 * 60)
-        }
-    }
-})
+	name: "App",
+	components: {},
+	data() {
+		return {};
+	},
+	computed: {
+		...mapStores(useAccounts, useNetwork),
+		...mapState(useAccounts, ["approvalRequests"]),
+	},
+	async created() {
+		let hasWallet = await bg.hasWallet();
+		if (hasWallet) {
+			await bg.checkTTL();
+			let signedIn = await bg.isSignedIn();
+			if (signedIn) {
+				await Promise.all([
+					this.AccountStore.loadAccounts(),
+					this.NetworkStore.loadNetworks(),
+					this.AccountStore.loadApprovalRequests(),
+				]);
+				this.init();
+				if (this.approvalRequests!.length > 0) {
+					this.$router.replace({ name: "confirmation" }).catch(() => {});
+				} else {
+					this.$router.replace({ name: "index" }).catch(() => {});
+				}
+			} else {
+				this.$router.replace({ name: "login" }).catch(() => {});
+			}
+		} else {
+			this.$router.replace({ name: "initiate" }).catch(() => {});
+		}
+	},
+	methods: {
+		async init() {
+			console.log("init");
+			await bg.graphql("updateNetwork", "mainnet");
+			setInterval(() => {
+				bg.graphql("updateNetwork", "mainnet");
+			}, 1000 * 60);
+		},
+	},
+});
 </script>
 
 <style lang="scss">

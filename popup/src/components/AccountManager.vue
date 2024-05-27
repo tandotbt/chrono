@@ -98,13 +98,12 @@
 </template>
 
 <script lang="ts">
-
 import AccountSelector from "@/components/buttons/AccountSelector.vue";
 import CopyBtn from "@/components/buttons/CopyBtn.vue";
 
-import rule from "@/utils/rules"
+import rule from "@/utils/rules";
 import { keccak_256 } from "@noble/hashes/sha3";
-import t from "@/utils/i18n"
+import t from "@/utils/i18n";
 import utils from "@/utils/utils";
 import { Wallet } from "ethers";
 import { useAccounts } from "@/stores/account";
@@ -117,190 +116,204 @@ interface Account {
 	index: number;
 	address: string;
 	primary?: boolean;
-    activated?: boolean;
-    imported?: boolean;
+	activated?: boolean;
+	imported?: boolean;
 }
 
-
 export default defineComponent({
-    name: 'AccountManager',
-    components: {
-        CopyBtn,
-        AccountSelector
-    },
-    props: [],
-    data() {
-        return {
-            edit: {
-                loading: false,
-                title: 'Add New',
-                dialog: false,
-                accountName: '',
-                account: null as (Account | null),
-            },
-            imports: {
-                loading: false,
-                dialog: false,
-                accountName: '',
-                privateKey: '',
-                error: null as (string | null),
-                importType: 'raw',
-                jsonFile: undefined as (File | undefined),
-                jsonPassphrase: '',
-            },
-            detail: {
-                dialog: false
-            },
-            pkview: {
-                dialog: false,
-                password: '',
-                pk: null as (string | null),
-                hide: true,
-                error: null as (string | null),
-                loading: false
-            }
-        }
-    },
-    computed: {
-        requiredRule() { return [rule.required] },
-        importDialogTitle() { return t('importPk') },
-        ...mapState(useAccounts, ['accounts', 'account']),
-        ...mapState(useNetwork, ['network']),
-        ...mapStores(useAccounts),
-    },
-    async created() {
-    },
-    mounted() {
-    },
-    methods: {
-        t,
-        shortAddress: utils.shortAddress,
-        openDialog(type: string) {
-            if (type === 'AddNewAccount') {
-                this.edit.title = 'Add New'
-                this.edit.accountName = 'Account ' + (this.accounts.length + 1)
-                this.edit.account = null
-                this.edit.dialog = true
-            } else if (type === 'ImportAccount') {
-                this.imports.accountName = 'Account ' + (this.accounts.length + 1)
-                this.imports.privateKey = ''
-                this.imports.importType = 'raw';
-                this.imports.jsonFile = undefined;
-                this.imports.jsonPassphrase = '';
-                this.imports.dialog = true
-            }
-        },
-        editAccount(account: Account) {
-            if (account) {
-                this.edit.title = 'Account ' + this.shortAddress(account.address)
-                this.edit.accountName = account.name
-                this.edit.account = account
-                this.edit.dialog = true
-            }
-        },
-        async deleteEditingAccount() {
-            if (this.edit.account && this.accounts.length > 1) {
-                await this.AccountStore.deleteAccount(this.edit.account.address)
-                this.edit.dialog = false
-            }
-        },
-        async saveEditingAccount() {
-            let accountName = this.edit.accountName.trim()
-            if (!accountName) return
+	name: "AccountManager",
+	components: {
+		CopyBtn,
+		AccountSelector,
+	},
+	props: [],
+	data() {
+		return {
+			edit: {
+				loading: false,
+				title: "Add New",
+				dialog: false,
+				accountName: "",
+				account: null as Account | null,
+			},
+			imports: {
+				loading: false,
+				dialog: false,
+				accountName: "",
+				privateKey: "",
+				error: null as string | null,
+				importType: "raw",
+				jsonFile: undefined as File | undefined,
+				jsonPassphrase: "",
+			},
+			detail: {
+				dialog: false,
+			},
+			pkview: {
+				dialog: false,
+				password: "",
+				pk: null as string | null,
+				hide: true,
+				error: null as string | null,
+				loading: false,
+			},
+		};
+	},
+	computed: {
+		requiredRule() {
+			return [rule.required];
+		},
+		importDialogTitle() {
+			return t("importPk");
+		},
+		...mapState(useAccounts, ["accounts", "account"]),
+		...mapState(useNetwork, ["network"]),
+		...mapStores(useAccounts),
+	},
+	async created() {},
+	mounted() {},
+	methods: {
+		t,
+		shortAddress: utils.shortAddress,
+		openDialog(type: string) {
+			if (type === "AddNewAccount") {
+				this.edit.title = "Add New";
+				this.edit.accountName = "Account " + (this.accounts.length + 1);
+				this.edit.account = null;
+				this.edit.dialog = true;
+			} else if (type === "ImportAccount") {
+				this.imports.accountName = "Account " + (this.accounts.length + 1);
+				this.imports.privateKey = "";
+				this.imports.importType = "raw";
+				this.imports.jsonFile = undefined;
+				this.imports.jsonPassphrase = "";
+				this.imports.dialog = true;
+			}
+		},
+		editAccount(account: Account) {
+			if (account) {
+				this.edit.title = "Account " + this.shortAddress(account.address);
+				this.edit.accountName = account.name;
+				this.edit.account = account;
+				this.edit.dialog = true;
+			}
+		},
+		async deleteEditingAccount() {
+			if (this.edit.account && this.accounts.length > 1) {
+				await this.AccountStore.deleteAccount(this.edit.account.address);
+				this.edit.dialog = false;
+			}
+		},
+		async saveEditingAccount() {
+			let accountName = this.edit.accountName.trim();
+			if (!accountName) return;
 
-            this.edit.loading = true
-            setTimeout(async () => {
-                if (this.edit.account) {
-                    await this.AccountStore.updateAccountName(this.edit.account.address, accountName);
-                } else {
-                    await this.AccountStore.createNewAccount(accountName);
-                }
-                this.edit.loading = false
-                this.edit.dialog = false
-            }, 100)
-        },
+			this.edit.loading = true;
+			setTimeout(async () => {
+				if (this.edit.account) {
+					await this.AccountStore.updateAccountName(
+						this.edit.account.address,
+						accountName,
+					);
+				} else {
+					await this.AccountStore.createNewAccount(accountName);
+				}
+				this.edit.loading = false;
+				this.edit.dialog = false;
+			}, 100);
+		},
 
+		/**
+		 * Import Section
+		 */
+		async importAccount() {
+			const accountName = this.imports.accountName.trim();
+			const type = this.imports.importType;
 
-        /**
-         * Import Section
-         */
-        async importAccount() {
-            const accountName = this.imports.accountName.trim()
-            const type = this.imports.importType;
+			this.imports.error = null;
+			this.imports.loading = true;
 
-            this.imports.error = null
-            this.imports.loading = true
+			let payload;
+			if (type === "raw") {
+				const pk = this.imports.privateKey.trim();
+				if (!accountName || !pk) return;
 
-            let payload;
-            if (type === "raw") {
-              const pk = this.imports.privateKey.trim()
-              if (!accountName || !pk) return
+				payload = { accountName, privateKey: pk };
+			} else if (type === "json") {
+				const jsonFile = this.imports.jsonFile;
+				if (jsonFile === undefined) {
+					throw new Error("Unexpected statement. jsonFile is not set.");
+				}
 
-              payload = {accountName, privateKey: pk};
-            } else if (type === "json") {
-              const jsonFile = this.imports.jsonFile;
-              if (jsonFile === undefined) {
-                throw new Error("Unexpected statement. jsonFile is not set.");
-              }
+				const jsonPassphrase = this.imports.jsonPassphrase;
+				const jsonFiletring = await new Promise<string>((resolve, reject) => {
+					const fileReader = new FileReader();
+					fileReader.onload = (e) => {
+						if (e.target === null || typeof e.target.result !== "string") {
+							reject();
+						} else {
+							resolve(e.target.result);
+						}
+					};
+					fileReader.readAsText(jsonFile);
+				});
 
-              const jsonPassphrase = this.imports.jsonPassphrase;
-              const jsonFiletring = await new Promise<string>((resolve, reject) => {
-                const fileReader = new FileReader();
-                fileReader.onload = e => {
-                  if (e.target === null || typeof e.target.result !== "string") {
-                    reject()
-                  } else {
-                    resolve(e.target.result)
-                  }
-                };
-                fileReader.readAsText(jsonFile);
-              });
+				const decrypted = Wallet.fromEncryptedJsonSync(
+					jsonFiletring,
+					jsonPassphrase,
+				);
+				payload = { accountName, privateKey: decrypted.privateKey };
+			} else {
+				this.imports.error = "Invalid Private Key Type.";
+				this.imports.loading = false;
+				return;
+			}
 
-              const decrypted = Wallet.fromEncryptedJsonSync(jsonFiletring, jsonPassphrase);
-              payload = {accountName, privateKey: decrypted.privateKey};
-            } else {
-              this.imports.error = "Invalid Private Key Type."
-              this.imports.loading = false;
-              return;
-            }
+			try {
+				await this.AccountStore.importAccount(
+					payload.accountName,
+					payload.privateKey,
+				);
+				this.imports.dialog = false;
+			} catch (e) {
+				this.imports.error = "Invalid Private Key";
+			}
+			this.imports.loading = false;
+		},
 
-            try {
-                await this.AccountStore.importAccount(payload.accountName, payload.privateKey)
-                this.imports.dialog = false
-            } catch(e) {
-                this.imports.error = 'Invalid Private Key'
-            }
-            this.imports.loading = false
-        },
+		/**
+		 * Account Detail & Private Section
+		 */
+		openPrivateKeyDialog() {
+			this.pkview.dialog = true;
+			this.pkview.password = "";
+			this.pkview.error = null;
+			this.pkview.pk = "";
+		},
+		async loadPrivateKey() {
+			if (this.account === null) {
+				throw new Error("Unexpected statement. this.account is null.");
+			}
 
-        /**
-         * Account Detail & Private Section
-         */
-        openPrivateKeyDialog() {
-            this.pkview.dialog = true
-            this.pkview.password = ''
-            this.pkview.error = null
-            this.pkview.pk = ''
-        },
-        async loadPrivateKey() {
-            if (this.account === null) {
-              throw new Error("Unexpected statement. this.account is null.");
-            }
+			if (this.pkview.dialog && this.pkview.password) {
+				try {
+					this.pkview.loading = true;
+					let passphrase = Buffer.from(
+						keccak_256(this.pkview.password),
+					).toString("hex");
+					let pk = await this.AccountStore.getPrivateKey(
+						this.account.address,
+						passphrase,
+					);
+					this.pkview.pk = pk;
+				} catch (e) {
+					this.pkview.error = "Invalid Password";
+				}
 
-            if (this.pkview.dialog && this.pkview.password) {
-                try {
-                    this.pkview.loading = true
-                    let passphrase = Buffer.from(keccak_256(this.pkview.password)).toString('hex')
-                    let pk = await this.AccountStore.getPrivateKey(this.account.address, passphrase);
-                    this.pkview.pk = pk
-                } catch(e) {
-                    this.pkview.error = 'Invalid Password'
-                }
-
-                this.pkview.loading = false
-            }
-        }
-    }
+				this.pkview.loading = false;
+			}
+		},
+	},
 });
 </script>
 

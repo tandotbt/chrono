@@ -53,59 +53,59 @@
 </template>
 
 <script lang="ts">
-import bg from "@/api/background"
-import t from "@/utils/i18n"
+import bg from "@/api/background";
+import t from "@/utils/i18n";
 import utils from "@/utils/utils";
 import { defineComponent } from "vue";
 import { useAccounts } from "@/stores/account";
 import { mapState, mapStores } from "pinia";
 
 export default defineComponent({
-    name: 'Confirmation',
-    components: {},
-    computed: {
-      ...mapState(useAccounts, ['approvalRequests', 'accounts']),
-      ...mapStores(useAccounts),
-    },
-    data(): {
-      refreshTimer: ReturnType<typeof setInterval> | null,
-      selectedAddresses: string[]
-    } {
-      return {
-          refreshTimer: null,
-          selectedAddresses: []
-      }
-    },
-    beforeDestroy() {
-      if (this.refreshTimer) {
-        clearInterval(this.refreshTimer)
-      }
-    },
-    async created() {
-        await this.AccountStore.loadApprovalRequests();
-        await this.AccountStore.loadAccounts();
-        this.refreshTimer = setInterval(() => {
-            this.AccountStore.loadApprovalRequests();
-        }, 1000)
-    },
-    async updated() {
-      if (this.approvalRequests.length === 0) {
-        window.close();
-      }
-    },
-    methods: {
-      t,
-      shortAddress: utils.shortAddress,
-      async approveRequest(requestId: string, metadata?: unknown) {
-        await bg.confirmation.approveRequest(requestId, metadata);
-        await this.AccountStore.loadApprovalRequests();
-      },
-      async rejectRequest(requestId: string) {
-        await bg.confirmation.rejectRequest(requestId);
-        await this.AccountStore.loadApprovalRequests();
-      }
-    }
-})
+	name: "Confirmation",
+	components: {},
+	computed: {
+		...mapState(useAccounts, ["approvalRequests", "accounts"]),
+		...mapStores(useAccounts),
+	},
+	data(): {
+		refreshTimer: ReturnType<typeof setInterval> | null;
+		selectedAddresses: string[];
+	} {
+		return {
+			refreshTimer: null,
+			selectedAddresses: [],
+		};
+	},
+	beforeDestroy() {
+		if (this.refreshTimer) {
+			clearInterval(this.refreshTimer);
+		}
+	},
+	async created() {
+		await this.AccountStore.loadApprovalRequests();
+		await this.AccountStore.loadAccounts();
+		this.refreshTimer = setInterval(() => {
+			this.AccountStore.loadApprovalRequests();
+		}, 1000);
+	},
+	async updated() {
+		if (this.approvalRequests.length === 0) {
+			window.close();
+		}
+	},
+	methods: {
+		t,
+		shortAddress: utils.shortAddress,
+		async approveRequest(requestId: string, metadata?: unknown) {
+			await bg.confirmation.approveRequest(requestId, metadata);
+			await this.AccountStore.loadApprovalRequests();
+		},
+		async rejectRequest(requestId: string) {
+			await bg.confirmation.rejectRequest(requestId);
+			await this.AccountStore.loadApprovalRequests();
+		},
+	},
+});
 </script>
 
 <style scoped lang="scss">

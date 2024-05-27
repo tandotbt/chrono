@@ -1,10 +1,10 @@
 export interface Network {
-    id: string,
-    name: string,
-    genesisHash: string,
-    gqlEndpoint: string,
-    explorerEndpoint: string,
-    isMainnet: boolean,
+	id: string;
+	name: string;
+	genesisHash: string;
+	gqlEndpoint: string;
+	explorerEndpoint: string;
+	isMainnet: boolean;
 }
 
 export interface Account {
@@ -12,11 +12,16 @@ export interface Account {
 	index: number;
 	address: string;
 	primary?: boolean;
-    activated?: boolean;
-    imported?: boolean;
+	activated?: boolean;
+	imported?: boolean;
 }
 
-export type GraphQLTxStatus = "SUCCESS" | "FAILURE" | "STAGING" | "INCLUDED" | "INVALID";
+export type GraphQLTxStatus =
+	| "SUCCESS"
+	| "FAILURE"
+	| "STAGING"
+	| "INCLUDED"
+	| "INVALID";
 
 export interface SavedTransactionHistory {
 	id: string;
@@ -33,18 +38,20 @@ export interface SavedTransactionHistory {
 	};
 }
 
-export type ApprovalRequest = {
-    id: string;
-    category: "connect",
-    data: {
-        origin: string,
-        content: string,
-    }
-} | {
-    id: string;
-    category: "sign",
-    data: {
-        signer: string;
-        content: object;
-    }
-}
+export type ApprovalRequest =
+	| {
+			id: string;
+			category: "connect";
+			data: {
+				origin: string;
+				content: string;
+			};
+	  }
+	| {
+			id: string;
+			category: "sign";
+			data: {
+				signer: string;
+				content: object;
+			};
+	  };
