@@ -141,7 +141,7 @@ importers:
         specifier: workspace:^
         version: link:../../packages/chrono-sdk
       '@planetarium/lib9c':
-        specifier: npm:@jsr/planetarium__lib9c@0.2.0-dev.202405270607435878+5300e991debf3ce9444201f037490c4f0e02406e
+        specifier: npm:@jsr/planetarium__lib9c@^0.2.0-dev.202405270607435878+5300e991debf3ce9444201f037490c4f0e02406e
         version: '@jsr/planetarium__lib9c@0.2.0-dev.202405270607435878+5300e991debf3ce9444201f037490c4f0e02406e'
       '@tanstack/react-query':
         specifier: ^5.37.1
@@ -254,7 +254,7 @@ importers:
         version: 18.2.0
     devDependencies:
       '@planetarium/lib9c':
-        specifier: npm:@jsr/planetarium__lib9c@0.2.0-dev.202405270607435878
+        specifier: npm:@jsr/planetarium__lib9c@^0.2.0-dev.202405270607435878+5300e991debf3ce9444201f037490c4f0e02406e
         version: '@jsr/planetarium__lib9c@0.2.0-dev.202405270607435878+5300e991debf3ce9444201f037490c4f0e02406e'
       '@types/react':
         specifier: ^18.2.66
