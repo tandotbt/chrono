@@ -1,0 +1,28 @@
+on:
+    schedule:
+        - cron: '0 * * * *'
+    workflow_dispatch:
+
+jobs:
+    check-installable:
+        name: "Check able to install ${{ matrix.packageName }} with jsr ${{ matrix.packageManagerName }}"
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                packageName: ["@planetarium/chrono-sdk"]
+                packageManagerName: ["pnpm", "npm"]
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                node-version: '20'
+            - uses: pnpm/action-setup@v3
+              with:
+                version: 9.1.2
+              if: ${{ matrix.packageManagerName == 'pnpm' }}
+            - name: Check installable
+              run: |
+                mkdir /tmp/jsr
+                pushd /tmp/jsr
+                    npx jsr add --${{ matrix.packageManagerName }} ${{ matrix.packageName }}
+                popd
