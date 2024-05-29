@@ -1,7 +1,8 @@
 import aes256 from "@/utils/aes256";
 import { Lazyable, resolve } from "@/utils/lazy";
+import { IStorage } from "./common.js";
 
-class Storage {
+export class LocalStorage implements IStorage {
 	private readonly passphrase: Lazyable<string>;
 	private readonly canCall: string[];
 
@@ -85,4 +86,3 @@ class Storage {
 		await chrome.storage.local.clear();
 	}
 }
-export default Storage;

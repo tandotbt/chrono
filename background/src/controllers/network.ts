@@ -1,4 +1,4 @@
-import Storage from "@/storage/storage";
+import { IStorage } from "@/storage/index.js";
 import {
 	CURRENT_NETWORK,
 	NETWORKS,
@@ -9,7 +9,7 @@ import { Emitter } from "@/event";
 
 export class NetworkController {
 	constructor(
-		private readonly storage: Storage,
+		private readonly storage: IStorage,
 		private readonly emitter: Emitter,
 	) {}
 

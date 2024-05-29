@@ -1,5 +1,5 @@
 import Graphql from "@/api/graphql";
-import Storage from "@/storage/storage";
+import { LocalStorage } from "@/storage/index.js";
 import Wallet from "@/wallet/wallet";
 import { Buffer } from "buffer";
 import {
@@ -29,7 +29,7 @@ window.Buffer = Buffer;
 	};
 
 	const checkValidPassphrase = async (p) => {
-		const storage = new Storage(p);
+		const storage = new LocalStorage(p);
 		try {
 			const value = await storage.get<string>(PASSWORD_CHECKER);
 			const decrypted = await aes256.decrypt(value, p);
@@ -67,7 +67,7 @@ window.Buffer = Buffer;
 					checkValidPassphrase(req.params[0]).then(sendResponse);
 				}
 			} else if (req.action == "hasWallet") {
-				const storage = new Storage(passphrase);
+				const storage = new LocalStorage(passphrase);
 				storage.has("accounts").then(sendResponse);
 			} else {
 				if (passphrase == null) {
@@ -75,7 +75,7 @@ window.Buffer = Buffer;
 				}
 
 				if (req.action == "graphql") {
-					const storage = new Storage(passphrase);
+					const storage = new LocalStorage(passphrase);
 					Graphql.createInstance(storage).then((graphql) => {
 						console.log("graphql", req);
 						if (graphql[req.method] && graphql.canCallExternal(req.method)) {
@@ -90,7 +90,7 @@ window.Buffer = Buffer;
 				}
 
 				if (req.action == "storage") {
-					const storage = new Storage(passphrase);
+					const storage = new LocalStorage(passphrase);
 					if (storage[req.method] && storage.canCallExternal(req.method)) {
 						storage[req.method]
 							.call(storage, ...req.params)
@@ -102,7 +102,7 @@ window.Buffer = Buffer;
 				}
 
 				if (req.action == "confirmation") {
-					const storage = new Storage(passphrase);
+					const storage = new LocalStorage(passphrase);
 					const popupController = new PopupController();
 					const confirmationController = new ConfirmationController(
 						storage,
@@ -119,7 +119,8 @@ window.Buffer = Buffer;
 				}
 
 				if (req.action == "wallet") {
-					Wallet.createInstance(passphrase, emitter).then((wallet) => {
+					const storage = new LocalStorage(passphrase);
+					Wallet.createInstance(storage, passphrase, emitter).then((wallet) => {
 						if (wallet[req.method] && wallet.canCallExternal(req.method)) {
 							wallet[req.method]
 								.call(wallet, ...req.params)
@@ -135,7 +136,7 @@ window.Buffer = Buffer;
 				}
 
 				if (req.action == "network") {
-					const storage = new Storage(() => passphrase);
+					const storage = new LocalStorage(() => passphrase);
 					const networkController = new NetworkController(storage, emitter);
 					if (networkController[req.method]) {
 						networkController[req.method]
@@ -176,50 +177,54 @@ window.Buffer = Buffer;
 		port.onMessage.addListener(function (req) {
 			console.log(port.name, req);
 			if (req.action == "wallet") {
-				Wallet.createInstance(() => passphrase, emitter, req.origin).then(
-					(wallet) => {
-						wallet.isConnected().then((connected) => {
-							if (
-								!connected &&
-								req.method !== "connect" &&
-								req.method !== "isConnected"
-							) {
-								port.postMessage({
-									error: `${req.origin} is not connected. Call 'window.chronoWallet.connect' first.`,
-									messageId: req.messageId,
-								});
-							}
+				const storage = new LocalStorage(() => passphrase);
+				Wallet.createInstance(
+					storage,
+					() => passphrase,
+					emitter,
+					req.origin,
+				).then((wallet) => {
+					wallet.isConnected().then((connected) => {
+						if (
+							!connected &&
+							req.method !== "connect" &&
+							req.method !== "isConnected"
+						) {
+							port.postMessage({
+								error: `${req.origin} is not connected. Call 'window.chronoWallet.connect' first.`,
+								messageId: req.messageId,
+							});
+						}
 
-							if (wallet[req.method] && wallet.canCallExternal(req.method)) {
-								wallet[req.method]
-									.call(wallet, ...req.params)
-									.then((x) => {
-										console.log(x);
-										port.postMessage({
-											result: x,
-											messageId: req.messageId,
-										});
-									})
-									.catch((e) => {
-										console.error(e);
-										port.postMessage({
-											error: `${req.method} is rejected`,
-											messageId: req.messageId,
-										});
+						if (wallet[req.method] && wallet.canCallExternal(req.method)) {
+							wallet[req.method]
+								.call(wallet, ...req.params)
+								.then((x) => {
+									console.log(x);
+									port.postMessage({
+										result: x,
+										messageId: req.messageId,
 									});
-							} else {
-								port.postMessage({
-									error: "Unknown Method",
-									messageId: req.messageId,
+								})
+								.catch((e) => {
+									console.error(e);
+									port.postMessage({
+										error: `${req.method} is rejected`,
+										messageId: req.messageId,
+									});
 								});
-							}
-						});
-					},
-				);
+						} else {
+							port.postMessage({
+								error: "Unknown Method",
+								messageId: req.messageId,
+							});
+						}
+					});
+				});
 			}
 
 			if (req.action == "network") {
-				const storage = new Storage(() => passphrase);
+				const storage = new LocalStorage(() => passphrase);
 				const networkController = new NetworkController(storage, emitter);
 				if (networkController[req.method]) {
 					networkController[req.method]
@@ -246,7 +251,7 @@ window.Buffer = Buffer;
 			}
 
 			if (req.action == "confirmation") {
-				const storage = new Storage(passphrase);
+				const storage = new LocalStorage(passphrase);
 				const popupController = new PopupController();
 				const confirmationController = new ConfirmationController(
 					storage,
