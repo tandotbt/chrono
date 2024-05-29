@@ -70,6 +70,9 @@ importers:
       eslint-plugin-vue:
         specifier: ^8.7.1
         version: 8.7.1(eslint@7.32.0)
+      fast-check:
+        specifier: ^3.19.0
+        version: 3.19.0
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -3351,6 +3354,10 @@ packages:
     resolution: {integrity: sha512-11Ndz7Nv+mvAC1j0ktTa7fAb0vLyGGX+rMHNBYQviQDGU0Hw7lhctJANqbPhu9nV9/izT/IntTgZ7Im/9LJs9g==}
     engines: {'0': node >=0.6.0}
 
+  fast-check@3.19.0:
+    resolution: {integrity: sha512-CO2JX/8/PT9bDGO1iXa5h5ey1skaKI1dvecERyhH4pp3PGjwd3KIjMAXEg79Ps9nclsdt4oPbfqiAnLU0EwrAQ==}
+    engines: {node: '>=8.0.0'}
+
   fast-decode-uri-component@1.0.1:
     resolution: {integrity: sha512-WKgKWg5eUxvRZGwW8FvfbaH7AXSh2cL+3j5fMGzUMCxWBJ3dV3a7Wz8y2f/uQ0e3B6WmodD3oS54jTQ9HVTIIg==}
 
@@ -4956,6 +4963,9 @@ packages:
   punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
+
+  pure-rand@6.1.0:
+    resolution: {integrity: sha512-bVWawvoZoBYpp6yIoQtQXHZjmz35RSVHnUOTefl8Vcjr8snTPY1wnpSPMWekcFwbxI6gtmT7rSYPFvz71ldiOA==}
 
   pvtsutils@1.3.5:
     resolution: {integrity: sha512-ARvb14YB9Nm2Xi6nBq1ZX6dAM0FsJnuk+31aUp4TrcZEdKUlSqOqsxJHUPJDNE3qiIp+iUPEIeR6Je/tgV7zsA==}
@@ -10340,6 +10350,10 @@ snapshots:
 
   extsprintf@1.3.0: {}
 
+  fast-check@3.19.0:
+    dependencies:
+      pure-rand: 6.1.0
+
   fast-decode-uri-component@1.0.1: {}
 
   fast-deep-equal@3.1.3: {}
@@ -12166,6 +12180,8 @@ snapshots:
   punycode@2.1.0: {}
 
   punycode@2.3.1: {}
+
+  pure-rand@6.1.0: {}
 
   pvtsutils@1.3.5:
     dependencies:
