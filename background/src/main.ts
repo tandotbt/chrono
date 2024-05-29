@@ -1,5 +1,5 @@
 import Graphql from "@/api/graphql";
-import { LocalStorage } from "@/storage/index.js";
+import { Storage } from "@/storage/index.js";
 import Wallet from "@/wallet/wallet";
 import { Buffer } from "buffer";
 import {
@@ -29,7 +29,7 @@ window.Buffer = Buffer;
 	};
 
 	const checkValidPassphrase = async (p) => {
-		const storage = new LocalStorage(p);
+		const storage = new Storage(p);
 		try {
 			const value = await storage.get<string>(PASSWORD_CHECKER);
 			const decrypted = await aes256.decrypt(value, p);
@@ -67,7 +67,7 @@ window.Buffer = Buffer;
 					checkValidPassphrase(req.params[0]).then(sendResponse);
 				}
 			} else if (req.action == "hasWallet") {
-				const storage = new LocalStorage(passphrase);
+				const storage = new Storage(passphrase);
 				storage.has("accounts").then(sendResponse);
 			} else {
 				if (passphrase == null) {
@@ -75,7 +75,7 @@ window.Buffer = Buffer;
 				}
 
 				if (req.action == "graphql") {
-					const storage = new LocalStorage(passphrase);
+					const storage = new Storage(passphrase);
 					Graphql.createInstance(storage).then((graphql) => {
 						console.log("graphql", req);
 						if (graphql[req.method] && graphql.canCallExternal(req.method)) {
@@ -90,7 +90,7 @@ window.Buffer = Buffer;
 				}
 
 				if (req.action == "storage") {
-					const storage = new LocalStorage(passphrase);
+					const storage = new Storage(passphrase);
 					if (storage[req.method] && storage.canCallExternal(req.method)) {
 						storage[req.method]
 							.call(storage, ...req.params)
@@ -102,7 +102,7 @@ window.Buffer = Buffer;
 				}
 
 				if (req.action == "confirmation") {
-					const storage = new LocalStorage(passphrase);
+					const storage = new Storage(passphrase);
 					const popupController = new PopupController();
 					const confirmationController = new ConfirmationController(
 						storage,
@@ -119,7 +119,7 @@ window.Buffer = Buffer;
 				}
 
 				if (req.action == "wallet") {
-					const storage = new LocalStorage(passphrase);
+					const storage = new Storage(passphrase);
 					Wallet.createInstance(storage, passphrase, emitter).then((wallet) => {
 						if (wallet[req.method] && wallet.canCallExternal(req.method)) {
 							wallet[req.method]
@@ -136,7 +136,7 @@ window.Buffer = Buffer;
 				}
 
 				if (req.action == "network") {
-					const storage = new LocalStorage(() => passphrase);
+					const storage = new Storage(() => passphrase);
 					const networkController = new NetworkController(storage, emitter);
 					if (networkController[req.method]) {
 						networkController[req.method]
@@ -177,7 +177,7 @@ window.Buffer = Buffer;
 		port.onMessage.addListener(function (req) {
 			console.log(port.name, req);
 			if (req.action == "wallet") {
-				const storage = new LocalStorage(() => passphrase);
+				const storage = new Storage(() => passphrase);
 				Wallet.createInstance(
 					storage,
 					() => passphrase,
@@ -224,7 +224,7 @@ window.Buffer = Buffer;
 			}
 
 			if (req.action == "network") {
-				const storage = new LocalStorage(() => passphrase);
+				const storage = new Storage(() => passphrase);
 				const networkController = new NetworkController(storage, emitter);
 				if (networkController[req.method]) {
 					networkController[req.method]
@@ -251,7 +251,7 @@ window.Buffer = Buffer;
 			}
 
 			if (req.action == "confirmation") {
-				const storage = new LocalStorage(passphrase);
+				const storage = new Storage(passphrase);
 				const popupController = new PopupController();
 				const confirmationController = new ConfirmationController(
 					storage,

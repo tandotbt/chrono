@@ -3,7 +3,7 @@ import { Lazyable, resolve } from "@/utils/lazy";
 import { IStorage } from "./common.js";
 import { IStorageBackend, LocalStorageBackend } from "./backend/index.js";
 
-export class LocalStorage implements IStorage {
+export class Storage implements IStorage {
 	private readonly passphrase: Lazyable<string>;
 	private readonly canCall: string[];
 	private readonly backend: IStorageBackend;
