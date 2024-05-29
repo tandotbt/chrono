@@ -21,10 +21,10 @@ export class LocalStorage implements IStorage {
 		return this.canCall.indexOf(method) >= 0;
 	}
 
-	async rawSet<T>(name: string, value: T): Promise<void> {
+	private async rawSet<T>(name: string, value: T): Promise<void> {
 		await chrome.storage.local.set({ [name]: value });
 	}
-	rawGet<T>(name: string): Promise<T | null> {
+	private rawGet<T>(name: string): Promise<T | null> {
 		return new Promise((resolve) => {
 			chrome.storage.local.get([name], (res) => {
 				resolve((res && res[name]) || null);
