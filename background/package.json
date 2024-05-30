@@ -7,7 +7,7 @@
     "serve": "vite preview --port 8002",
     "build": "vite build --base /background --outDir ../build/background",
     "fmt": "pnpm dlx @biomejs/biome format --write ./src",
-    "test": "jest --coverage --detectOpenHandles"
+    "test": "vitest"
   },
   "dependencies": {
     "@noble/hashes": "^1.4.0",
@@ -28,13 +28,12 @@
     "@types/chrome": "^0.0.266",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@vue/test-utils": "^1.3.0",
-    "axios-mock-adapter": "^1.20.0",
     "eslint": "^7.32.0",
     "eslint-plugin-vue": "^8.7.1",
-    "jest": "^27.4.5",
-    "jest-serializer-vue": "^2.0.2",
+    "fast-check": "^3.19.0",
     "typescript": "^5.4.5",
     "vite": "^5.2.8",
+    "vitest": "^1.6.0",
     "vue-jest": "^3.0.7"
   },
   "eslintConfig": {

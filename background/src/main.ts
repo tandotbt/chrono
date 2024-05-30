@@ -1,5 +1,5 @@
 import Graphql from "@/api/graphql";
-import Storage from "@/storage/storage";
+import { Storage } from "@/storage/index.js";
 import Wallet from "@/wallet/wallet";
 import { Buffer } from "buffer";
 import {
@@ -119,7 +119,8 @@ window.Buffer = Buffer;
 				}
 
 				if (req.action == "wallet") {
-					Wallet.createInstance(passphrase, emitter).then((wallet) => {
+					const storage = new Storage(passphrase);
+					Wallet.createInstance(storage, passphrase, emitter).then((wallet) => {
 						if (wallet[req.method] && wallet.canCallExternal(req.method)) {
 							wallet[req.method]
 								.call(wallet, ...req.params)
@@ -176,46 +177,50 @@ window.Buffer = Buffer;
 		port.onMessage.addListener(function (req) {
 			console.log(port.name, req);
 			if (req.action == "wallet") {
-				Wallet.createInstance(() => passphrase, emitter, req.origin).then(
-					(wallet) => {
-						wallet.isConnected().then((connected) => {
-							if (
-								!connected &&
-								req.method !== "connect" &&
-								req.method !== "isConnected"
-							) {
-								port.postMessage({
-									error: `${req.origin} is not connected. Call 'window.chronoWallet.connect' first.`,
-									messageId: req.messageId,
-								});
-							}
+				const storage = new Storage(() => passphrase);
+				Wallet.createInstance(
+					storage,
+					() => passphrase,
+					emitter,
+					req.origin,
+				).then((wallet) => {
+					wallet.isConnected().then((connected) => {
+						if (
+							!connected &&
+							req.method !== "connect" &&
+							req.method !== "isConnected"
+						) {
+							port.postMessage({
+								error: `${req.origin} is not connected. Call 'window.chronoWallet.connect' first.`,
+								messageId: req.messageId,
+							});
+						}
 
-							if (wallet[req.method] && wallet.canCallExternal(req.method)) {
-								wallet[req.method]
-									.call(wallet, ...req.params)
-									.then((x) => {
-										console.log(x);
-										port.postMessage({
-											result: x,
-											messageId: req.messageId,
-										});
-									})
-									.catch((e) => {
-										console.error(e);
-										port.postMessage({
-											error: `${req.method} is rejected`,
-											messageId: req.messageId,
-										});
+						if (wallet[req.method] && wallet.canCallExternal(req.method)) {
+							wallet[req.method]
+								.call(wallet, ...req.params)
+								.then((x) => {
+									console.log(x);
+									port.postMessage({
+										result: x,
+										messageId: req.messageId,
 									});
-							} else {
-								port.postMessage({
-									error: "Unknown Method",
-									messageId: req.messageId,
+								})
+								.catch((e) => {
+									console.error(e);
+									port.postMessage({
+										error: `${req.method} is rejected`,
+										messageId: req.messageId,
+									});
 								});
-							}
-						});
-					},
-				);
+						} else {
+							port.postMessage({
+								error: "Unknown Method",
+								messageId: req.messageId,
+							});
+						}
+					});
+				});
 			}
 
 			if (req.action == "network") {

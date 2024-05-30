@@ -3,15 +3,15 @@ import { keccak_256 } from "@noble/hashes/sha3";
 const IV_LENGTH = 16;
 export default {
 	encrypt: async (text: string, passphrase: string): Promise<string> => {
-		const key = await window.crypto.subtle.importKey(
+		const key = await crypto.subtle.importKey(
 			"raw",
 			Buffer.from(keccak_256(passphrase)),
 			{ name: "AES-CBC" },
 			true,
 			["encrypt", "decrypt"],
 		);
-		const iv = window.crypto.getRandomValues(new Uint8Array(IV_LENGTH));
-		const encrypted = await window.crypto.subtle.encrypt(
+		const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH));
+		const encrypted = await crypto.subtle.encrypt(
 			{
 				name: "AES-CBC",
 				iv,
@@ -31,14 +31,14 @@ export default {
 		const textParts = text.split(":");
 		const iv = Buffer.from(textParts.shift(), "hex");
 		const encryptedText = Buffer.from(textParts.join(":"), "hex");
-		const key = await window.crypto.subtle.importKey(
+		const key = await crypto.subtle.importKey(
 			"raw",
 			Buffer.from(keccak_256(passphrase)),
 			{ name: "AES-CBC" },
 			true,
 			["encrypt", "decrypt"],
 		);
-		const decrypted = await window.crypto.subtle.decrypt(
+		const decrypted = await crypto.subtle.decrypt(
 			{
 				name: "AES-CBC",
 				iv,

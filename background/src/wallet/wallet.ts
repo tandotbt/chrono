@@ -1,5 +1,5 @@
 import Graphql from "@/api/graphql";
-import Storage from "@/storage/storage";
+import { IStorage } from "@/storage/index.js";
 import {
 	ENCRYPTED_WALLET,
 	TXS,
@@ -50,7 +50,7 @@ interface SavedTransactionHistory {
 }
 
 export default class Wallet {
-	private readonly storage: Storage;
+	private readonly storage: IStorage;
 	private readonly api: Graphql;
 	private readonly popup: PopupController;
 	private readonly networkController: NetworkController;
@@ -69,7 +69,7 @@ export default class Wallet {
 	constructor(
 		passphrase: Lazyable<string>,
 		origin: string | undefined,
-		storage: Storage,
+		storage: IStorage,
 		api: Graphql,
 		popupController: PopupController,
 		networkController: NetworkController,
@@ -103,12 +103,12 @@ export default class Wallet {
 	}
 
 	static async createInstance(
+		storage: IStorage,
 		passphrase: Lazyable<string>,
 		emitter: Emitter,
 		origin?: string | undefined,
 	) {
 		const popup = new PopupController();
-		const storage = new Storage(passphrase);
 		const api = await Graphql.createInstance(storage);
 		const networkController = new NetworkController(storage, emitter);
 		const approvalRequestController = new ConfirmationController(

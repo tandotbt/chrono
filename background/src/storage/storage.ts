@@ -1,11 +1,14 @@
 import aes256 from "@/utils/aes256";
 import { Lazyable, resolve } from "@/utils/lazy";
+import { IStorage } from "./common.js";
+import { IStorageBackend, LocalStorageBackend } from "./backend/index.js";
 
-class Storage {
+export class Storage implements IStorage {
 	private readonly passphrase: Lazyable<string>;
 	private readonly canCall: string[];
+	private readonly backend: IStorageBackend;
 
-	constructor(passphrase: Lazyable<string>) {
+	constructor(passphrase: Lazyable<string>, backend?: IStorageBackend) {
 		this.passphrase = passphrase;
 		this.canCall = [
 			"set",
@@ -15,20 +18,17 @@ class Storage {
 			"secureSet",
 			"clearAll",
 		] as const;
+		this.backend = backend || new LocalStorageBackend();
 	}
 	canCallExternal(method: string): boolean {
 		return this.canCall.indexOf(method) >= 0;
 	}
 
-	async rawSet<T>(name: string, value: T): Promise<void> {
-		await chrome.storage.local.set({ [name]: value });
+	private rawSet<T>(name: string, value: T): Promise<void> {
+		return this.backend.set(name, value);
 	}
-	rawGet<T>(name: string): Promise<T | null> {
-		return new Promise((resolve) => {
-			chrome.storage.local.get([name], (res) => {
-				resolve((res && res[name]) || null);
-			});
-		});
+	private rawGet<T>(name: string): Promise<T | null> {
+		return this.backend.get(name);
 	}
 
 	/*
@@ -85,4 +85,3 @@ class Storage {
 		await chrome.storage.local.clear();
 	}
 }
-export default Storage;

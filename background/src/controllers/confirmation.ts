@@ -1,7 +1,7 @@
-import Storage from "@/storage/storage";
 import { APPROVAL_REQUESTS } from "@/constants/constants";
 import { nanoid } from "nanoid";
 import { PopupController } from "./popup";
+import { IStorage } from "@/storage";
 
 interface Request {
 	id: string;
@@ -18,7 +18,7 @@ const pendingApprovals: Map<string, Handlers> = new Map();
 
 export class ConfirmationController {
 	constructor(
-		private readonly storage: Storage,
+		private readonly storage: IStorage,
 		private readonly popupController: PopupController,
 	) {}
 
