@@ -3,5 +3,6 @@ packages:
   - 'background'
   - 'popup'
   - 'docs'
-  - 'examples/**'
+  # skip examples
+  # - 'examples/**'
   - 'packages/**'
