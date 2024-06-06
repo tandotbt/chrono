@@ -1,5 +1,5 @@
 import axios from "axios";
-import type LocalStorage from "@/storage/local";
+import type { IStorage } from "@/storage/index.js";
 import {
 	CURRENT_NETWORK,
 	NETWORKS,
@@ -29,7 +29,7 @@ async function getLastBlockIndex(endpoint: string) {
 	return data["data"]["chainQuery"]["blockQuery"]["blocks"][0]["index"];
 }
 
-async function getEndpoints(storage: LocalStorage): Promise<string[]> {
+async function getEndpoints(storage: IStorage): Promise<string[]> {
 	const currentNetworkId = await storage.get<NetworkId>(CURRENT_NETWORK);
 	const networks = await storage.get<Network[]>(NETWORKS);
 	const network = networks.find((n) => n.id === currentNetworkId);
@@ -59,7 +59,7 @@ async function getEndpoints(storage: LocalStorage): Promise<string[]> {
 }
 
 export default class Graphql {
-	private readonly storage: LocalStorage;
+	private readonly storage: Storage;
 	private readonly endpoints: string[];
 	private readonly canCall: string[];
 
@@ -80,7 +80,7 @@ export default class Graphql {
 		return this.canCall.indexOf(method) >= 0;
 	}
 
-	static async createInstance(storage: LocalStorage) {
+	static async createInstance(storage: IStorage) {
 		const endpoints = await getEndpoints(storage);
 		return new Graphql(storage, endpoints);
 	}
