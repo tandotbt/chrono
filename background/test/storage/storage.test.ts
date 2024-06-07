@@ -1,9 +1,9 @@
-import { Storage } from "@/storage/index.js"
+import { Storage } from "../../src/storage/index.js"
 import { InMemoryStorageBackend } from "./backend/memory.js"
 import { describe, expect, beforeEach, test } from "vitest";
-import { IStorageBackend } from "@/storage/backend/common.js";
+import { IStorageBackend } from "../../src/storage/backend/common.js";
 import fc from "fast-check";
-import aes256 from "@/utils/aes256.js";
+import aes256 from "../../src/utils/aes256.js";
 
 // TODO: Check lazy passpharse.
 const passphrase = 'Storage Passphrase'

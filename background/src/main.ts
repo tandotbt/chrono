@@ -1,6 +1,6 @@
-import Graphql from "@/api/graphql";
-import { Storage } from "@/storage/index.js";
-import Wallet from "@/wallet/wallet";
+import Graphql from "./api/graphql";
+import { Storage } from "./storage/index.js";
+import Wallet from "./wallet/wallet";
 import { Buffer } from "buffer";
 import {
     PASSWORD_CHECKER,
@@ -38,14 +38,12 @@ const checkValidPassphrase = async (p: string): Promise<boolean> => {
 };
 
 self.addEventListener('install', () => {
-	// @ts-ignore
-	event.waitUntil(self.skipWaiting());
+	// event.waitUntil(self.skipWaiting());
 });
 
 self.addEventListener('activate', (event) => {
 	console.log('activated', event)
-	// @ts-ignore
-	event.waitUntil(self.clients.claim());
+	// event.waitUntil(self.clients.claim());
 	chrome.runtime.onConnect.addListener(port => {
 		connections.push(port);
 
@@ -144,14 +142,8 @@ self.addEventListener('activate', (event) => {
 	});
 });
 
-self.addEventListener('message', async (event: MessageEvent) => {
-    const req = event.data;
-    const sender = event.source as MessagePort;
 
-    const sendResponse = (response: any) => {
-        sender.postMessage(response);
-    };
-
+chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
     try {
         if (req.action === "passphrase") {
             if (req.method === "set") {
@@ -170,49 +162,44 @@ self.addEventListener('message', async (event: MessageEvent) => {
                 if (passphrase === null) {
                     sendResponse(false);
                 } else {
-                    const valid = await checkValidPassphrase(passphrase);
-                    sendResponse(valid);
+                    checkValidPassphrase(passphrase).then(sendResponse);
                 }
             } else if (req.method === "isValid") {
-                const valid = await checkValidPassphrase(req.params[0]);
-                sendResponse(valid);
+                checkValidPassphrase(req.params[0]).then(sendResponse);
             }
         } else if (req.action === "hasWallet") {
             const storage = new Storage(passphrase!);
-            const hasWallet = await storage.has("accounts");
-            sendResponse(hasWallet);
+			storage.has("accounts").then(sendResponse);
         } else {
             if (passphrase == null) {
                 return sendResponse({ error: "NotSignedIn" });
             }
 
             if (req.action === "graphql") {
-                const storage = new Storage(passphrase);
-                const graphql = await Graphql.createInstance(storage);
-                if (graphql[req.method] && graphql.canCallExternal(req.method)) {
-                    try {
-                        const result = await graphql[req.method](...req.params);
-                        sendResponse(result);
-                    } catch (e) {
-                        sendResponse({ error: e });
-                    }
-                } else {
-                    sendResponse({ error: "Unknown Method" });
-                }
+				const storage = new Storage(passphrase);
+				Graphql.createInstance(storage).then((graphql) => {
+					console.log("graphql", req);
+					if (graphql[req.method] && graphql.canCallExternal(req.method)) {
+						graphql[req.method]
+							.call(graphql, ...req.params)
+							.then(sendResponse)
+							.catch((e) => sendResponse({ error: e }));
+					} else {
+						sendResponse({ error: "Unknown Method" });
+					}
+				});
             }
 
             if (req.action === "storage") {
                 const storage = new Storage(passphrase);
-                if (storage[req.method] && storage.canCallExternal(req.method)) {
-                    try {
-                        const result = await storage[req.method](...req.params);
-                        sendResponse(result);
-                    } catch (e) {
-                        sendResponse({ error: e });
-                    }
-                } else {
-                    sendResponse({ error: "Unknown Method" });
-                }
+				if (storage[req.method] && storage.canCallExternal(req.method)) {
+					storage[req.method]
+						.call(storage, ...req.params)
+						.then(sendResponse)
+						.catch((e) => sendResponse({ error: e }));
+				} else {
+					sendResponse({ error: "Unknown Method" });
+				}
             }
 
             if (req.action === "confirmation") {
@@ -223,48 +210,60 @@ self.addEventListener('message', async (event: MessageEvent) => {
                     popupController,
                 );
                 if (confirmationController[req.method]) {
-                    try {
-                        const result = await confirmationController[req.method](...req.params);
-                        sendResponse(result);
-                    } catch (e) {
-                        sendResponse({ error: e });
-                    }
-                } else {
-                    sendResponse({ error: "Unknown Method" });
-                }
+					confirmationController[req.method]
+						.call(confirmationController, ...req.params)
+						.then(sendResponse)
+						.catch((e) => sendResponse({ error: e }));
+				} else {
+					sendResponse({ error: "Unknown Method" });
+				}
             }
 
             if (req.action === "wallet") {
                 const storage = new Storage(passphrase);
-                const wallet = await Wallet.createInstance(storage, passphrase, emitter);
-                if (wallet[req.method] && wallet.canCallExternal(req.method)) {
-                    try {
-                        const result = await wallet[req.method](...req.params);
-                        sendResponse(result);
-                    } catch (e) {
-                        sendResponse({ error: e });
-                    }
-                } else {
-                    sendResponse({ error: "Unknown Method" });
-                }
+                Wallet.createInstance(storage, passphrase, emitter).then((wallet) => {
+					if (wallet[req.method] && wallet.canCallExternal(req.method)) {
+						wallet[req.method]
+							.call(wallet, ...req.params)
+							.then(sendResponse)
+							.catch((e) => {
+								console.error(e);
+								sendResponse({ error: e });
+							});
+					} else {
+						sendResponse({ error: "Unknown Method" });
+					}
+				});
             }
 
             if (req.action === "network") {
                 const storage = new Storage(() => passphrase!);
                 const networkController = new NetworkController(storage, emitter);
                 if (networkController[req.method]) {
-                    try {
-                        const result = await networkController[req.method](...req.params);
-                        sendResponse({ result });
-                    } catch (e) {
-                        sendResponse({ error: `${req.method} is rejected` });
-                    }
-                } else {
-                    sendResponse({ error: "Unknown Method" });
-                }
+					networkController[req.method]
+						.call(networkController, ...req.params)
+						.then((x) =>
+							sendResponse({
+								result: x,
+							}),
+						)
+						.catch((e) => {
+							console.error(e);
+							sendResponse({
+								error: `${req.method} is rejected`,
+							});
+						});
+				} else {
+					sendResponse({
+						error: "Unknown Method",
+					});
+				}
             }
         }
     } catch (e) {
         sendResponse({ error: e.message });
     }
-});
+
+	return true;
+})
+self.addEventListener('message', console.log);

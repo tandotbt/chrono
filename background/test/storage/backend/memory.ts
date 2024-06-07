@@ -1,4 +1,4 @@
-import { IStorageBackend } from "@/storage/backend/index.js";
+import { IStorageBackend } from "../../../src/storage/backend/index.js";
 
 export class InMemoryStorageBackend implements IStorageBackend {
     private readonly map: Map<string, any> = new Map();

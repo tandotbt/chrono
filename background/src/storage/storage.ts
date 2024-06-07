@@ -1,5 +1,5 @@
-import aes256 from "@/utils/aes256";
-import { Lazyable, resolve } from "@/utils/lazy";
+import aes256 from "../utils/aes256";
+import { Lazyable, resolve } from "../utils/lazy";
 import { IStorage } from "./common.js";
 import { IStorageBackend, LocalStorageBackend } from "./backend/index.js";
 

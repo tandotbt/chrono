@@ -4,10 +4,7 @@
         "types": ["chrome"],
         "lib": ["ESNext", "DOM"],
         "target": "ESNext",
-        "moduleResolution": "Bundler",
-        "paths": {
-            "@/*": ["./src/*"]
-        }
+        "moduleResolution": "Bundler"
     },
     "include": ["src", "test"]
 }

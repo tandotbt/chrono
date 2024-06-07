@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { IStorage } from "@/storage/index.js";
+import type { IStorage } from "../storage/index.js";
 import {
 	CURRENT_NETWORK,
 	NETWORKS,
@@ -8,10 +8,9 @@ import {
 } from "../constants/constants";
 
 async function getLastBlockIndex(endpoint: string) {
-	const { data } = await axios.create({ timeout: 10000 })({
+	const response = await fetch(endpoint, {
 		method: "POST",
-		url: endpoint,
-		data: {
+		body: JSON.stringify({
 			variables: { offset: 0 },
 			query: `
                 query getLastBlockIndex($offset: Int!) {
@@ -24,8 +23,13 @@ async function getLastBlockIndex(endpoint: string) {
                   }
                 }
                 `,
-		},
+		}),
+		headers: [
+			['content-type', 'application/json']
+		]
 	});
+
+	const data = await response.json();
 	return data["data"]["chainQuery"]["blockQuery"]["blocks"][0]["index"];
 }
 
@@ -92,6 +96,7 @@ export default class Graphql {
 				const result = await fn(endpoint);
 				return result;
 			} catch (e) {
+				console.error('e', e);
 				exceptions.push(e);
 			}
 		}
@@ -109,28 +114,30 @@ export default class Graphql {
 
 	async getBalance(address: string): Promise<string> {
 		return this.callEndpoint(async (endpoint) => {
-			let { data } = await axios.create({ timeout: 10000 })({
+			const response = await fetch(endpoint, {
 				method: "POST",
-				url: endpoint,
-				data: {
+				body: JSON.stringify({
 					variables: { address: address },
 					query: `
                   query getBalance($address: Address!) {
                     goldBalance(address: $address)
                   }
                 `,
-				},
+				}),
+				headers: [
+					['content-type', 'application/json']
+				]
 			});
 
+			const data = await response.json();
 			return data["data"]["goldBalance"];
 		});
 	}
 	async getNextTxNonce(address: string): Promise<number> {
 		return this.callEndpoint(async (endpoint) => {
-			let { data } = await axios.create({ timeout: 10000 })({
+			const response = await fetch(endpoint, {
 				method: "POST",
-				url: endpoint,
-				data: {
+				body: JSON.stringify({
 					variables: { address: address },
 					query: `
                   query getNextTxNonce($address: Address!){
@@ -139,9 +146,13 @@ export default class Graphql {
                     }
                   }
                 `,
-				},
+				}),
+				headers: [
+					['content-type', 'application/json']
+				]
 			});
 
+			const data = await response.json();
 			return data["data"]["transaction"]["nextTxNonce"];
 		});
 	}
@@ -157,10 +168,9 @@ export default class Graphql {
 			decimalPlaces: 18,
 		};
 		return this.callEndpoint(async (endpoint) => {
-			let { data } = await axios({
+			const response = await fetch(endpoint, {
 				method: "POST",
-				url: endpoint,
-				data: {
+				body: JSON.stringify({
 					variables: {
 						publicKey: publicKey,
 						plainValue: plainValue,
@@ -174,8 +184,12 @@ export default class Graphql {
                         }
                       }
                     `,
-				},
+				}),
+				headers: [
+					['content-type', 'application/json']
+				]
 			});
+			const data = await response.json();
 			return data["data"]["transaction"]["unsignedTransaction"];
 		});
 	}
@@ -186,10 +200,9 @@ export default class Graphql {
 		amount: string,
 	): Promise<string> {
 		return this.callEndpoint(async (endpoint) => {
-			let { data } = await axios({
+			const response = await fetch(endpoint, {
 				method: "POST",
-				url: endpoint,
-				data: {
+				body: JSON.stringify({
 					variables: { sender: sender, receiver: receiver, amount: amount },
 					query: `
                     query getTransferAsset($sender: Address!, $receiver: Address!, $amount: String!){
@@ -198,8 +211,12 @@ export default class Graphql {
                       }
                     }
                   `,
-				},
+				}),
+				headers: [
+					['content-type', 'application/json']
+				]
 			});
+			const data = await response.json();
 			return data["data"]["actionQuery"]["transferAsset"];
 		});
 	}
@@ -209,18 +226,21 @@ export default class Graphql {
 		endpoint: string;
 	}> {
 		return this.callEndpoint(async (endpoint) => {
-			let { data } = await axios({
+			const response = await fetch(endpoint, {
 				method: "POST",
-				url: endpoint,
-				data: {
+				body: JSON.stringify({
 					variables: { payload },
 					query: `
                       mutation transfer($payload: String!) {
                         stageTransaction(payload: $payload)
                       }
                     `,
-				},
+				}),
+				headers: [
+					['content-type', 'application/json']
+				]
 			});
+			const data = await response.json();
 			return { txId: data["data"]["stageTransaction"], endpoint };
 		});
 	}
@@ -228,10 +248,9 @@ export default class Graphql {
 	async getActivationStatus(address: string): Promise<boolean> {
 		console.log("getActivationStatus", this.endpoints, address);
 		return this.callEndpoint(async (endpoint) => {
-			let { data } = await axios({
+			const response = await fetch(endpoint, {
 				method: "POST",
-				url: endpoint,
-				data: {
+				body: JSON.stringify({
 					variables: { address },
 					query: `
                       query getPledge($address: Address!) {
@@ -242,18 +261,21 @@ export default class Graphql {
                           }
                         }
                     `,
-				},
+				}),
+				headers: [
+					['content-type', 'application/json']
+				]
 			});
+			const data = await response.json();
 			console.log("getActivationStatus", data);
 			return data["data"]["stateQuery"]["pledge"]["approved"];
 		});
 	}
 
 	async getTransactionStatus({ txId, endpoint }) {
-		let { data } = await axios({
+		const response = await fetch(endpoint, {
 			method: "POST",
-			url: endpoint,
-			data: {
+			body: JSON.stringify({
 				variables: { txId },
 				query: `
                   query query($txId: TxId!) {
@@ -264,8 +286,12 @@ export default class Graphql {
                       }
                     }
                 `,
-			},
+			}),
+			headers: [
+				['content-type', 'application/json']
+			]
 		});
+		const data = await response.json();
 		return data["data"]["transaction"]["transactionResult"]["txStatus"];
 	}
 }

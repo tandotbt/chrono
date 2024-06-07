@@ -1,7 +1,7 @@
-import { APPROVAL_REQUESTS } from "@/constants/constants";
+import { APPROVAL_REQUESTS } from "../constants/constants";
 import { nanoid } from "nanoid";
 import { PopupController } from "./popup";
-import { IStorage } from "@/storage";
+import { IStorage } from "../storage";
 
 interface Request {
 	id: string;
