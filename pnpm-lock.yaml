@@ -55,9 +55,21 @@ importers:
       '@biomejs/biome':
         specifier: ^1.7.3
         version: 1.7.3
+      '@rollup/plugin-commonjs':
+        specifier: ^25.0.7
+        version: 25.0.7(rollup@4.16.4)
+      '@rollup/plugin-node-resolve':
+        specifier: ^15.2.3
+        version: 15.2.3(rollup@4.16.4)
+      '@rollup/plugin-typescript':
+        specifier: ^11.1.6
+        version: 11.1.6(rollup@4.16.4)(tslib@2.6.2)(typescript@5.4.5)
       '@types/chrome':
         specifier: ^0.0.266
         version: 0.0.266
+      '@types/node':
+        specifier: 20.12.7
+        version: 20.12.7
       '@typescript-eslint/eslint-plugin':
         specifier: ^7.2.0
         version: 7.7.1(@typescript-eslint/parser@7.7.1(eslint@7.32.0)(typescript@5.4.5))(eslint@7.32.0)(typescript@5.4.5)
@@ -73,6 +85,9 @@ importers:
       fast-check:
         specifier: ^3.19.0
         version: 3.19.0
+      rollup:
+        specifier: ^4.16.4
+        version: 4.16.4
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -1632,6 +1647,19 @@ packages:
       rollup: ^2.78.0||^3.0.0||^4.0.0
     peerDependenciesMeta:
       rollup:
+        optional: true
+
+  '@rollup/plugin-typescript@11.1.6':
+    resolution: {integrity: sha512-R92yOmIACgYdJ7dJ97p4K69I8gg6IEHt8M7dUBxN3W6nrO8uUxX5ixl0yU/N3aZTi8WhPuICvOHXQvF6FaykAA==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^2.14.0||^3.0.0||^4.0.0
+      tslib: '*'
+      typescript: '>=3.7.0'
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+      tslib:
         optional: true
 
   '@rollup/pluginutils@5.1.0':
@@ -3554,6 +3582,7 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
+    deprecated: Glob versions prior to v9 are no longer supported
 
   glob@8.1.0:
     resolution: {integrity: sha512-r8hpEjiQEYlF2QU0df3dS+nxxSIreXQS1qRhMJM0Q5NDdR386C7jb7Hwwod8Fgiuex+k0GFjgft18yvxm5XoCQ==}
@@ -8123,6 +8152,15 @@ snapshots:
     optionalDependencies:
       rollup: 4.16.4
 
+  '@rollup/plugin-typescript@11.1.6(rollup@4.16.4)(tslib@2.6.2)(typescript@5.4.5)':
+    dependencies:
+      '@rollup/pluginutils': 5.1.0(rollup@4.16.4)
+      resolve: 1.22.8
+      typescript: 5.4.5
+    optionalDependencies:
+      rollup: 4.16.4
+      tslib: 2.6.2
+
   '@rollup/pluginutils@5.1.0(rollup@4.16.4)':
     dependencies:
       '@types/estree': 1.0.5
@@ -8250,7 +8288,7 @@ snapshots:
 
   '@types/bn.js@5.1.5':
     dependencies:
-      '@types/node': 12.20.55
+      '@types/node': 20.12.7
 
   '@types/cacheable-request@6.0.3':
     dependencies:

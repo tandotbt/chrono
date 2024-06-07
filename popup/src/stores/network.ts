@@ -19,7 +19,7 @@ export const useNetwork = defineStore("Network", () => {
 				name: "odin",
 				genesisHash:
 					"4582250d0da33b06779a8475d283d5dd210c683b9b999d74d03fac4f58fa6bce",
-				gqlEndpoint: "https://odin-rpc-1.nine-chronicles.com/graphql",
+				gqlEndpoint: "https://9c-main-full-state.nine-chronicles.com/graphql",
 				explorerEndpoint: "https://9cscan.com",
 				isMainnet: true,
 			},

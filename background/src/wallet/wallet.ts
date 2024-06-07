@@ -1,5 +1,5 @@
-import Graphql from "@/api/graphql";
-import { IStorage } from "@/storage/index.js";
+import Graphql from "../api/graphql";
+import { IStorage } from "../storage/index.js";
 import {
 	ENCRYPTED_WALLET,
 	TXS,
@@ -7,7 +7,7 @@ import {
 	Account,
 	Network,
 	NetworkId,
-} from "@/constants/constants";
+} from "../constants/constants";
 import { RawPrivateKey } from "@planetarium/account";
 import {
 	BencodexDictionary,
@@ -27,12 +27,12 @@ import {
 	NETWORKS,
 } from "../constants/constants";
 import { nanoid } from "nanoid";
-import { Lazyable, resolve } from "@/utils/lazy";
+import { Lazyable, resolve } from "../utils/lazy";
 import { Emitter } from "../event";
 import { Buffer } from "buffer";
-import { PopupController } from "@/controllers/popup";
-import { NetworkController } from "@/controllers/network";
-import { ConfirmationController } from "@/controllers/confirmation";
+import { PopupController } from "../controllers/popup";
+import { NetworkController } from "../controllers/network";
+import { ConfirmationController } from "../controllers/confirmation";
 
 interface SavedTransactionHistory {
 	id: string;

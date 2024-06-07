@@ -1,11 +1,11 @@
-import { IStorage } from "@/storage/index.js";
+import { IStorage } from "../storage/index.js";
 import {
 	CURRENT_NETWORK,
 	NETWORKS,
 	type Network,
 	type NetworkId,
-} from "@/constants/constants";
-import { Emitter } from "@/event";
+} from "../constants/constants";
+import { Emitter } from "../event";
 
 export class NetworkController {
 	constructor(
