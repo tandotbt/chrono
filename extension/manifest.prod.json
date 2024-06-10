@@ -1,37 +1,40 @@
 {
-    "manifest_version": 2,
+    "manifest_version": 3,
     "name": "__MSG_appName__",
     "short_name": "__MSG_appName__",
     "description": "__MSG_appDescription__",
     "homepage_url": "https://github.com/planetarium/chrono",
     "version": "1.0.4",
     "default_locale": "en",
-    "browser_action": {
+    "action": {
         "default_icon": "images/logo.png",
         "default_popup": "popup/index.html",
         "default_title": "Nine Chronicles Wallet"
     },
-    "commands": {
-    },
     "background": {
-        "persistent": true,
-        "page": "background/index.html"
+        "service_worker": "background/main.js",
+        "type": "module"
     },
     "icons": {
         "1024": "images/logo.png"
     },
     "update_url": "https://clients2.google.com/service/update2/crx",
-    "content_security_policy": "script-src 'self'; object-src 'self'",
+    "content_security_policy": {
+        "extension_pages": "script-src 'self'; object-src 'self'"
+    },
     "permissions": [
         "storage"
     ],
-    "web_accessible_resources": [
-        "content-scripts/global.js"
-    ],
+    "web_accessible_resources": [{
+        "resources": [
+            "content-scripts/global.js"
+        ],
+        "matches": ["<all_urls>"]
+    }],
     "content_scripts": [{
         "matches": ["file://*/*", "http://*/*", "https://*/*"],
         "js": [
-          "content-scripts/injectsdk.js"
+            "content-scripts/injectsdk.js"
         ],
         "run_at": "document_start",
         "all_frames": true
