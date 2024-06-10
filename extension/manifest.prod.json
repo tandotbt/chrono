@@ -4,7 +4,7 @@
     "short_name": "__MSG_appName__",
     "description": "__MSG_appDescription__",
     "homepage_url": "https://github.com/planetarium/chrono",
-    "version": "1.0.4",
+    "version": "0.1.0",
     "default_locale": "en",
     "action": {
         "default_icon": "images/logo.png",
