@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
-    "name": "__MSG_appName__",
-    "short_name": "__MSG_appName__",
+    "name": "Chrono Development Build",
+    "short_name": "Chrono Development Build",
     "description": "__MSG_appDescription__",
     "homepage_url": "https://github.com/planetarium/chrono",
     "version": "1.0.4",
