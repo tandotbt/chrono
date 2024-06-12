@@ -9,8 +9,8 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'API', link: '/api' },
-      { text: 'Examples', link: '/examples' }
+      { text: 'API', link: 'https://jsr.io/@planetarium/chrono-sdk/doc' },
+      { text: 'Examples', link: '/developer/examples' }
     ],
 
     sidebar: [
@@ -40,7 +40,7 @@ export default defineConfig({
         items: [
           {
             text: 'API',
-            link: '/developer/api',
+            link: 'https://jsr.io/@planetarium/chrono-sdk/doc',
           },
           {
             text: 'Examples',
