@@ -8,11 +8,14 @@ hero:
   tagline: Build NineChronicle-related web app in minutes.
   actions:
     - theme: brand
-      text: Build App
-      link: /tutorial
+      text: Install
+      link: /user/install
     - theme: alt
       text: API
-      link: /api
+      link: /developer/api
+    - theme: alt
+      text: Examples
+      link: /developer/examples
     - theme: alt
       text: GitHub
       link: https://github.com/planetarium/chrono
