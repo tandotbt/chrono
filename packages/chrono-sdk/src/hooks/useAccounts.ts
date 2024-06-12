@@ -10,6 +10,35 @@ type UseAccountsReturnType = ReturnType<typeof useQuery<{
     isConnected: false,
 }>>;
 
+/**
+ * A hook to get accounts from Chrono browser extension with @tanstack/react-query.
+ * @example Show accounts
+ * ```tsx
+ * import { useAccounts } from '@planetarium/chrono-sdk/hooks';
+ * 
+ * function App() {
+ *   const { isLoading, isSuccess, data, error } = useAccounts();
+ *   
+ *   if (isLoading) {
+ *      return <p>Loading accounts...</p>
+ *   }
+ *   
+ *   if (!isSuccess) {
+ *      return <p>Failed to get accounts: {error}</p>
+ *   }
+ *   
+ *   const { accounts, isConnected } = data;
+ *   
+ *   if (!isConnected) {
+ *      // Show connect button.
+ *   }
+ *   
+ *   return (<div>
+ *     {accounts.map(x => <p key={x.toString()}>{x.toString()}</p>)}
+ *   </div>)
+ * }
+ * ```
+ */
 export function useAccounts(): UseAccountsReturnType {
     const sdk = getChronoSdk();
 

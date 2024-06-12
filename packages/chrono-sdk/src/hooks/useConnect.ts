@@ -9,6 +9,19 @@ type UseConnectReturnType = Omit<UseConnectMutationReturnType, "mutate" | "mutat
     connectAsync: UseConnectMutationReturnType["mutateAsync"],
 };
 
+/**
+ * A hook to `connect` to Chrono browser extension with @tanstack/react-query.
+ * @example Show 'Connect' button
+ * ```tsx
+ * import { useConnect } from '@planetarium/chrono-sdk/hooks';
+ * 
+ * function App() {
+ *   const { connectAsync, isPending } = useConnect();
+ *   
+ *   return <button onClick={() => connectAsync()} disabled={isPending}>Connect</button>
+ * }
+ * ```
+ */
 export function useConnect(): UseConnectReturnType {
     const queryClient = useQueryClient();
     const { mutate, mutateAsync, ...result } = useMutation({
