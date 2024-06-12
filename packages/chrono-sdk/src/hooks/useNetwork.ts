@@ -10,6 +10,32 @@ type UseNetworkReturnType = ReturnType<typeof useQuery<{
     isConnected: true,
 }>>;
 
+/**
+ * A hook to get current network from Chrono browser extension with @tanstack/react-query.
+ * @example Show current network
+ * ```tsx
+ * import { useNetwork } from '@planetarium/chrono-sdk/hooks';
+ * 
+ * function App() {
+ *   const { isLoading, isSuccess, data } = useNetwork();
+ *   
+ *   if (isLoading) {
+ *     return <p>Loading network...</p>
+ *   }
+ * 
+ *   if (!isSuccess) {
+ *     return <p>Failed to fetch network.</p>
+ *   }
+ * 
+ *   const { network, isConnected } = data;
+ *   if (!isConnected) {
+ *     return <p>Not Connected.</p>
+ *   }
+ * 
+ *   return <p>{network}</p>
+ * }
+ * ```
+ */
 export function useNetwork(): UseNetworkReturnType {
     const sdk = getChronoSdk();
 
