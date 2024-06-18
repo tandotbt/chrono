@@ -1,11 +1,11 @@
-const scriptElement = document.createElement("script");
-scriptElement.src = chrome.runtime.getURL("content-scripts/global.js");
+// Functions
+function connect() {
+	return chrome.runtime.connect({
+		name: "content-script",
+	})
+}
 
-const port = chrome.runtime.connect({
-	name: "content-script",
-});
-
-port.onMessage.addListener((res, _) => {
+function portMessagelistener(res: any, port: chrome.runtime.Port) {
 	const messageId = res.messageId;
 
 	if (res && typeof res === "object" && res.hasOwnProperty("error")) {
@@ -33,9 +33,20 @@ port.onMessage.addListener((res, _) => {
 			result: res.result,
 		});
 	}
-});
+};
 
-window.addEventListener("message", async function (event) {
+function portDisconnectlistener(port: chrome.runtime.Port) {
+	port.onDisconnect.removeListener(portDisconnectlistener);
+	port.onMessage.removeListener(portMessagelistener);
+
+	port = connect();
+
+	port.onDisconnect.addListener(portDisconnectlistener);
+	port.onMessage.addListener(portMessagelistener);
+};
+
+
+async function windowMessageListener(event: MessageEvent) {
 	if (event.source != window) return;
 
 	if (!event.data.type || event.data.type !== "FROM_PAGE") {
@@ -123,5 +134,17 @@ window.addEventListener("message", async function (event) {
 			event.source.origin,
 		);
 	}
-});
+}
+
+// Setup
+const scriptElement = document.createElement("script");
+scriptElement.src = chrome.runtime.getURL("content-scripts/global.js");
+
+let port = connect();
+
+port.onDisconnect.addListener(portDisconnectlistener);
+port.onMessage.addListener(portMessagelistener);
+
+window.addEventListener("message", windowMessageListener);
+
 document.documentElement.appendChild(scriptElement).remove();
