@@ -5,9 +5,6 @@
 
     <div class="pt-12 mt-2 px-8">
       <div><img src="@/assets/ncg_grey.png" width="64"/></div>
-      <div v-if="account && account.activated != true">
-        <v-chip size="small" label style="#555" class="mt-2" text-color="white">Inactive Account</v-chip>
-      </div>
       <div class="mt-2">
         <v-progress-circular indeterminate color="#555" width="3" size="30" v-if="balanceLoading"></v-progress-circular>
         <div v-else class="d-flex ncg justify-center">

@@ -116,7 +116,6 @@ interface Account {
 	index: number;
 	address: string;
 	primary?: boolean;
-	activated?: boolean;
 	imported?: boolean;
 }
 

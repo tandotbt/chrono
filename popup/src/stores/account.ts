@@ -177,19 +177,6 @@ export const useAccounts = defineStore("Account", () => {
 
 		await bg.storage.set(ACCOUNTS, accounts.value);
 	}
-	async function checkAccountActivated(address: string) {
-		const found = accounts.value.find((a) =>
-			utils.equalsHex(a.address, address),
-		);
-		if (found) {
-			const activated = await bg.graphql<boolean>(
-				"getActivationStatus",
-				address,
-			);
-			found.activated = activated;
-			account.value = found;
-		}
-	}
 	async function refreshBalance(loading?: boolean) {
 		if (loading) {
 			balanceLoading.value = true;
@@ -258,7 +245,6 @@ export const useAccounts = defineStore("Account", () => {
 
 		await bg.storage.set(CURRENT_ADDRESS, address);
 
-		await checkAccountActivated(address);
 		await refreshBalance(true);
 		await loadTxs();
 	}
@@ -288,6 +274,5 @@ export const useAccounts = defineStore("Account", () => {
 		importAccount,
 		loadAccounts,
 		updateAccountName,
-		checkAccountActivated,
 	};
 });
