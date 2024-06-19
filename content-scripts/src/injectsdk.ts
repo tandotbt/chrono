@@ -5,7 +5,7 @@ function connect() {
 	})
 }
 
-function portMessagelistener(res: any, port: chrome.runtime.Port) {
+const portMessagelistener = (res: any) => {
 	const messageId = res.messageId;
 
 	if (res && typeof res === "object" && res.hasOwnProperty("error")) {
@@ -35,14 +35,14 @@ function portMessagelistener(res: any, port: chrome.runtime.Port) {
 	}
 };
 
-function portDisconnectlistener(port: chrome.runtime.Port) {
-	port.onDisconnect.removeListener(portDisconnectlistener);
+const portDisconnectlistener = () => {
 	port.onMessage.removeListener(portMessagelistener);
+	port.onDisconnect.removeListener(portDisconnectlistener);
 
 	port = connect();
 
-	port.onDisconnect.addListener(portDisconnectlistener);
 	port.onMessage.addListener(portMessagelistener);
+	port.onDisconnect.addListener(portDisconnectlistener);
 };
 
 
