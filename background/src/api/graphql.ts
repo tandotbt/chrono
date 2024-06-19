@@ -74,7 +74,6 @@ export default class Graphql {
 			"updateNetwork",
 			"getLastBlockIndex",
 			"getBalance",
-			"getActivationStatus",
 			"getTransactionStatus",
 			"getNextTxNonce",
 			"getTransferAsset",
@@ -242,33 +241,6 @@ export default class Graphql {
 			});
 			const data = await response.json();
 			return { txId: data["data"]["stageTransaction"], endpoint };
-		});
-	}
-
-	async getActivationStatus(address: string): Promise<boolean> {
-		console.log("getActivationStatus", this.endpoints, address);
-		return this.callEndpoint(async (endpoint) => {
-			const response = await fetch(endpoint, {
-				method: "POST",
-				body: JSON.stringify({
-					variables: { address },
-					query: `
-                      query getPledge($address: Address!) {
-                          stateQuery {
-                            pledge(agentAddress: $address) {
-                              approved
-                            }
-                          }
-                        }
-                    `,
-				}),
-				headers: [
-					['content-type', 'application/json']
-				]
-			});
-			const data = await response.json();
-			console.log("getActivationStatus", data);
-			return data["data"]["stateQuery"]["pledge"]["approved"];
 		});
 	}
 
