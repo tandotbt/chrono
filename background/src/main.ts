@@ -37,13 +37,7 @@ const checkValidPassphrase = async (p: string): Promise<boolean> => {
     }
 };
 
-self.addEventListener('install', () => {
-	// event.waitUntil(self.skipWaiting());
-});
-
-self.addEventListener('activate', (event) => {
-	console.log('activated', event)
-	// event.waitUntil(self.clients.claim());
+function setup() {
 	chrome.runtime.onConnect.addListener(port => {
 		connections.push(port);
 
@@ -140,7 +134,19 @@ self.addEventListener('activate', (event) => {
 			}
 		});
 	});
+}
+
+self.addEventListener('install', () => {
+	// event.waitUntil(self.skipWaiting());
+	console.log('install case');
+	setup();
 });
+
+// @ts-ignore
+if (self.serviceWorker.state === "activated") {
+	console.log("activated case");
+	setup();
+};
 
 
 chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
